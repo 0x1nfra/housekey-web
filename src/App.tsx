@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { useAuthStore } from './store/authStore';
+import { useHubStore } from './store/hubStore';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -15,10 +16,17 @@ import Layout from './components/Layout';
 
 function App() {
   const { initializeAuth, initialized } = useAuthStore();
+  const { initializeHubs, user } = useHubStore();
 
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
+
+  useEffect(() => {
+    if (user && initialized) {
+      initializeHubs();
+    }
+  }, [user, initialized, initializeHubs]);
 
   if (!initialized) {
     return (
