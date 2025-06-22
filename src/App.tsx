@@ -13,6 +13,13 @@ import ShoppingPage from './pages/ShoppingPage';
 import SettingsPage from './pages/SettingsPage';
 import Layout from './components/Layout';
 
+/**
+ * Main application component that initializes authentication and manages routing.
+ *
+ * Displays a loading screen until authentication is initialized, then renders the application's routes with animated transitions.
+ *
+ * @returns The rendered application UI
+ */
 function App() {
   const { initializeAuth, initialized } = useAuthStore();
 
