@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { getInitials } from "../utils/userUtils";
 
 const DashboardHeader: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -45,15 +46,6 @@ const DashboardHeader: React.FC = () => {
       setIsSigningOut(false);
       setIsDropdownOpen(false);
     }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   };
 
   const menuItems = [

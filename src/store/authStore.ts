@@ -181,7 +181,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       // Listen for auth changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === "SIGNED_IN" && session?.user) {
-          await get().fetchUserProfile(session.user.id);
+          try {
+            await get().fetchUserProfile(session.user.id);
+          } catch (error) {
+            console.error("Error fetching profile on auth change:", error);
+          }
           set({ user: session.user });
         } else if (event === "SIGNED_OUT") {
           set({ user: null, profile: null });

@@ -122,7 +122,7 @@ const SignupPage: React.FC = () => {
                 <input
                   type="email"
                   name="email"
-                  value={formData.email.trim()}
+                  value={formData.email}
                   onChange={handleInputChange}
                   className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter your email"

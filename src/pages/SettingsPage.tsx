@@ -2,17 +2,11 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Bell, Shield, Users } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import { getInitials } from "../utils/userUtils";
 
 const SettingsPage: React.FC = () => {
   const { user, profile } = useAuthStore();
 
-  const getInitials = (name: string) =>
-    name
-      .split(" ")
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
   const settingsSections = [
     {
       title: "Notifications",
