@@ -11,11 +11,13 @@ import {
   User,
   X,
   Copy,
-  Check,
-  AlertTriangle
+  Check
 } from 'lucide-react';
 import { useHubStore } from '../../store/hubStore';
 import { HubRole, InviteMemberData, CreateHubData } from '../../types/hub';
+import CreateHubModal from './modals/CreateHubModal';
+import InviteMemberModal from './modals/InviteMemberModal';
+import DeleteHubModal from './modals/DeleteHubModal';
 
 interface HubSettingsProps {
   activeTab?: string;
@@ -120,6 +122,13 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
         >
           Create Your First Hub
         </motion.button>
+
+        <CreateHubModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreateHub}
+          loading={loading}
+        />
       </div>
     );
   }
@@ -432,7 +441,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
         )}
       </AnimatePresence>
 
-      {/* Create Hub Modal */}
+      {/* Modals */}
       <CreateHubModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
@@ -440,7 +449,6 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
         loading={loading}
       />
 
-      {/* Invite Member Modal */}
       <InviteMemberModal
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
@@ -448,7 +456,6 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
         loading={loading}
       />
 
-      {/* Delete Hub Modal */}
       <DeleteHubModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
@@ -457,314 +464,6 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
         loading={loading}
       />
     </div>
-  );
-};
-
-// Create Hub Modal Component
-const CreateHubModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: CreateHubData) => void;
-  loading: boolean;
-}> = ({ isOpen, onClose, onSubmit, loading }) => {
-  const [formData, setFormData] = useState<CreateHubData>({
-    name: '',
-    description: ''
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.name.trim()) {
-      onSubmit(formData);
-    }
-  };
-
-  const handleClose = () => {
-    setFormData({ name: '', description: '' });
-    onClose();
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={handleClose}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Create New Hub</h2>
-              <button
-                onClick={handleClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <X size={20} className="text-gray-500" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Hub Name *
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter hub name"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Description
-                </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
-                  placeholder="Describe your family hub..."
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={loading || !formData.name.trim()}
-                  className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Creating...' : 'Create Hub'}
-                </motion.button>
-              </div>
-            </form>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-// Invite Member Modal Component
-const InviteMemberModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: InviteMemberData) => void;
-  loading: boolean;
-}> = ({ isOpen, onClose, onSubmit, loading }) => {
-  const [formData, setFormData] = useState<InviteMemberData>({
-    email: '',
-    role: 'member'
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (formData.email.trim()) {
-      onSubmit(formData);
-    }
-  };
-
-  const handleClose = () => {
-    setFormData({ email: '', role: 'member' });
-    onClose();
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={handleClose}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">Invite Member</h2>
-              <button
-                onClick={handleClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <X size={20} className="text-gray-500" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Email Address *
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Enter email address"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Role
-                </label>
-                <select
-                  value={formData.role}
-                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'manager' | 'member' }))}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                >
-                  <option value="member">Member</option>
-                  <option value="manager">Manager</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Managers can invite and manage other members
-                </p>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  disabled={loading || !formData.email.trim()}
-                  className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Sending...' : 'Send Invitation'}
-                </motion.button>
-              </div>
-            </form>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-// Delete Hub Modal Component
-const DeleteHubModal: React.FC<{
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  hubName: string;
-  loading: boolean;
-}> = ({ isOpen, onClose, onConfirm, hubName, loading }) => {
-  const [confirmText, setConfirmText] = useState('');
-  const isConfirmed = confirmText === hubName;
-
-  const handleClose = () => {
-    setConfirmText('');
-    onClose();
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={handleClose}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle size={24} className="text-red-600" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Delete Hub</h2>
-                <p className="text-sm text-gray-500">This action cannot be undone</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <p className="text-gray-700">
-                Are you sure you want to delete <strong>{hubName}</strong>? This will permanently delete:
-              </p>
-              
-              <ul className="text-sm text-gray-600 space-y-1 ml-4">
-                <li>• All hub data and settings</li>
-                <li>• All member access</li>
-                <li>• All associated tasks and events</li>
-                <li>• All shopping lists and items</li>
-              </ul>
-
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Type <strong>{hubName}</strong> to confirm:
-                </label>
-                <input
-                  type="text"
-                  value={confirmText}
-                  onChange={(e) => setConfirmText(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  placeholder={hubName}
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleClose}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <motion.button
-                  whileHover={{ scale: isConfirmed ? 1.02 : 1 }}
-                  whileTap={{ scale: isConfirmed ? 0.98 : 1 }}
-                  onClick={onConfirm}
-                  disabled={loading || !isConfirmed}
-                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Deleting...' : 'Delete Hub'}
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 };
 
