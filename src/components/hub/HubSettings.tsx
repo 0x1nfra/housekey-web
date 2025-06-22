@@ -11,13 +11,15 @@ import {
   User,
   X,
   Copy,
-  Check
+  Check,
+  Inbox
 } from 'lucide-react';
 import { useHubStore } from '../../store/hubStore';
 import { HubRole, InviteMemberData, CreateHubData } from '../../types/hub';
 import CreateHubModal from './modals/CreateHubModal';
 import InviteMemberModal from './modals/InviteMemberModal';
 import DeleteHubModal from './modals/DeleteHubModal';
+import InvitationsList from '../invitations/InvitationsList';
 
 interface HubSettingsProps {
   activeTab?: string;
@@ -46,6 +48,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
     updateMemberRole,
     cancelInvitation,
     getHubPermissions,
+    switchHub,
     clearError
   } = useHubStore();
 
@@ -60,6 +63,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
   const tabs = [
     { id: 'general', label: 'General', icon: Settings },
     { id: 'members', label: 'Members', icon: Users },
+    { id: 'invitations', label: 'Invitations', icon: Inbox },
   ];
 
   const roleIcons = {
@@ -97,6 +101,10 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
     if (result.success) {
       setShowDeleteModal(false);
     }
+  };
+
+  const handleHubSwitch = async (hubId: string) => {
+    await switchHub(hubId);
   };
 
   const copyInviteLink = async (inviteId: string) => {
@@ -437,6 +445,17 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
                 </div>
               </div>
             )}
+          </motion.div>
+        )}
+
+        {currentTab === 'invitations' && (
+          <motion.div
+            key="invitations"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+          >
+            <InvitationsList onHubSwitch={handleHubSwitch} />
           </motion.div>
         )}
       </AnimatePresence>
