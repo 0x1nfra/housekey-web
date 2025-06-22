@@ -22,7 +22,7 @@ const SignupPage: React.FC = () => {
       return;
     }
     
-    const result = await signUp(formData.email, formData.password, formData.name);
+    const result = await signUp(formData.email.trim(), formData.password, formData.name);
     
     if (result.success) {
       navigate('/onboarding');
