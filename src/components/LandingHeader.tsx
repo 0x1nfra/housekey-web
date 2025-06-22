@@ -26,10 +26,13 @@ const LandingHeader: React.FC = () => {
         {/* Center: Navigation */}
         <nav className="hidden md:flex gap-8 text-gray-600 font-medium">
           <button className="hover:text-gray-900 transition-colors">
-            Docs
+            Pricing
           </button>
           <button className="hover:text-gray-900 transition-colors">
-            Pricing
+            Blogs
+          </button>
+          <button className="hover:text-gray-900 transition-colors">
+            Docs
           </button>
         </nav>
 
