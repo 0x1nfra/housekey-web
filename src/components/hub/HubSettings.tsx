@@ -1,35 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Settings, 
-  Users, 
-  Plus, 
-  Mail, 
-  Trash2, 
-  Crown, 
-  Shield, 
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import dayjs from "dayjs";
+import {
+  Settings,
+  Users,
+  Plus,
+  Mail,
+  Trash2,
+  Crown,
+  Shield,
   User,
   X,
   Copy,
-  Check
-} from 'lucide-react';
-import { useHubStore } from '../../store/hubStore';
-import { HubRole, InviteMemberData, CreateHubData } from '../../types/hub';
-import CreateHubModal from './modals/CreateHubModal';
-import InviteMemberModal from './modals/InviteMemberModal';
-import DeleteHubModal from './modals/DeleteHubModal';
+  Check,
+  Loader2,
+} from "lucide-react";
+import { useHubStore } from "../../store/hubStore";
+import { HubRole, InviteMemberData, CreateHubData } from "../../types/hub";
+import CreateHubModal from "./modals/CreateHubModal";
+import InviteMemberModal from "./modals/InviteMemberModal";
+import DeleteHubModal from "./modals/DeleteHubModal";
 
 interface HubSettingsProps {
   activeTab?: string;
   action?: string;
 }
 
-const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action }) => {
+const HubSettings: React.FC<HubSettingsProps> = ({
+  activeTab = "general",
+  action,
+}) => {
   const [currentTab, setCurrentTab] = useState(activeTab);
-  const [showCreateModal, setShowCreateModal] = useState(action === 'create');
+  const [showCreateModal, setShowCreateModal] = useState(action === "create");
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copiedInvite, setCopiedInvite] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hubName, setHubName] = useState("");
+  const [hubDescription, setHubDescription] = useState("");
 
   const {
     currentHub,
@@ -46,32 +54,40 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
     updateMemberRole,
     cancelInvitation,
     getHubPermissions,
-    clearError
+    clearError,
   } = useHubStore();
 
   const permissions = getHubPermissions();
+  console.log(currentHub);
 
   useEffect(() => {
-    if (action === 'create') {
+    if (action === "create") {
       setShowCreateModal(true);
     }
   }, [action]);
 
+  useEffect(() => {
+    if (currentHub) {
+      setHubName(currentHub.name);
+      setHubDescription(currentHub.description || "");
+    }
+  }, [currentHub]);
+
   const tabs = [
-    { id: 'general', label: 'General', icon: Settings },
-    { id: 'members', label: 'Members', icon: Users },
+    { id: "general", label: "General", icon: Settings },
+    { id: "members", label: "Members", icon: Users },
   ];
 
   const roleIcons = {
     owner: Crown,
     manager: Shield,
-    member: User
+    member: User,
   };
 
   const roleColors = {
-    owner: 'text-amber-600 bg-amber-100',
-    manager: 'text-indigo-600 bg-indigo-100',
-    member: 'text-gray-600 bg-gray-100'
+    owner: "text-amber-600 bg-amber-100",
+    manager: "text-indigo-600 bg-indigo-100",
+    member: "text-gray-600 bg-gray-100",
   };
 
   const handleCreateHub = async (data: CreateHubData) => {
@@ -83,16 +99,33 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
 
   const handleInviteMember = async (data: InviteMemberData) => {
     if (!currentHub) return;
-    
+
     const result = await inviteMember(currentHub.id, data);
     if (result.success) {
       setShowInviteModal(false);
     }
   };
 
+  const handleUpdateHub = async () => {
+    if (!currentHub) return;
+
+    setIsSaving(true);
+    try {
+      const result = await updateHub(currentHub.id, {
+        name: hubName,
+        description: hubDescription,
+      });
+      if (result.success) {
+        // Optional: Show success message
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleDeleteHub = async () => {
     if (!currentHub) return;
-    
+
     const result = await deleteHub(currentHub.id);
     if (result.success) {
       setShowDeleteModal(false);
@@ -106,14 +139,23 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
     setTimeout(() => setCopiedInvite(null), 2000);
   };
 
+  const hasChanges =
+    currentHub &&
+    (hubName !== currentHub.name ||
+      hubDescription !== (currentHub.description || ""));
+
   if (!currentHub) {
     return (
       <div className="text-center py-12">
         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <Settings size={24} className="text-gray-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No Hub Selected</h3>
-        <p className="text-gray-500 mb-6">Create or select a hub to manage settings</p>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">
+          No Hub Selected
+        </h3>
+        <p className="text-gray-500 mb-6">
+          Create or select a hub to manage settings
+        </p>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -157,14 +199,14 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
       {/* Tab Navigation */}
       <div className="border-b border-gray-200">
         <nav className="flex space-x-8">
-          {tabs.map(tab => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setCurrentTab(tab.id)}
               className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 currentTab === tab.id
-                  ? 'border-indigo-500 text-indigo-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  ? "border-indigo-500 text-indigo-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
               <tab.icon size={16} />
@@ -176,7 +218,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
 
       {/* Tab Content */}
       <AnimatePresence mode="wait">
-        {currentTab === 'general' && (
+        {currentTab === "general" && (
           <motion.div
             key="general"
             initial={{ opacity: 0, x: 20 }}
@@ -186,8 +228,10 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
           >
             {/* Hub Information */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Hub Information</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Hub Information
+              </h3>
+
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -195,9 +239,10 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
                   </label>
                   <input
                     type="text"
-                    defaultValue={currentHub.name}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    disabled={!permissions.canManageHub}
+                    value={hubName}
+                    onChange={(e) => setHubName(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    disabled={!permissions.canManageHub || isSaving}
                   />
                 </div>
 
@@ -206,22 +251,34 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
                     Description
                   </label>
                   <textarea
-                    defaultValue={currentHub.description || ''}
+                    value={hubDescription}
+                    onChange={(e) => setHubDescription(e.target.value)}
                     rows={3}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none disabled:bg-gray-50 disabled:text-gray-500"
                     placeholder="Describe your family hub..."
-                    disabled={!permissions.canManageHub}
+                    disabled={!permissions.canManageHub || isSaving}
                   />
                 </div>
 
                 {permissions.canManageHub && (
                   <div className="flex gap-3">
                     <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      whileHover={
+                        !isSaving && hasChanges ? { scale: 1.02 } : {}
+                      }
+                      whileTap={!isSaving && hasChanges ? { scale: 0.98 } : {}}
+                      onClick={handleUpdateHub}
+                      disabled={isSaving || !hasChanges}
+                      className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                        isSaving || !hasChanges
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                      }`}
                     >
-                      Save Changes
+                      {isSaving && (
+                        <Loader2 size={16} className="animate-spin" />
+                      )}
+                      {isSaving ? "Saving..." : "Save Changes"}
                     </motion.button>
                   </div>
                 )}
@@ -236,7 +293,9 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
                     <Users size={20} className="text-indigo-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">{hubMembers.length}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {hubMembers.length}
+                    </p>
                     <p className="text-sm text-gray-500">Members</p>
                   </div>
                 </div>
@@ -248,7 +307,9 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
                     <Mail size={20} className="text-amber-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">{pendingInvites.length}</p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {pendingInvites.length}
+                    </p>
                     <p className="text-sm text-gray-500">Pending Invites</p>
                   </div>
                 </div>
@@ -262,7 +323,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
                   <div>
                     <p className="text-sm font-medium text-gray-900">Created</p>
                     <p className="text-sm text-gray-500">
-                      {new Date(currentHub.created_at).toLocaleDateString()}
+                      {dayjs(currentHub.created_at).format("DD/MM/YYYY")}
                     </p>
                   </div>
                 </div>
@@ -272,13 +333,16 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
             {/* Danger Zone */}
             {permissions.canDeleteHub && (
               <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6">
-                <h3 className="text-lg font-semibold text-red-900 mb-4">Danger Zone</h3>
-                
+                <h3 className="text-lg font-semibold text-red-900 mb-4">
+                  Danger Zone
+                </h3>
+
                 <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
                   <div>
                     <h4 className="font-medium text-red-900">Delete Hub</h4>
                     <p className="text-sm text-red-700">
-                      Permanently delete this hub and all its data. This cannot be undone.
+                      Permanently delete this hub and all its data. This cannot
+                      be undone.
                     </p>
                   </div>
                   <motion.button
@@ -295,7 +359,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
           </motion.div>
         )}
 
-        {currentTab === 'members' && (
+        {currentTab === "members" && (
           <motion.div
             key="members"
             initial={{ opacity: 0, x: 20 }}
@@ -306,12 +370,14 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
             {/* Members Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">Hub Members</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Hub Members
+                </h3>
                 <p className="text-sm text-gray-500">
                   Manage who has access to your family hub
                 </p>
               </div>
-              
+
               {permissions.canInviteMembers && (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -328,52 +394,65 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
             {/* Current Members */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-6 border-b border-gray-100">
-                <h4 className="font-medium text-gray-900">Current Members ({hubMembers.length})</h4>
+                <h4 className="font-medium text-gray-900">
+                  Current Members ({hubMembers.length})
+                </h4>
               </div>
 
               <div className="divide-y divide-gray-100">
-                {hubMembers.map(member => {
+                {hubMembers.map((member) => {
                   const RoleIcon = roleIcons[member.role];
-                  
+
                   return (
-                    <div key={member.id} className="p-6 flex items-center justify-between">
+                    <div
+                      key={member.id}
+                      className="p-6 flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                           <span className="text-lg">
-                            {member.user_profile?.name?.charAt(0).toUpperCase() || '?'}
+                            {member.user_profile?.name
+                              ?.charAt(0)
+                              .toUpperCase() || "?"}
                           </span>
                         </div>
-                        
+
                         <div>
                           <p className="font-medium text-gray-900">
-                            {member.user_profile?.name || 'Unknown User'}
+                            {member.user_profile?.name || "Unknown User"}
                           </p>
                           <p className="text-sm text-gray-500">
                             {member.user_profile?.email}
                           </p>
                           <p className="text-xs text-gray-400">
-                            Joined {new Date(member.joined_at).toLocaleDateString()}
+                            Joined{" "}
+                            {dayjs(currentHub.created_at).format("DD/MM/YYYY")}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${roleColors[member.role]}`}>
+                        <div
+                          className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                            roleColors[member.role]
+                          }`}
+                        >
                           <RoleIcon size={14} />
                           <span className="capitalize">{member.role}</span>
                         </div>
 
-                        {permissions.canRemoveMembers && member.role !== 'owner' && (
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => removeMember(member.id)}
-                            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                            title="Remove member"
-                          >
-                            <Trash2 size={16} />
-                          </motion.button>
-                        )}
+                        {permissions.canRemoveMembers &&
+                          member.role !== "owner" && (
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => removeMember(member.id)}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Remove member"
+                            >
+                              <Trash2 size={16} />
+                            </motion.button>
+                          )}
                       </div>
                     </div>
                   );
@@ -385,24 +464,33 @@ const HubSettings: React.FC<HubSettingsProps> = ({ activeTab = 'general', action
             {pendingInvites.length > 0 && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-6 border-b border-gray-100">
-                  <h4 className="font-medium text-gray-900">Pending Invitations ({pendingInvites.length})</h4>
+                  <h4 className="font-medium text-gray-900">
+                    Pending Invitations ({pendingInvites.length})
+                  </h4>
                 </div>
 
                 <div className="divide-y divide-gray-100">
-                  {pendingInvites.map(invite => (
-                    <div key={invite.id} className="p-6 flex items-center justify-between">
+                  {pendingInvites.map((invite) => (
+                    <div
+                      key={invite.id}
+                      className="p-6 flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
                           <Mail size={20} className="text-amber-600" />
                         </div>
-                        
+
                         <div>
-                          <p className="font-medium text-gray-900">{invite.email}</p>
+                          <p className="font-medium text-gray-900">
+                            {invite.email}
+                          </p>
                           <p className="text-sm text-gray-500">
-                            Invited as {invite.role} • {new Date(invite.created_at).toLocaleDateString()}
+                            Invited as {invite.role} •{" "}
+                            {new Date(invite.created_at).toLocaleDateString()}
                           </p>
                           <p className="text-xs text-gray-400">
-                            Expires {new Date(invite.expires_at).toLocaleDateString()}
+                            Expires{" "}
+                            {new Date(invite.expires_at).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
