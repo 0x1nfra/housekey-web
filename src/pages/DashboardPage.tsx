@@ -1,10 +1,12 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import HouseholdOverview from '../components/dashboard/HouseholdOverview';
-import QuickActions from '../components/dashboard/QuickActions';
-import ActivityFeed from '../components/dashboard/ActivityFeed';
+import React from "react";
+import { motion } from "framer-motion";
+import HouseholdOverview from "../components/dashboard/HouseholdOverview";
+import QuickActions from "../components/dashboard/QuickActions";
+import ActivityFeed from "../components/dashboard/ActivityFeed";
+import { useAuthStore } from "../store/authStore";
 
 const DashboardPage: React.FC = () => {
+  const { profile } = useAuthStore();
   return (
     <div className="px-6 py-8">
       <motion.div
@@ -14,7 +16,7 @@ const DashboardPage: React.FC = () => {
       >
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Good morning, Sarah! 👋
+            Good morning, {profile?.name || "User"}! 👋
           </h1>
           <p className="text-gray-600">
             Here's what's happening with your family today

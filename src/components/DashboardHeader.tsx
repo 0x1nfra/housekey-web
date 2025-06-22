@@ -1,36 +1,46 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, User, Settings, HelpCircle, LogOut, ChevronDown } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  Bell,
+  User,
+  Settings,
+  HelpCircle,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import { useNavigate } from "react-router-dom";
 
 const DashboardHeader: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSigningOut, setIsSigningOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, profile, signOut } = useAuthStore();
   const navigate = useNavigate();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
       await signOut();
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Sign out error:', error);
+      console.error("Sign out error:", error);
     } finally {
       setIsSigningOut(false);
       setIsDropdownOpen(false);
@@ -39,9 +49,9 @@ const DashboardHeader: React.FC = () => {
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
@@ -49,41 +59,48 @@ const DashboardHeader: React.FC = () => {
   const menuItems = [
     {
       icon: Settings,
-      label: 'Settings',
+      label: "Settings",
       onClick: () => {
-        navigate('/settings');
+        navigate("/settings");
         setIsDropdownOpen(false);
-      }
+      },
     },
     {
       icon: HelpCircle,
-      label: 'Help & Support',
+      label: "Help & Support",
       onClick: () => {
-        // Handle help navigation
         setIsDropdownOpen(false);
-      }
-    }
+      },
+    },
   ];
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
-        {/* Left: Search Bar */}
-        <div className="flex-1 max-w-md">
+    <header className="px-6 py-4">
+      <div className="flex items-center justify-between max-w-screen-2xl mx-auto">
+        {/* Left: App Logo */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center text-white font-bold text-sm">
+            A
+          </div>
+          <span className="font-semibold text-lg text-gray-800">Harmony</span>
+        </div>
+
+        {/* Center: Search Bar */}
+        <div className="flex-1 max-w-lg px-8">
           <div className="relative">
-            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
               placeholder="Search..."
             />
           </div>
         </div>
-
-        {/* Center: Empty space for future navigation */}
-        <div className="flex-1" />
 
         {/* Right: Notifications and Profile */}
         <div className="flex items-center gap-4">
@@ -94,7 +111,6 @@ const DashboardHeader: React.FC = () => {
             className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <Bell size={20} />
-            {/* Notification badge */}
             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
               <span className="w-1.5 h-1.5 bg-white rounded-full" />
             </span>
@@ -108,26 +124,24 @@ const DashboardHeader: React.FC = () => {
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              {/* Profile Picture */}
               <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-medium">
                 {profile?.name ? getInitials(profile.name) : <User size={20} />}
               </div>
-              
-              {/* User Info (hidden on mobile) */}
+
               <div className="hidden md:block text-left">
                 <p className="text-sm font-medium text-gray-900">
-                  {profile?.name || 'User'}
+                  {profile?.name || "User"}
                 </p>
                 <p className="text-xs text-gray-500">
                   {profile?.email || user?.email}
                 </p>
               </div>
 
-              <ChevronDown 
-                size={16} 
+              <ChevronDown
+                size={16}
                 className={`text-gray-400 transition-transform ${
-                  isDropdownOpen ? 'rotate-180' : ''
-                }`} 
+                  isDropdownOpen ? "rotate-180" : ""
+                }`}
               />
             </motion.button>
 
@@ -145,11 +159,15 @@ const DashboardHeader: React.FC = () => {
                   <div className="px-4 py-3 border-b border-gray-100">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-medium">
-                        {profile?.name ? getInitials(profile.name) : <User size={24} />}
+                        {profile?.name ? (
+                          getInitials(profile.name)
+                        ) : (
+                          <User size={24} />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-gray-900 truncate">
-                          {profile?.name || 'User'}
+                          {profile?.name || "User"}
                         </p>
                         <p className="text-sm text-gray-500 truncate">
                           {profile?.email || user?.email}
@@ -163,7 +181,7 @@ const DashboardHeader: React.FC = () => {
                     {menuItems.map((item, index) => (
                       <motion.button
                         key={index}
-                        whileHover={{ backgroundColor: 'rgb(249 250 251)' }}
+                        whileHover={{ backgroundColor: "rgb(249 250 251)" }}
                         onClick={item.onClick}
                         className="w-full flex items-center gap-3 px-4 py-2 text-left text-gray-700 hover:text-gray-900 transition-colors"
                       >
@@ -176,7 +194,7 @@ const DashboardHeader: React.FC = () => {
                   {/* Sign Out */}
                   <div className="border-t border-gray-100 pt-2">
                     <motion.button
-                      whileHover={{ backgroundColor: 'rgb(254 242 242)' }}
+                      whileHover={{ backgroundColor: "rgb(254 242 242)" }}
                       onClick={handleSignOut}
                       disabled={isSigningOut}
                       className="w-full flex items-center gap-3 px-4 py-2 text-left text-red-600 hover:text-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -187,7 +205,7 @@ const DashboardHeader: React.FC = () => {
                         <LogOut size={16} />
                       )}
                       <span className="text-sm">
-                        {isSigningOut ? 'Signing out...' : 'Sign out'}
+                        {isSigningOut ? "Signing out..." : "Sign out"}
                       </span>
                     </motion.button>
                   </div>

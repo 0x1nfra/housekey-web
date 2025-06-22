@@ -1,11 +1,12 @@
-import { create } from 'zustand';
-import { User, AuthError } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+import { create } from "zustand";
+import { User } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabase";
 
 interface UserProfile {
   id: string;
   name: string;
   email: string;
+  avatarUrl: string;
   created_at: string;
   updated_at: string;
 }
@@ -19,8 +20,15 @@ interface AuthState {
 }
 
 interface AuthActions {
-  signUp: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (
+    email: string,
+    password: string,
+    name: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   initializeAuth: () => Promise<void>;
   clearError: () => void;
@@ -54,13 +62,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       if (!authData.user) {
-        set({ loading: false, error: 'Failed to create user account' });
-        return { success: false, error: 'Failed to create user account' };
+        set({ loading: false, error: "Failed to create user account" });
+        return { success: false, error: "Failed to create user account" };
       }
 
       // Create user profile
       const { error: profileError } = await supabase
-        .from('user_profiles')
+        .from("user_profiles")
         .insert({
           id: authData.user.id,
           name,
@@ -75,15 +83,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       // Fetch the created profile
       await get().fetchUserProfile(authData.user.id);
 
-      set({ 
+      set({
         user: authData.user,
         loading: false,
-        error: null 
+        error: null,
       });
 
       return { success: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
       set({ loading: false, error: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -104,22 +113,23 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       }
 
       if (!data.user) {
-        set({ loading: false, error: 'Failed to sign in' });
-        return { success: false, error: 'Failed to sign in' };
+        set({ loading: false, error: "Failed to sign in" });
+        return { success: false, error: "Failed to sign in" };
       }
 
       // Fetch user profile
       await get().fetchUserProfile(data.user.id);
 
-      set({ 
+      set({
         user: data.user,
         loading: false,
-        error: null 
+        error: null,
       });
 
       return { success: true };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
       set({ loading: false, error: errorMessage });
       return { success: false, error: errorMessage };
     }
@@ -130,20 +140,21 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         set({ loading: false, error: error.message });
         return;
       }
 
-      set({ 
+      set({
         user: null,
         profile: null,
         loading: false,
-        error: null 
+        error: null,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
       set({ loading: false, error: errorMessage });
     }
   },
@@ -151,10 +162,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   initializeAuth: async () => {
     try {
       // Get initial session
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
+
       if (error) {
-        console.error('Error getting session:', error);
+        console.error("Error getting session:", error);
         set({ initialized: true });
         return;
       }
@@ -166,17 +180,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       // Listen for auth changes
       supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
+        if (event === "SIGNED_IN" && session?.user) {
           await get().fetchUserProfile(session.user.id);
           set({ user: session.user });
-        } else if (event === 'SIGNED_OUT') {
+        } else if (event === "SIGNED_OUT") {
           set({ user: null, profile: null });
         }
       });
 
       set({ initialized: true });
     } catch (error) {
-      console.error('Error initializing auth:', error);
+      console.error("Error initializing auth:", error);
       set({ initialized: true });
     }
   },
@@ -184,19 +198,19 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   fetchUserProfile: async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
+        .from("user_profiles")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (error) {
-        console.error('Error fetching user profile:', error);
+        console.error("Error fetching user profile:", error);
         return;
       }
 
       set({ profile: data });
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error("Error fetching user profile:", error);
     }
   },
 

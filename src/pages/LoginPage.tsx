@@ -1,32 +1,33 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { signIn, loading, error, clearError } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    
+
     const result = await signIn(formData.email, formData.password);
-    
+
     if (result.success) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -41,7 +42,7 @@ const LoginPage: React.FC = () => {
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8 transition-colors"
         >
           <ArrowLeft size={20} />
@@ -58,9 +59,7 @@ const LoginPage: React.FC = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome Back
             </h1>
-            <p className="text-gray-600">
-              Sign in to your family hub
-            </p>
+            <p className="text-gray-600">Sign in to your family hub</p>
           </div>
 
           {error && (
@@ -79,7 +78,10 @@ const LoginPage: React.FC = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Mail
+                  size={20}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
                 <input
                   type="email"
                   name="email"
@@ -97,16 +99,27 @@ const LoginPage: React.FC = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Lock
+                  size={20}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 pr-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter your password"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
 
@@ -123,16 +136,16 @@ const LoginPage: React.FC = () => {
                   Signing in...
                 </div>
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </motion.button>
           </form>
 
           <div className="text-center mt-6">
             <p className="text-sm text-gray-500">
-              Don't have an account?{' '}
-              <Link 
-                to="/signup" 
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
                 className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
               >
                 Create one here

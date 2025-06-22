@@ -1,38 +1,44 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, User } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
   const { signUp, loading, error, clearError } = useAuthStore();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
-    
+
     if (formData.password !== formData.confirmPassword) {
       return;
     }
-    
-    const result = await signUp(formData.email.trim(), formData.password, formData.name);
-    
+
+    const result = await signUp(
+      formData.email.trim(),
+      formData.password,
+      formData.name
+    );
+
     if (result.success) {
-      navigate('/onboarding');
+      navigate("/onboarding");
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -50,7 +56,7 @@ const SignupPage: React.FC = () => {
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8 transition-colors"
         >
           <ArrowLeft size={20} />
@@ -88,7 +94,10 @@ const SignupPage: React.FC = () => {
                 Your Name
               </label>
               <div className="relative">
-                <User size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <User
+                  size={20}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
                 <input
                   type="text"
                   name="name"
@@ -106,11 +115,14 @@ const SignupPage: React.FC = () => {
                 Email Address
               </label>
               <div className="relative">
-                <Mail size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Mail
+                  size={20}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
                 <input
                   type="email"
                   name="email"
-                  value={(formData.email).trim()}
+                  value={formData.email.trim()}
                   onChange={handleInputChange}
                   className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter your email"
@@ -124,16 +136,27 @@ const SignupPage: React.FC = () => {
                 Password
               </label>
               <div className="relative">
-                <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Lock
+                  size={20}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 pr-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Create a secure password"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
 
@@ -142,21 +165,38 @@ const SignupPage: React.FC = () => {
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Lock
+                  size={20}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`border rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                    showPasswordError ? 'border-red-300' : 'border-gray-300'
+                  className={`border rounded-lg px-4 py-3 pl-10 pr-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                    showPasswordError ? "border-red-300" : "border-gray-300"
                   }`}
                   placeholder="Confirm your password"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  aria-label="Toggle confirm password visibility"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
+                </button>
               </div>
               {showPasswordError && (
-                <p className="text-red-600 text-sm mt-1">Passwords do not match</p>
+                <p className="text-red-600 text-sm mt-1">
+                  Passwords do not match
+                </p>
               )}
             </div>
 
@@ -173,16 +213,16 @@ const SignupPage: React.FC = () => {
                   Creating your account...
                 </div>
               ) : (
-                'Create Account'
+                "Create Account"
               )}
             </motion.button>
           </form>
 
           <div className="text-center mt-6">
             <p className="text-sm text-gray-500">
-              Already have an account?{' '}
-              <Link 
-                to="/login" 
+              Already have an account?{" "}
+              <Link
+                to="/login"
                 className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
               >
                 Sign in here
@@ -191,7 +231,8 @@ const SignupPage: React.FC = () => {
           </div>
 
           <p className="text-center text-sm text-gray-500 mt-4">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
+            By creating an account, you agree to our Terms of Service and
+            Privacy Policy
           </p>
         </motion.div>
       </div>
