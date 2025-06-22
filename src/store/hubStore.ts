@@ -1,13 +1,15 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
-import { Hub, HubMember, HubInvitation, HubRole, CreateHubData, UpdateHubData, InviteMemberData, Result, HubPermissions } from '../types/hub';
+import { Hub, HubMember, HubInvitation, UserInvitation, HubRole, CreateHubData, UpdateHubData, InviteMemberData, Result, HubPermissions } from '../types/hub';
 
 interface HubState {
   currentHub: Hub | null;
   userHubs: Hub[];
   hubMembers: HubMember[];
   pendingInvites: HubInvitation[];
+  userInvitations: UserInvitation[];
   loading: boolean;
+  loadingInvitations: boolean;
   error: string | null;
   initialized: boolean;
 }
@@ -25,6 +27,11 @@ interface HubActions {
   removeMember(memberId: string): Promise<Result>;
   updateMemberRole(memberId: string, role: HubRole): Promise<Result>;
   cancelInvitation(invitationId: string): Promise<Result>;
+  
+  // User Invitations
+  fetchUserInvitations(): Promise<void>;
+  acceptInvitation(invitationId: string): Promise<Result>;
+  declineInvitation(invitationId: string): Promise<Result>;
   
   // Settings & Utilities
   setDefaultHub(hubId: string): Promise<void>;
@@ -44,7 +51,9 @@ export const useHubStore = create<HubStore>((set, get) => ({
   userHubs: [],
   hubMembers: [],
   pendingInvites: [],
+  userInvitations: [],
   loading: false,
+  loadingInvitations: false,
   error: null,
   initialized: false,
 
@@ -76,6 +85,9 @@ export const useHubStore = create<HubStore>((set, get) => ({
         await get().loadHubData(targetHub.id);
         set({ currentHub: targetHub });
       }
+
+      // Fetch user invitations
+      await get().fetchUserInvitations();
 
       set({ initialized: true, loading: false });
     } catch (error) {
@@ -336,6 +348,142 @@ export const useHubStore = create<HubStore>((set, get) => ({
       console.error('Error canceling invitation:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to cancel invitation';
       set({ error: errorMessage, loading: false });
+      return { success: false, error: errorMessage };
+    }
+  },
+
+  // User Invitations
+  fetchUserInvitations: async () => {
+    set({ loadingInvitations: true, error: null });
+    
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+
+      // Get user profile to get email
+      const { data: profile, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('email')
+        .eq('id', user.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Fetch invitations for this user's email
+      const { data: invitations, error } = await supabase
+        .from('hub_invitations')
+        .select(`
+          *,
+          hub:hubs(id, name, description),
+          invited_by_profile:user_profiles!hub_invitations_invited_by_fkey(id, name, email)
+        `)
+        .eq('email', profile.email)
+        .is('accepted_at', null)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Transform data to match UserInvitation interface
+      const userInvitations: UserInvitation[] = (invitations || []).map(inv => ({
+        id: inv.id,
+        hub_id: inv.hub_id,
+        hub: {
+          id: inv.hub.id,
+          name: inv.hub.name,
+          description: inv.hub.description
+        },
+        user_id: user.user.id,
+        email: inv.email,
+        role: inv.role,
+        invited_by: {
+          id: inv.invited_by_profile.id,
+          name: inv.invited_by_profile.name,
+          email: inv.invited_by_profile.email
+        },
+        token: inv.token,
+        expires_at: inv.expires_at,
+        accepted_at: inv.accepted_at,
+        created_at: inv.created_at,
+        is_expired: new Date(inv.expires_at) < new Date()
+      }));
+
+      set({ userInvitations, loadingInvitations: false });
+    } catch (error) {
+      console.error('Error fetching user invitations:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to fetch invitations',
+        loadingInvitations: false
+      });
+    }
+  },
+
+  acceptInvitation: async (invitationId: string) => {
+    set({ loadingInvitations: true, error: null });
+    
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+
+      // Call the database function to accept invitation
+      const { data, error } = await supabase.rpc('accept_hub_invitation', {
+        invitation_id: invitationId,
+        user_id: user.user.id
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string; hub_id?: string };
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to accept invitation');
+      }
+
+      // Refresh user invitations and hubs
+      await Promise.all([
+        get().fetchUserInvitations(),
+        get().initializeHubs()
+      ]);
+
+      set({ loadingInvitations: false });
+      return { success: true, data: { hub_id: result.hub_id } };
+    } catch (error) {
+      console.error('Error accepting invitation:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to accept invitation';
+      set({ error: errorMessage, loadingInvitations: false });
+      return { success: false, error: errorMessage };
+    }
+  },
+
+  declineInvitation: async (invitationId: string) => {
+    set({ loadingInvitations: true, error: null });
+    
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+
+      // Call the database function to decline invitation
+      const { data, error } = await supabase.rpc('decline_hub_invitation', {
+        invitation_id: invitationId,
+        user_id: user.user.id
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string };
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to decline invitation');
+      }
+
+      // Refresh user invitations
+      await get().fetchUserInvitations();
+
+      set({ loadingInvitations: false });
+      return { success: true };
+    } catch (error) {
+      console.error('Error declining invitation:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to decline invitation';
+      set({ error: errorMessage, loadingInvitations: false });
       return { success: false, error: errorMessage };
     }
   },

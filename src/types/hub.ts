@@ -37,6 +37,29 @@ export interface HubInvitation {
   invited_by_name?: string;
 }
 
+export interface UserInvitation {
+  id: string;
+  hub_id: string;
+  hub: {
+    id: string;
+    name: string;
+    description?: string;
+  };
+  user_id?: string;
+  email: string;
+  role: 'manager' | 'member';
+  invited_by: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  token: string;
+  expires_at: string;
+  accepted_at?: string;
+  created_at: string;
+  is_expired: boolean;
+}
+
 export type HubRole = 'owner' | 'manager' | 'member';
 
 export interface CreateHubData {
