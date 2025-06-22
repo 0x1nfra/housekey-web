@@ -1,31 +1,25 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Mail, Lock, User } from 'lucide-react';
+import { ArrowLeft, Mail, Lock } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
-const SignupPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signUp, loading, error, clearError } = useAuthStore();
+  const { signIn, loading, error, clearError } = useAuthStore();
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     clearError();
     
-    if (formData.password !== formData.confirmPassword) {
-      return;
-    }
-    
-    const result = await signUp(formData.email, formData.password, formData.name);
+    const result = await signIn(formData.email, formData.password);
     
     if (result.success) {
-      navigate('/onboarding');
+      navigate('/dashboard');
     }
   };
 
@@ -35,9 +29,6 @@ const SignupPage: React.FC = () => {
       [e.target.name]: e.target.value
     }));
   };
-
-  const passwordsMatch = formData.password === formData.confirmPassword;
-  const showPasswordError = formData.confirmPassword && !passwordsMatch;
 
   return (
     <motion.div
@@ -65,10 +56,10 @@ const SignupPage: React.FC = () => {
         >
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Create Your Family Hub
+              Welcome Back
             </h1>
             <p className="text-gray-600">
-              Start bringing your household together in just a few minutes
+              Sign in to your family hub
             </p>
           </div>
 
@@ -83,24 +74,6 @@ const SignupPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Your Name
-              </label>
-              <div className="relative">
-                <User size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="Enter your full name"
-                  required
-                />
-              </div>
-            </div>
-
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
                 Email Address
@@ -131,72 +104,45 @@ const SignupPage: React.FC = () => {
                   value={formData.password}
                   onChange={handleInputChange}
                   className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="Create a secure password"
+                  placeholder="Enter your password"
                   required
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`border rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                    showPasswordError ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                  placeholder="Confirm your password"
-                  required
-                />
-              </div>
-              {showPasswordError && (
-                <p className="text-red-600 text-sm mt-1">Passwords do not match</p>
-              )}
             </div>
 
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              disabled={loading || showPasswordError || !passwordsMatch}
+              disabled={loading}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Creating your account...
+                  Signing in...
                 </div>
               ) : (
-                'Create Account'
+                'Sign In'
               )}
             </motion.button>
           </form>
 
           <div className="text-center mt-6">
             <p className="text-sm text-gray-500">
-              Already have an account?{' '}
+              Don't have an account?{' '}
               <Link 
-                to="/login" 
+                to="/signup" 
                 className="text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
               >
-                Sign in here
+                Create one here
               </Link>
             </p>
           </div>
-
-          <p className="text-center text-sm text-gray-500 mt-4">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
-          </p>
         </motion.div>
       </div>
     </motion.div>
   );
 };
 
-export default SignupPage;
+export default LoginPage;
