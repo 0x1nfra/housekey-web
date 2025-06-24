@@ -67,9 +67,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   resetAllStores: () => {
     // Import and reset hub store
     // We'll import this dynamically to avoid circular dependencies
-    import("./hubStore").then(({ useHubStore }) => {
-      useHubStore.getState().resetStore();
-    });
+    // FIXME: add resetStore()
+    // import("./hubStore").then(({ useHubStore }) => {
+    //   useHubStore.getState().resetStore();
+    // });
 
     // Reset auth store
     get().clearUserSession();

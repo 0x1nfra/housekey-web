@@ -7,15 +7,26 @@ import { useSearchParams } from "react-router-dom";
 import HubSettings from "../components/hub/HubSettings";
 import InvitationsList from "../components/hub/InvitationsList";
 import { useHubStore } from "../store/hubStore";
+import { shallow } from "zustand/shallow";
 
 const SettingsPage: React.FC = () => {
-  const { user, profile } = useAuthStore();
+  const { user, profile } = useAuthStore(
+    (state) => ({ user: state.user, profile: state.profile }),
+    shallow
+  );
+
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "profile"
   );
 
-  const { userInvitations } = useHubStore();
+  const { userInvitations } = useHubStore(
+    (state) => ({
+      userInvitations: state.userInvitations,
+    }),
+    shallow
+  );
+
   const pendingInviteCount = userInvitations.filter(
     (inv) => !inv.is_expired
   ).length;
@@ -92,7 +103,10 @@ const SettingsPage: React.FC = () => {
     },
   ];
 
-  const { switchHub } = useHubStore();
+  const { switchHub } = useHubStore(
+    (state) => ({ switchHub: state.switchHub }),
+    shallow
+  );
 
   const renderTabContent = () => {
     switch (activeTab) {

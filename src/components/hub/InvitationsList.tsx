@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useHubStore } from "../../store/hubStore";
 import { formatDistanceToNow } from "date-fns";
+import { shallow } from "zustand/shallow";
 
 interface InvitationsListProps {
   onHubSwitch: (hubId: string) => Promise<void>;
@@ -28,7 +29,18 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
     acceptInvitation,
     declineInvitation,
     clearError,
-  } = useHubStore();
+  } = useHubStore(
+    (state) => ({
+      userInvitations: state.userInvitations,
+      loadingInvitations: state.loadingInvitations,
+      error: state.error,
+      fetchUserInvitations: state.fetchUserInvitations,
+      acceptInvitation: state.acceptInvitation,
+      declineInvitation: state.declineInvitation,
+      clearError: state.clearError,
+    }),
+    shallow
+  );
 
   useEffect(() => {
     fetchUserInvitations();

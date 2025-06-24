@@ -14,14 +14,31 @@ import { useHubStore } from "../store/hubStore";
 import { useNavigate } from "react-router-dom";
 import { getInitials } from "../utils/userUtils";
 import HubSelector from "./hub/HubSelector";
+import { shallow } from "zustand/shallow";
 
 const DashboardHeader: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSigningOut, setIsSigningOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user, profile, signOut } = useAuthStore();
-  const { initializeHubs, initialized } = useHubStore();
+
+  const { user, profile, signOut } = useAuthStore(
+    (state) => ({
+      user: state.user,
+      profile: state.profile,
+      signOut: state.signOut,
+    }),
+    shallow
+  );
+
+  const { initializeHubs, initialized } = useHubStore(
+    (state) => ({
+      initializeHubs: state.initializeHubs,
+      initialized: state.initialized,
+    }),
+    shallow
+  );
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -89,7 +106,7 @@ const DashboardHeader: React.FC = () => {
         {/* Center: Hub Selector and Search */}
         <div className="flex items-center gap-4 flex-1 max-w-2xl px-8">
           <HubSelector />
-          
+
           <div className="flex-1 max-w-lg">
             <div className="relative">
               <Search

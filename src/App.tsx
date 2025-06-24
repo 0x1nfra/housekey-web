@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useAuthStore } from "./store/authStore";
-import { useHubStore } from "./store/hubStore";
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
@@ -13,20 +12,20 @@ import TasksPage from "./pages/TasksPage";
 import ShoppingPage from "./pages/ShoppingPage";
 import SettingsPage from "./pages/SettingsPage";
 import Layout from "./components/Layout";
+import { shallow } from "zustand/shallow";
 
 function App() {
-  const { initializeAuth, initialized, user } = useAuthStore();
-  const { initializeHubs } = useHubStore();
+  const { initializeAuth, initialized } = useAuthStore(
+    (state) => ({
+      initializeAuth: state.initializeAuth,
+      initialized: state.initialized,
+    }),
+    shallow
+  );
 
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
-
-  useEffect(() => {
-    if (user && initialized) {
-      initializeHubs();
-    }
-  }, [user, initialized, initializeHubs]);
 
   if (!initialized) {
     return (

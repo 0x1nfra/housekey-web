@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plus, Settings, Users, Bell } from "lucide-react";
 import { useHubStore } from "../../store/hubStore";
 import { useNavigate } from "react-router-dom";
+import { shallow } from "zustand/shallow";
 
 const HubSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,7 +11,16 @@ const HubSelector: React.FC = () => {
   const navigate = useNavigate();
 
   const { currentHub, userHubs, pendingInvites, switchHub, loading } =
-    useHubStore();
+    useHubStore(
+      (state) => ({
+        currentHub: state.currentHub,
+        userHubs: state.userHubs,
+        pendingInvites: state.pendingInvites,
+        switchHub: state.switchHub,
+        loading: state.loading,
+      }),
+      shallow
+    );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
