@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Settings,
@@ -12,11 +12,14 @@ import {
   X,
   Copy,
   Check,
-  // Inbox,
 } from "lucide-react";
 import { shallow } from "zustand/shallow";
 import { useHubStore } from "../../store/hubStore";
-import { InviteMemberData, CreateHubData } from "../../types/hub";
+import {
+  InviteMemberData,
+  CreateHubData,
+  UpdateHubData,
+} from "../../types/hub";
 import CreateHubModal from "./modals/CreateHubModal";
 import InviteMemberModal from "./modals/InviteMemberModal";
 import DeleteHubModal from "./modals/DeleteHubModal";
@@ -38,6 +41,10 @@ const HubSettings: React.FC<HubSettingsProps> = ({
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copiedInvite, setCopiedInvite] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: currentHub.name,
+    description: currentHub.description || "",
+  });
 
   const {
     currentHub,
@@ -47,7 +54,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
     loading,
     error,
     createHub,
-    // updateHub,
+    updateHub,
     leaveHub,
     deleteHub,
     inviteMember,
@@ -86,8 +93,6 @@ const HubSettings: React.FC<HubSettingsProps> = ({
     if (action === "create") {
       setShowCreateModal(true);
     }
-    console.log("HubSettings mounted, userInvitations:", userInvitations);
-    console.log("Should fetch invitations...");
   }, [action]);
 
   const tabs = [
@@ -118,6 +123,12 @@ const HubSettings: React.FC<HubSettingsProps> = ({
     if (result.success) {
       setShowCreateModal(false);
     }
+  };
+
+  const handleSaveChanges = async () => {
+    if (!currentHub) return;
+    // Add updateHub call here
+    await updateHub(currentHub.id, formData);
   };
 
   const handleInviteMember = async (data: InviteMemberData) => {
@@ -259,7 +270,10 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                   </label>
                   <input
                     type="text"
-                    defaultValue={currentHub.name}
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                    }
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     disabled={!permissions.canManageHub}
                   />
@@ -270,7 +284,13 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                     Description
                   </label>
                   <textarea
-                    defaultValue={currentHub.description || ""}
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
                     rows={3}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
                     placeholder="Describe your family hub..."
@@ -283,9 +303,11 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
+                      onClick={handleSaveChanges}
+                      disabled={loading}
                       className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                     >
-                      Save Changes
+                      {loading ? "Saving..." : "Save Changes"}
                     </motion.button>
                   </div>
                 )}

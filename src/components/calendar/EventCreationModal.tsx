@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
 import { format } from "date-fns";
@@ -61,6 +61,13 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
       color: "bg-amber-100 text-amber-700",
     },
   ];
+
+  useEffect(() => {
+    setEventData((prev) => ({
+      ...prev,
+      date: format(defaultDate, "yyyy-MM-dd"),
+    }));
+  }, [defaultDate]);
 
   const handleInputChange = (field: string, value: any) => {
     setEventData((prev) => ({

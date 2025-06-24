@@ -169,9 +169,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
 
       // Initialize hub store for the new user
-      import("./hubStore").then(({ useHubStore }) => {
-        useHubStore.getState().initializeHubs();
-      });
+      try {
+        const { useHubStore } = await import("./hubStore");
+        await useHubStore.getState().initializeHubs();
+      } catch (error) {
+        console.error("Error initializing hub store:", error);
+      }
 
       return { success: true };
     } catch (error) {

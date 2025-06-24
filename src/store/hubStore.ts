@@ -168,13 +168,20 @@ export const useHubStore = create<HubStore>((set, get) => ({
   createHub: async (data: CreateHubData) => {
     set({ loading: true, error: null });
 
+    const { currentUserId } = get();
+    if (!currentUserId) {
+      const errorMessage = "User not authenticated";
+      set({ error: errorMessage, loading: false });
+      return { success: false, error: errorMessage };
+    }
+
     try {
       const { data: hub, error } = await supabase
         .from("hubs")
         .insert({
           name: data.name,
           description: data.description,
-          created_by: (await supabase.auth.getUser()).data.user?.id,
+          created_by: currentUserId,
         })
         .select()
         .single();
@@ -282,18 +289,20 @@ export const useHubStore = create<HubStore>((set, get) => ({
   inviteMember: async (hubId: string, data: InviteMemberData) => {
     set({ loading: true, error: null });
 
-    try {
-      // Get inviter's user ID
-      const { data: authUser } = await supabase.auth.getUser();
-      const invitedBy = authUser.user?.id;
-      if (!invitedBy) throw new Error("User not authenticated");
+    const { currentUserId } = get();
+    if (!currentUserId) {
+      const errorMessage = "User not authenticated";
+      set({ error: errorMessage, loading: false });
+      return { success: false, error: errorMessage };
+    }
 
+    try {
       // Call the stored procedure
       const { data: result, error } = await supabase.rpc("invite_member", {
         p_hub_id: hubId,
         p_email: data.email,
         p_role: data.role,
-        p_invited_by: invitedBy,
+        p_invited_by: currentUserId,
       });
 
       if (error) throw error;
@@ -433,7 +442,7 @@ export const useHubStore = create<HubStore>((set, get) => ({
           `
           *,
           hub:hubs(id, name, description),
-          invited_by_profile:user_profiles!hub_invitations_invited_by_fkey1(id, name, email)
+          invited_by_profile:invited_by(user_profiles(id, name, email))
           `
         )
         .eq("invitee", profile.id)

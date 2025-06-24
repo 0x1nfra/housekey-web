@@ -12,7 +12,6 @@ const LoginPage: React.FC = () => {
       signIn: state.signIn,
       loading: state.loading,
       error: state.error,
-      clearError: state.error,
     }),
     shallow
   );

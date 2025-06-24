@@ -60,8 +60,11 @@ export interface UserInvitation {
   is_expired: boolean;
 }
 
-// FIXME: change to an enum
-export type HubRole = "owner" | "manager" | "member";
+export enum HubRole {
+  Owner = "owner",
+  Manager = "manager",
+  Member = "member",
+}
 
 export interface CreateHubData {
   name: string;

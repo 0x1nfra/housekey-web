@@ -64,6 +64,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
   };
 
   const roleColors = {
+    owner: "text-yellow-600 bg-yellow-100",
     manager: "text-indigo-600 bg-indigo-100",
     member: "text-gray-600 bg-gray-100",
   };

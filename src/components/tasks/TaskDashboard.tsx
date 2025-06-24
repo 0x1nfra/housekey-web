@@ -22,8 +22,11 @@ FIXME:
 
 const TaskDashboard: React.FC = () => {
   const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
-  const [filterBy, setFilterBy] = useState("all");
-  const [sortBy, setSortBy] = useState("dueDate");
+  type Filter = "all" | "my-tasks" | "pending" | "in-progress" | "completed";
+  type Sort = "dueDate" | "priority" | "title";
+
+  const [filterBy, setFilterBy] = useState<Filter>("all");
+  const [sortBy, setSortBy] = useState<Sort>("dueDate");
 
   // Mock data
   const tasks: Task[] = [

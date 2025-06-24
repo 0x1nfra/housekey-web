@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { InviteMemberData } from '../../../types/hub';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { InviteMemberData } from "../../../types/hub";
 
 interface InviteMemberModalProps {
   isOpen: boolean;
@@ -14,11 +14,11 @@ const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
-  loading
+  loading,
 }) => {
   const [formData, setFormData] = useState<InviteMemberData>({
-    email: '',
-    role: 'member'
+    email: "",
+    role: "member",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,7 +29,7 @@ const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
   };
 
   const handleClose = () => {
-    setFormData({ email: '', role: 'member' });
+    setFormData({ email: "", role: "member" });
     onClose();
   };
 
@@ -68,7 +68,9 @@ const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, email: e.target.value }))
+                  }
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter email address"
                   required
@@ -81,7 +83,12 @@ const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
                 </label>
                 <select
                   value={formData.role}
-                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value as 'manager' | 'member' }))}
+                  onChange={(e) => {
+                    const role = e.target.value;
+                    if (role === "manager" || role === "member") {
+                      setFormData((prev) => ({ ...prev, role }));
+                    }
+                  }}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 >
                   <option value="member">Member</option>
@@ -107,7 +114,7 @@ const InviteMemberModal: React.FC<InviteMemberModalProps> = ({
                   disabled={loading || !formData.email.trim()}
                   className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Sending...' : 'Send Invitation'}
+                  {loading ? "Sending..." : "Send Invitation"}
                 </motion.button>
               </div>
             </form>
