@@ -5,6 +5,8 @@ import { useAuthStore } from "../store/authStore";
 import { getInitials } from "../utils/userUtils";
 import { useSearchParams } from "react-router-dom";
 import HubSettings from "../components/hub/HubSettings";
+import InvitationsList from "../components/hub/InvitationsList";
+import { useHubStore } from "../store/hubStore";
 
 const SettingsPage: React.FC = () => {
   const { user, profile } = useAuthStore();
@@ -12,6 +14,11 @@ const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(
     searchParams.get("tab") || "profile"
   );
+
+  const { userInvitations } = useHubStore();
+  const pendingInviteCount = userInvitations.filter(
+    (inv) => !inv.is_expired
+  ).length;
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -84,6 +91,8 @@ const SettingsPage: React.FC = () => {
       ],
     },
   ];
+
+  const { switchHub } = useHubStore();
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -201,8 +210,28 @@ const SettingsPage: React.FC = () => {
           />
         );
 
+      case "invitations":
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Your Invitations
+              </h3>
+              <p className="text-sm text-gray-500">
+                Hub invitations you've received from other users
+              </p>
+            </div>
+
+            <InvitationsList onHubSwitch={switchHub} />
+          </motion.div>
+        );
+
       case "notifications":
-      case "privacy":
+      case "privacy": {
         const section = settingsSections.find((s) =>
           s.title
             .toLowerCase()
@@ -257,6 +286,7 @@ const SettingsPage: React.FC = () => {
             </div>
           </motion.div>
         );
+      }
 
       default:
         return null;
@@ -290,6 +320,11 @@ const SettingsPage: React.FC = () => {
               >
                 <tab.icon size={16} />
                 {tab.label}
+                {tab.id === "invitations" && pendingInviteCount > 0 && (
+                  <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {pendingInviteCount}
+                  </span>
+                )}
               </button>
             ))}
           </nav>

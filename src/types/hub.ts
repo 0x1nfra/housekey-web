@@ -12,7 +12,7 @@ export interface HubMember {
   id: string;
   hub_id: string;
   user_id: string;
-  role: 'owner' | 'manager' | 'member';
+  role: "owner" | "manager" | "member";
   joined_at: string;
   invited_by?: string;
   // Joined user profile data
@@ -26,7 +26,7 @@ export interface HubInvitation {
   id: string;
   hub_id: string;
   email: string;
-  role: 'manager' | 'member';
+  role: "manager" | "member";
   invited_by: string;
   token: string;
   expires_at: string;
@@ -47,7 +47,7 @@ export interface UserInvitation {
   };
   user_id?: string;
   email: string;
-  role: 'manager' | 'member';
+  role: "manager" | "member";
   invited_by: {
     id: string;
     name: string;
@@ -60,7 +60,8 @@ export interface UserInvitation {
   is_expired: boolean;
 }
 
-export type HubRole = 'owner' | 'manager' | 'member';
+// FIXME: change to an enum
+export type HubRole = "owner" | "manager" | "member";
 
 export interface CreateHubData {
   name: string;
@@ -75,7 +76,7 @@ export interface UpdateHubData {
 
 export interface InviteMemberData {
   email: string;
-  role: 'manager' | 'member';
+  role: "manager" | "member";
 }
 
 export interface HubPermissions {

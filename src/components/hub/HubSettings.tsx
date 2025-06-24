@@ -12,15 +12,14 @@ import {
   X,
   Copy,
   Check,
-  Inbox,
+  // Inbox,
 } from "lucide-react";
 import { shallow } from "zustand/shallow";
 import { useHubStore } from "../../store/hubStore";
-import { HubRole, InviteMemberData, CreateHubData } from "../../types/hub";
+import { InviteMemberData, CreateHubData } from "../../types/hub";
 import CreateHubModal from "./modals/CreateHubModal";
 import InviteMemberModal from "./modals/InviteMemberModal";
 import DeleteHubModal from "./modals/DeleteHubModal";
-import InvitationsList from "./InvitationsList";
 import LeaveHubModal from "./modals/LeaveHubModal";
 
 interface HubSettingsProps {
@@ -55,7 +54,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
     // updateMemberRole,
     cancelInvitation,
     getHubPermissions,
-    switchHub,
+    // switchHub,
     clearError,
   } = useHubStore(
     (state) => ({
@@ -93,12 +92,12 @@ const HubSettings: React.FC<HubSettingsProps> = ({
   const tabs = [
     { id: "general", label: "General", icon: Settings },
     { id: "members", label: "Members", icon: Users },
-    {
-      id: "invitations",
-      label: "Invitations",
-      icon: Inbox,
-      badge: userInvitations.filter((inv) => !inv.is_expired).length,
-    },
+    // {
+    //   id: "invitations",
+    //   label: "Invitations",
+    //   icon: Inbox,
+    //   badge: userInvitations.filter((inv) => !inv.is_expired).length,
+    // },
   ];
 
   const roleIcons = {
@@ -147,9 +146,10 @@ const HubSettings: React.FC<HubSettingsProps> = ({
     }
   };
 
-  const handleHubSwitch = async (hubId: string) => {
-    await switchHub(hubId);
-  };
+  // FIXME: do we need this?
+  // const handleHubSwitch = async (hubId: string) => {
+  //   await switchHub(hubId);
+  // };
 
   const copyInviteLink = async (inviteId: string) => {
     const inviteLink = `${window.location.origin}/invite/${inviteId}`;
@@ -225,11 +225,11 @@ const HubSettings: React.FC<HubSettingsProps> = ({
             >
               <tab.icon size={16} />
               {tab.label}
-              {tab.badge && tab.badge > 0 && (
+              {/* {tab.badge && tab.badge > 0 && (
                 <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {tab.badge}
                 </span>
-              )}
+              )} */}
             </button>
           ))}
         </nav>
@@ -558,7 +558,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
           </motion.div>
         )}
 
-        {currentTab === "invitations" && (
+        {/* {currentTab === "invitations" && (
           <motion.div
             key="invitations"
             initial={{ opacity: 0, x: 20 }}
@@ -577,7 +577,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
 
             <InvitationsList onHubSwitch={handleHubSwitch} />
           </motion.div>
-        )}
+        )} */}
       </AnimatePresence>
 
       {/* Modals */}
