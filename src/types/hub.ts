@@ -37,6 +37,23 @@ export interface HubInvitation {
   invited_by_name?: string;
 }
 
+export interface FetchUserInvitationsResult {
+  id: string;
+  hub_id: string;
+  hub_name: string;
+  hub_description: string | null;
+  email: string;
+  role: string;
+  invited_by_id: string;
+  invited_by_name: string;
+  invited_by_email: string;
+  token: string;
+  expires_at: string;
+  accepted_at: string | null;
+  created_at: string;
+  is_expired: boolean;
+}
+
 export interface UserInvitation {
   id: string;
   hub_id: string;

@@ -42,8 +42,8 @@ const HubSettings: React.FC<HubSettingsProps> = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [copiedInvite, setCopiedInvite] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    name: currentHub.name,
-    description: currentHub.description || "",
+    name: "",
+    description: "",
   });
 
   const {
@@ -94,6 +94,15 @@ const HubSettings: React.FC<HubSettingsProps> = ({
       setShowCreateModal(true);
     }
   }, [action]);
+
+  useEffect(() => {
+    if (currentHub) {
+      setFormData({
+        name: currentHub.name,
+        description: currentHub.description || "",
+      });
+    }
+  }, [currentHub]);
 
   const tabs = [
     { id: "general", label: "General", icon: Settings },

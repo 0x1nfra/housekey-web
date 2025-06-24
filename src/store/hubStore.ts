@@ -11,6 +11,7 @@ import {
   InviteMemberData,
   Result,
   HubPermissions,
+  FetchUserInvitationsResult,
 } from "../types/hub";
 
 interface HubState {
@@ -426,54 +427,39 @@ export const useHubStore = create<HubStore>((set, get) => ({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("User not authenticated");
 
-      // Get user profile to get email
-      const { data: profile, error: profileError } = await supabase
-        .from("user_profiles")
-        .select("id")
-        .eq("id", user.user.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      // Fetch invitations for this user's email
-      const { data: invitations, error } = await supabase
-        .from("hub_invitations")
-        .select(
-          `
-          *,
-          hub:hubs(id, name, description),
-          invited_by_profile:invited_by(user_profiles(id, name, email))
-          `
-        )
-        .eq("invitee", profile.id)
-        .is("accepted_at", null)
-        .order("created_at", { ascending: false });
+      // Call the stored procedure
+      const { data: invitations, error } = await supabase.rpc(
+        "fetch_user_invitations",
+        {
+          user_id: user.user.id,
+        }
+      );
 
       if (error) throw error;
 
       // Transform data to match UserInvitation interface
       const userInvitations: UserInvitation[] = (invitations || []).map(
-        (inv) => ({
+        (inv: FetchUserInvitationsResult) => ({
           id: inv.id,
           hub_id: inv.hub_id,
           hub: {
-            id: inv.hub.id,
-            name: inv.hub.name,
-            description: inv.hub.description,
+            id: inv.hub_id,
+            name: inv.hub_name,
+            description: inv.hub_description,
           },
           user_id: user.user.id,
           email: inv.email,
           role: inv.role,
           invited_by: {
-            id: inv.invited_by_profile.id,
-            name: inv.invited_by_profile.name,
-            email: inv.invited_by_profile.email,
+            id: inv.invited_by_id,
+            name: inv.invited_by_name,
+            email: inv.invited_by_email,
           },
           token: inv.token,
           expires_at: inv.expires_at,
           accepted_at: inv.accepted_at,
           created_at: inv.created_at,
-          is_expired: new Date(inv.expires_at) < new Date(),
+          is_expired: inv.is_expired,
         })
       );
 
