@@ -1,31 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Plus, Settings, Users, Bell } from 'lucide-react';
-import { useHubStore } from '../../store/hubStore';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDown, Plus, Settings, Users, Bell } from "lucide-react";
+import { useHubStore } from "../../store/hubStore";
+import { useNavigate } from "react-router-dom";
 
 const HubSelector: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  
-  const { 
-    currentHub, 
-    userHubs, 
-    pendingInvites,
-    switchHub, 
-    loading 
-  } = useHubStore();
+
+  const { currentHub, userHubs, pendingInvites, switchHub, loading } =
+    useHubStore();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleHubSwitch = async (hubId: string) => {
@@ -37,12 +35,12 @@ const HubSelector: React.FC = () => {
 
   const handleCreateHub = () => {
     setIsOpen(false);
-    navigate('/settings?tab=hubs&action=create');
+    navigate("/settings?tab=hubs&action=create");
   };
 
   const handleManageHub = () => {
     setIsOpen(false);
-    navigate('/settings?tab=hubs');
+    navigate("/settings?tab=hubs");
   };
 
   if (!currentHub) {
@@ -74,11 +72,13 @@ const HubSelector: React.FC = () => {
               {currentHub.name.charAt(0).toUpperCase()}
             </span>
           </div>
-          
+
           <div className="text-left flex-1">
-            <p className="font-medium text-gray-900 truncate">{currentHub.name}</p>
+            <p className="font-medium text-gray-900 truncate">
+              {currentHub.name}
+            </p>
             <p className="text-xs text-gray-500">
-              {userHubs.length} hub{userHubs.length !== 1 ? 's' : ''}
+              {userHubs.length} hub{userHubs.length !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
@@ -92,10 +92,12 @@ const HubSelector: React.FC = () => {
               </span>
             </div>
           )}
-          
-          <ChevronDown 
-            size={16} 
-            className={`text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+
+          <ChevronDown
+            size={16}
+            className={`text-gray-400 transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
           />
         </div>
       </motion.button>
@@ -119,11 +121,13 @@ const HubSelector: React.FC = () => {
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">{currentHub.name}</p>
+                    <p className="font-medium text-gray-900">
+                      {currentHub.name}
+                    </p>
                     <p className="text-sm text-gray-500">Current Hub</p>
                   </div>
                 </div>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -143,11 +147,11 @@ const HubSelector: React.FC = () => {
                   Switch Hub
                 </p>
                 {userHubs
-                  .filter(hub => hub.id !== currentHub.id)
-                  .map(hub => (
+                  .filter((hub) => hub.id !== currentHub.id)
+                  .map((hub) => (
                     <motion.button
                       key={hub.id}
-                      whileHover={{ backgroundColor: 'rgb(249 250 251)' }}
+                      whileHover={{ backgroundColor: "rgb(249 250 251)" }}
                       onClick={() => handleHubSwitch(hub.id)}
                       className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
                     >
@@ -159,7 +163,9 @@ const HubSelector: React.FC = () => {
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{hub.name}</p>
                         {hub.description && (
-                          <p className="text-sm text-gray-500 truncate">{hub.description}</p>
+                          <p className="text-sm text-gray-500 truncate">
+                            {hub.description}
+                          </p>
                         )}
                       </div>
                     </motion.button>
@@ -173,7 +179,7 @@ const HubSelector: React.FC = () => {
                 <p className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
                   Pending Invitations ({pendingInvites.length})
                 </p>
-                {pendingInvites.slice(0, 3).map(invite => (
+                {pendingInvites.slice(0, 3).map((invite) => (
                   <div key={invite.id} className="px-4 py-2">
                     <div className="flex items-center gap-2 p-2 bg-amber-50 rounded-lg">
                       <Bell size={14} className="text-amber-600" />
@@ -199,7 +205,7 @@ const HubSelector: React.FC = () => {
             {/* Actions */}
             <div className="border-t border-gray-100 py-2">
               <motion.button
-                whileHover={{ backgroundColor: 'rgb(249 250 251)' }}
+                whileHover={{ backgroundColor: "rgb(249 250 251)" }}
                 onClick={handleCreateHub}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
               >
@@ -208,12 +214,14 @@ const HubSelector: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">Create New Hub</p>
-                  <p className="text-sm text-gray-500">Start a new family space</p>
+                  <p className="text-sm text-gray-500">
+                    Start a new family space
+                  </p>
                 </div>
               </motion.button>
 
               <motion.button
-                whileHover={{ backgroundColor: 'rgb(249 250 251)' }}
+                whileHover={{ backgroundColor: "rgb(249 250 251)" }}
                 onClick={handleManageHub}
                 className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
               >

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Bell, Shield, Users, Home } from "lucide-react";
+import { Bell, Shield, Users, Home, Inbox } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { getInitials } from "../utils/userUtils";
 import { useSearchParams } from "react-router-dom";
@@ -9,20 +9,23 @@ import HubSettings from "../components/hub/HubSettings";
 const SettingsPage: React.FC = () => {
   const { user, profile } = useAuthStore();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "profile"
+  );
 
   useEffect(() => {
-    const tab = searchParams.get('tab');
+    const tab = searchParams.get("tab");
     if (tab) {
       setActiveTab(tab);
     }
   }, [searchParams]);
 
   const tabs = [
-    { id: 'profile', label: 'Profile', icon: Users },
-    { id: 'hubs', label: 'Hubs', icon: Home },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'privacy', label: 'Privacy & Security', icon: Shield },
+    { id: "profile", label: "Profile", icon: Users },
+    { id: "hubs", label: "Hubs", icon: Home },
+    { id: "invitations", label: "Invitations", icon: Inbox },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "privacy", label: "Privacy & Security", icon: Shield },
   ];
 
   const settingsSections = [
@@ -84,7 +87,7 @@ const SettingsPage: React.FC = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'profile':
+      case "profile":
         return (
           <div className="space-y-8">
             {/* Profile Section */}
@@ -190,20 +193,24 @@ const SettingsPage: React.FC = () => {
           </div>
         );
 
-      case 'hubs':
+      case "hubs":
         return (
-          <HubSettings 
-            activeTab={searchParams.get('subtab') || 'general'} 
-            action={searchParams.get('action') || undefined}
+          <HubSettings
+            activeTab={searchParams.get("subtab") || "general"}
+            action={searchParams.get("action") || undefined}
           />
         );
 
-      case 'notifications':
-      case 'privacy':
-        const section = settingsSections.find(s => 
-          s.title.toLowerCase().includes(activeTab === 'notifications' ? 'notification' : 'privacy')
+      case "notifications":
+      case "privacy":
+        const section = settingsSections.find((s) =>
+          s.title
+            .toLowerCase()
+            .includes(
+              activeTab === "notifications" ? "notification" : "privacy"
+            )
         );
-        
+
         if (!section) return null;
 
         return (
@@ -213,7 +220,9 @@ const SettingsPage: React.FC = () => {
             className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
           >
             <div className="flex items-center gap-3 mb-6">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${section.color}`}>
+              <div
+                className={`w-10 h-10 rounded-lg flex items-center justify-center ${section.color}`}
+              >
                 <section.icon size={20} />
               </div>
               <h2 className="text-xl font-semibold text-gray-900">
@@ -269,14 +278,14 @@ const SettingsPage: React.FC = () => {
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 mb-8">
           <nav className="flex space-x-8">
-            {tabs.map(tab => (
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? "border-indigo-500 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 <tab.icon size={16} />
