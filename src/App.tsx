@@ -1,20 +1,27 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
-import { useAuthStore } from './store/authStore';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import OnboardingPage from './pages/OnboardingPage';
-import DashboardPage from './pages/DashboardPage';
-import CalendarPage from './pages/CalendarPage';
-import TasksPage from './pages/TasksPage';
-import ShoppingPage from './pages/ShoppingPage';
-import SettingsPage from './pages/SettingsPage';
-import Layout from './components/Layout';
+import React, { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
+import { useAuthStore } from "./store/authStore";
+import LandingPage from "./pages/LandingPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import OnboardingPage from "./pages/OnboardingPage";
+import DashboardPage from "./pages/DashboardPage";
+import CalendarPage from "./pages/CalendarPage";
+import TasksPage from "./pages/TasksPage";
+import ShoppingPage from "./pages/ShoppingPage";
+import SettingsPage from "./pages/SettingsPage";
+import Layout from "./components/Layout";
+import { shallow } from "zustand/shallow";
 
 function App() {
-  const { initializeAuth, initialized } = useAuthStore();
+  const { initializeAuth, initialized } = useAuthStore(
+    (state) => ({
+      initializeAuth: state.initializeAuth,
+      initialized: state.initialized,
+    }),
+    shallow
+  );
 
   useEffect(() => {
     initializeAuth();
@@ -39,11 +46,46 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
-          <Route path="/calendar" element={<Layout><CalendarPage /></Layout>} />
-          <Route path="/tasks" element={<Layout><TasksPage /></Layout>} />
-          <Route path="/shopping" element={<Layout><ShoppingPage /></Layout>} />
-          <Route path="/settings" element={<Layout><SettingsPage /></Layout>} />
+          <Route
+            path="/dashboard"
+            element={
+              <Layout>
+                <DashboardPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <Layout>
+                <CalendarPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/tasks"
+            element={
+              <Layout>
+                <TasksPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/shopping"
+            element={
+              <Layout>
+                <ShoppingPage />
+              </Layout>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <Layout>
+                <SettingsPage />
+              </Layout>
+            }
+          />
         </Routes>
       </AnimatePresence>
     </Router>

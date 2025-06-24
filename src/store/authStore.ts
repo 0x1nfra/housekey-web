@@ -33,9 +33,20 @@ interface AuthActions {
   initializeAuth: () => Promise<void>;
   clearError: () => void;
   fetchUserProfile: (userId: string) => Promise<void>;
+  // New actions for cleanup
+  clearUserSession: () => void;
+  resetAllStores: () => void;
 }
 
 type AuthStore = AuthState & AuthActions;
+
+/*
+FIXME:  
+1. update all calls to RPC
+2. add state for errors/robust error handling
+3. add logging to Sentry
+4. move interface/types/enums to types folder
+*/
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   // Initial state
@@ -44,6 +55,34 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loading: false,
   error: null,
   initialized: false,
+
+  // New cleanup actions
+  clearUserSession: () => {
+    // Clear all localStorage items related to user session
+    localStorage.removeItem("currentHubId");
+    // Add any other localStorage keys you want to clear
+    // localStorage.removeItem("userPreferences");
+    // localStorage.removeItem("lastVisitedPage");
+
+    // Reset auth state
+    set({
+      user: null,
+      profile: null,
+      error: null,
+    });
+  },
+
+  resetAllStores: () => {
+    // Import and reset hub store
+    // We'll import this dynamically to avoid circular dependencies
+    // FIXME: add resetStore()
+    // import("./hubStore").then(({ useHubStore }) => {
+    //   useHubStore.getState().resetStore();
+    // });
+
+    // Reset auth store
+    get().clearUserSession();
+  },
 
   // Actions
   signUp: async (email: string, password: string, name: string) => {
@@ -102,6 +141,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
+      // Clear any existing session data first
+      get().clearUserSession();
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -126,6 +168,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         error: null,
       });
 
+      // Initialize hub store for the new user
+      try {
+        const { useHubStore } = await import("./hubStore");
+        await useHubStore.getState().initializeHubs();
+      } catch (error) {
+        console.error("Error initializing hub store:", error);
+      }
+
       return { success: true };
     } catch (error) {
       const errorMessage =
@@ -146,12 +196,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         return;
       }
 
-      set({
-        user: null,
-        profile: null,
-        loading: false,
-        error: null,
-      });
+      // Clear all user data and localStorage
+      get().resetAllStores();
+
+      set({ loading: false });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
@@ -176,19 +224,33 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (session?.user) {
         await get().fetchUserProfile(session.user.id);
         set({ user: session.user });
+
+        // Initialize hub store for the authenticated user
+        import("./hubStore").then(({ useHubStore }) => {
+          useHubStore.getState().initializeHubs();
+        });
       }
 
       // Listen for auth changes
       supabase.auth.onAuthStateChange(async (event, session) => {
         if (event === "SIGNED_IN" && session?.user) {
           try {
+            // Clear any existing data first
+            get().clearUserSession();
+
             await get().fetchUserProfile(session.user.id);
+            set({ user: session.user });
+
+            // Initialize hub store for the new user
+            import("./hubStore").then(({ useHubStore }) => {
+              useHubStore.getState().initializeHubs();
+            });
           } catch (error) {
             console.error("Error fetching profile on auth change:", error);
           }
-          set({ user: session.user });
         } else if (event === "SIGNED_OUT") {
-          set({ user: null, profile: null });
+          // Reset all stores when user signs out
+          get().resetAllStores();
         }
       });
 

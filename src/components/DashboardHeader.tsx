@@ -10,15 +10,35 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import { useHubStore } from "../store/hubStore";
 import { useNavigate } from "react-router-dom";
 import { getInitials } from "../utils/userUtils";
+import HubSelector from "./hub/HubSelector";
+import { shallow } from "zustand/shallow";
 
 const DashboardHeader: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSigningOut, setIsSigningOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user, profile, signOut } = useAuthStore();
+
+  const { user, profile, signOut } = useAuthStore(
+    (state) => ({
+      user: state.user,
+      profile: state.profile,
+      signOut: state.signOut,
+    }),
+    shallow
+  );
+
+  const { initializeHubs, initialized } = useHubStore(
+    (state) => ({
+      initializeHubs: state.initializeHubs,
+      initialized: state.initialized,
+    }),
+    shallow
+  );
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +54,12 @@ const DashboardHeader: React.FC = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (user && !initialized) {
+      initializeHubs();
+    }
+  }, [user, initialized, initializeHubs]);
 
   const handleSignOut = async () => {
     setIsSigningOut(true);
@@ -72,25 +98,29 @@ const DashboardHeader: React.FC = () => {
         {/* Left: App Logo */}
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-indigo-600 rounded flex items-center justify-center text-white font-bold text-sm">
-            A
+            H
           </div>
           <span className="font-semibold text-lg text-gray-800">Harmony</span>
         </div>
 
-        {/* Center: Search Bar */}
-        <div className="flex-1 max-w-lg px-8">
-          <div className="relative">
-            <Search
-              size={18}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              placeholder="Search..."
-            />
+        {/* Center: Hub Selector and Search */}
+        <div className="flex items-center gap-4 flex-1 max-w-2xl px-8">
+          <HubSelector />
+
+          <div className="flex-1 max-w-lg">
+            <div className="relative">
+              <Search
+                size={18}
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-4 py-2 pl-10 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                placeholder="Search..."
+              />
+            </div>
           </div>
         </div>
 

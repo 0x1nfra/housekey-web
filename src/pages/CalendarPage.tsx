@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import SharedCalendarView from '../components/calendar/SharedCalendarView';
-import EventCreationModal from '../components/calendar/EventCreationModal';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import SharedCalendarView from "../components/calendar/SharedCalendarView";
+import EventCreationModal from "../components/calendar/EventCreationModal";
+
+/*
+FIXME:
+1. change to dayjs
+2. move types to type folders
+*/
 
 const CalendarPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,7 +19,7 @@ const CalendarPage: React.FC = () => {
   };
 
   const handleEventSave = (eventData: any) => {
-    console.log('Saving event:', eventData);
+    console.log("Saving event:", eventData);
     setIsModalOpen(false);
   };
 

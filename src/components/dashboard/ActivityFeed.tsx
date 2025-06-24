@@ -1,53 +1,65 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Activity, CheckCircle, Calendar, ShoppingCart, User } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import React from "react";
+import { motion } from "framer-motion";
+import {
+  Activity,
+  CheckCircle,
+  Calendar,
+  ShoppingCart,
+  User,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 interface ActivityItem {
   member: string;
   action: string;
   timestamp: Date;
-  type: 'task' | 'event' | 'shopping' | 'member';
+  type: "task" | "event" | "shopping" | "member";
 }
+
+/*
+FIXME:
+1. change to dayjs
+2. move types to type folders
+*/
 
 const ActivityFeed: React.FC = () => {
   // Mock data - in real app, this would come from props or API
   const activities: ActivityItem[] = [
     {
-      member: 'Emma',
+      member: "Emma",
       action: 'completed "Feed the cat"',
       timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-      type: 'task'
+      type: "task",
     },
     {
-      member: 'Mike',
+      member: "Mike",
       action: 'added "Soccer cleats" to shopping list',
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-      type: 'shopping'
+      type: "shopping",
     },
     {
-      member: 'Sarah',
+      member: "Sarah",
       action: 'scheduled "Family dinner at Grandma\'s"',
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4), // 4 hours ago
-      type: 'event'
+      type: "event",
     },
     {
-      member: 'Emma',
-      action: 'joined the family hub',
+      member: "Emma",
+      action: "joined the family hub",
       timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-      type: 'member'
-    }
+      type: "member",
+    },
   ];
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'task':
+      case "task":
         return CheckCircle;
-      case 'event':
+      case "event":
         return Calendar;
-      case 'shopping':
+      case "shopping":
         return ShoppingCart;
-      case 'member':
+      case "member":
         return User;
       default:
         return Activity;
@@ -56,26 +68,26 @@ const ActivityFeed: React.FC = () => {
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'task':
-        return 'bg-emerald-100 text-emerald-600';
-      case 'event':
-        return 'bg-indigo-100 text-indigo-600';
-      case 'shopping':
-        return 'bg-amber-100 text-amber-600';
-      case 'member':
-        return 'bg-purple-100 text-purple-600';
+      case "task":
+        return "bg-emerald-100 text-emerald-600";
+      case "event":
+        return "bg-indigo-100 text-indigo-600";
+      case "shopping":
+        return "bg-amber-100 text-amber-600";
+      case "member":
+        return "bg-purple-100 text-purple-600";
       default:
-        return 'bg-gray-100 text-gray-600';
+        return "bg-gray-100 text-gray-600";
     }
   };
 
   const getMemberAvatar = (member: string) => {
     const avatars: { [key: string]: string } = {
-      'Sarah': '👩‍💼',
-      'Mike': '👨‍💻',
-      'Emma': '👧'
+      Sarah: "👩‍💼",
+      Mike: "👨‍💻",
+      Emma: "👧",
     };
-    return avatars[member] || '👤';
+    return avatars[member] || "👤";
   };
 
   return (
@@ -91,14 +103,16 @@ const ActivityFeed: React.FC = () => {
         </div>
         <div>
           <h3 className="font-semibold text-gray-900">Recent Activity</h3>
-          <p className="text-sm text-gray-500">See what your family has been up to</p>
+          <p className="text-sm text-gray-500">
+            See what your family has been up to
+          </p>
         </div>
       </div>
 
       <div className="space-y-4">
         {activities.map((activity, index) => {
           const Icon = getActivityIcon(activity.type);
-          
+
           return (
             <motion.div
               key={index}
@@ -108,15 +122,22 @@ const ActivityFeed: React.FC = () => {
               className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg"
             >
               <div className="flex items-center gap-3">
-                <div className="text-2xl">{getMemberAvatar(activity.member)}</div>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getActivityColor(activity.type)}`}>
+                <div className="text-2xl">
+                  {getMemberAvatar(activity.member)}
+                </div>
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center ${getActivityColor(
+                    activity.type
+                  )}`}
+                >
                   <Icon size={16} />
                 </div>
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-900">
-                  <span className="font-medium">{activity.member}</span> {activity.action}
+                  <span className="font-medium">{activity.member}</span>{" "}
+                  {activity.action}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   {formatDistanceToNow(activity.timestamp, { addSuffix: true })}

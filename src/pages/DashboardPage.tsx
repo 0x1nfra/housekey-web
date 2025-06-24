@@ -4,9 +4,16 @@ import HouseholdOverview from "../components/dashboard/HouseholdOverview";
 import QuickActions from "../components/dashboard/QuickActions";
 import ActivityFeed from "../components/dashboard/ActivityFeed";
 import { useAuthStore } from "../store/authStore";
+import { shallow } from "zustand/shallow";
 
 const DashboardPage: React.FC = () => {
-  const { profile } = useAuthStore();
+  const { profile } = useAuthStore(
+    (state) => ({
+      profile: state.profile,
+    }),
+    shallow
+  );
+
   return (
     <div className="px-6 py-8">
       <motion.div

@@ -3,10 +3,18 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
+import { shallow } from "zustand/shallow";
 
 const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const { signUp, loading, error, clearError } = useAuthStore();
+  const { signUp, loading, error } = useAuthStore(
+    (state) => ({
+      signUp: state.signUp,
+      loading: state.loading,
+      error: state.error,
+    }),
+    shallow
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -18,7 +26,6 @@ const SignupPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    clearError();
 
     if (formData.password !== formData.confirmPassword) {
       return;
