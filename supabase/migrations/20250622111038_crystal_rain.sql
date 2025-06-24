@@ -96,12 +96,22 @@ DO $$
 BEGIN
   -- Check if the foreign key constraint already exists
   IF NOT EXISTS (
-    SELECT 1 FROM information_schema.table_constraints tc
-    JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name
-    WHERE tc.table_name = 'hub_members'
-    AND tc.constraint_type = 'FOREIGN KEY'
-    AND kcu.column_name = 'user_id'
-    AND kcu.referenced_table_name = 'user_profiles'
+    SELECT 1 
+    FROM information_schema.table_constraints tc
+    JOIN information_schema.key_column_usage kcu 
+      ON tc.constraint_name = kcu.constraint_name
+      AND tc.table_schema    = kcu.table_schema
+    JOIN information_schema.referential_constraints rc
+      ON tc.constraint_name = rc.constraint_name
+      AND tc.table_schema    = rc.constraint_schema
+    JOIN information_schema.key_column_usage kcu2
+      ON rc.unique_constraint_name = kcu2.constraint_name
+      AND rc.unique_constraint_schema = kcu2.constraint_schema
+    WHERE tc.table_name      = 'hub_members'
+      AND tc.constraint_type = 'FOREIGN KEY'
+      AND kcu.column_name    = 'user_id'
+      AND kcu2.table_name    = 'user_profiles'
+      AND kcu2.column_name   = 'id'
   ) THEN
     -- Add the foreign key constraint
     ALTER TABLE hub_members 
