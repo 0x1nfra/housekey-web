@@ -213,12 +213,17 @@ RETURNS TABLE (
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
+CREATE OR REPLACE FUNCTION get_hub_members_with_profiles(target_hub_id uuid)
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path = public, pg_temp
+ AS $$
 BEGIN
   -- Verify user has access to this hub
   IF NOT EXISTS (
     SELECT 1 FROM hub_members 
     WHERE hub_members.hub_id = target_hub_id 
-    AND hub_members.user_id = auth.uid()
+      AND hub_members.user_id = auth.uid()
   ) THEN
     RAISE EXCEPTION 'Access denied to hub %', target_hub_id;
   END IF;
