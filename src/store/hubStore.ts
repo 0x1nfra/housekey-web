@@ -423,15 +423,21 @@ export const useHubStore = create<HubStore>((set, get) => ({
   fetchUserInvitations: async () => {
     set({ loadingInvitations: true, error: null });
 
-    try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error("User not authenticated");
+    const { currentUserId } = get();
+    if (!currentUserId) {
+      set({
+        error: "User not authenticated",
+        loadingInvitations: false,
+      });
+      return;
+    }
 
+    try {
       // Call the stored procedure
       const { data: invitations, error } = await supabase.rpc(
         "fetch_user_invitations",
         {
-          user_id: user.user.id,
+          user_id: currentUserId,
         }
       );
 
@@ -447,7 +453,7 @@ export const useHubStore = create<HubStore>((set, get) => ({
             name: inv.hub_name,
             description: inv.hub_description,
           },
-          user_id: user.user.id,
+          user_id: currentUserId,
           email: inv.email,
           role: inv.role,
           invited_by: {
@@ -479,19 +485,19 @@ export const useHubStore = create<HubStore>((set, get) => ({
   acceptInvitation: async (invitationId: string) => {
     set({ loadingInvitations: true, error: null });
 
+    const { currentUserId } = get();
+    if (!currentUserId) {
+      const errorMessage = "User not authenticated";
+      set({ error: errorMessage, loadingInvitations: false });
+      return { success: false, error: errorMessage };
+    }
+
     try {
-      const { data: userResponse, error: userError } =
-        await supabase.auth.getUser();
-      if (userError || !userResponse.user)
-        throw new Error("User not authenticated");
-
-      const userId = userResponse.user.id;
-
       const { data: hubId, error: rpcError } = await supabase.rpc(
         "accept_hub_invitation",
         {
           invitation_id: invitationId,
-          user_id: userId,
+          user_id: currentUserId,
         }
       );
 
