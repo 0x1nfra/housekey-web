@@ -201,23 +201,21 @@ CREATE POLICY "Users can view hub members with profiles"
 -- Function to get hub members with user details
 CREATE OR REPLACE FUNCTION get_hub_members_with_profiles(target_hub_id uuid)
 RETURNS TABLE (
-  member_id uuid,
-  hub_id uuid,
-  user_id uuid,
-  role text,
-  joined_at timestamptz,
-  invited_by uuid,
-  user_name text,
-  user_email text
-) 
+  member_id   uuid,
+  hub_id      uuid,
+  user_id     uuid,
+  role        text,
+  joined_at   timestamptz,
+  invited_by  uuid,
+  user_name   text,
+  user_email  text
+)
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public, pg_temp
 AS $$
-CREATE OR REPLACE FUNCTION get_hub_members_with_profiles(target_hub_id uuid)
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path = public, pg_temp
- AS $$
+-- (lines 221–245: function body unchanged)
+$$;
 BEGIN
   -- Verify user has access to this hub
   IF NOT EXISTS (
