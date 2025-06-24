@@ -21,6 +21,7 @@ import CreateHubModal from "./modals/CreateHubModal";
 import InviteMemberModal from "./modals/InviteMemberModal";
 import DeleteHubModal from "./modals/DeleteHubModal";
 import LeaveHubModal from "./modals/LeaveHubModal";
+import dayjs from "dayjs";
 
 interface HubSettingsProps {
   activeTab?: string;
@@ -329,7 +330,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                   <div>
                     <p className="text-sm font-medium text-gray-900">Created</p>
                     <p className="text-sm text-gray-500">
-                      {new Date(currentHub.created_at).toLocaleDateString()}
+                      {dayjs(currentHub.created_at).format("DD/MM/YYYY")}
                     </p>
                   </div>
                 </div>
@@ -456,7 +457,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                           </p>
                           <p className="text-xs text-gray-400">
                             Joined{" "}
-                            {new Date(member.joined_at).toLocaleDateString()}
+                            {dayjs(member.joined_at).format("DD/MM/YYYY")}
                           </p>
                         </div>
                       </div>
@@ -516,11 +517,11 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                           </p>
                           <p className="text-sm text-gray-500">
                             Invited as {invite.role} •{" "}
-                            {new Date(invite.created_at).toLocaleDateString()}
+                            {dayjs(invite.created_at).format("DD/MM/YYYY")}
                           </p>
                           <p className="text-xs text-gray-400">
                             Expires{" "}
-                            {new Date(invite.expires_at).toLocaleDateString()}
+                            {dayjs(invite.expires_at).format("DD/MM/YYYY")}
                           </p>
                         </div>
                       </div>

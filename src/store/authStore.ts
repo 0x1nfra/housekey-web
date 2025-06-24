@@ -40,6 +40,14 @@ interface AuthActions {
 
 type AuthStore = AuthState & AuthActions;
 
+/*
+FIXME:  
+1. update all calls to RPC
+2. add state for errors/robust error handling
+3. add logging to Sentry
+4. move interface/types/enums to types folder
+*/
+
 export const useAuthStore = create<AuthStore>((set, get) => ({
   // Initial state
   user: null,

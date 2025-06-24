@@ -26,6 +26,17 @@ interface HubState {
   initialized: boolean;
 }
 
+/*
+FIXME:  
+1. update all calls to RPC
+2. add state for errors/robust error handling
+3. add logging to Sentry
+4. move interface/types/enums to types folder
+5. use enum for member roles
+6. add role management logic
+7. add dayjs
+*/
+
 interface HubActions {
   // Core Actions
   initializeHubs(): Promise<void>;
@@ -272,68 +283,31 @@ export const useHubStore = create<HubStore>((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      const supa = supabase;
-
-      // Get user profile ID from email
-      const { data: userProfile, error: profileError } = await supa
-        .from("user_profiles")
-        .select("id")
-        .eq("email", data.email)
-        .single();
-
-      if (profileError) throw profileError;
-      const userId = userProfile.id;
-
-      // Check if already a member
-      const { data: existingMember } = await supa
-        .from("hub_members")
-        .select("id")
-        .eq("hub_id", hubId)
-        .eq("user_id", userId)
-        .single();
-
-      if (existingMember) {
-        throw new Error("User is already a member of this hub");
-      }
-
-      // Check if invitation already sent
-      const { data: existingInvite } = await supa
-        .from("hub_invitations")
-        .select("id")
-        .eq("hub_id", hubId)
-        .eq("email", data.email)
-        .is("accepted_at", null)
-        .single();
-
-      if (existingInvite) {
-        throw new Error("An invitation has already been sent to this email");
-      }
-
       // Get inviter's user ID
-      const { data: authUser } = await supa.auth.getUser();
+      const { data: authUser } = await supabase.auth.getUser();
       const invitedBy = authUser.user?.id;
       if (!invitedBy) throw new Error("User not authenticated");
 
-      // Create invitation
-      const { data: invitation, error: inviteError } = await supa
-        .from("hub_invitations")
-        .insert({
-          hub_id: hubId,
-          email: data.email,
-          role: data.role,
-          invited_by: invitedBy,
-          invitee: userProfile.id,
-        })
-        .select()
-        .single();
+      // Call the stored procedure
+      const { data: result, error } = await supabase.rpc("invite_member", {
+        p_hub_id: hubId,
+        p_email: data.email,
+        p_role: data.role,
+        p_invited_by: invitedBy,
+      });
 
-      if (inviteError) throw inviteError;
+      if (error) throw error;
+
+      // Check if the procedure returned an error
+      if (!result.success) {
+        throw new Error(result.error);
+      }
 
       // Refresh state
       await get().loadHubData(hubId);
       set({ loading: false });
 
-      return { success: true, data: invitation };
+      return { success: true, data: result.data };
     } catch (err) {
       console.error("Error inviting member:", err);
       const errorMessage =
@@ -511,41 +485,28 @@ export const useHubStore = create<HubStore>((set, get) => ({
     set({ loadingInvitations: true, error: null });
 
     try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error("User not authenticated");
+      const { data: userResponse, error: userError } =
+        await supabase.auth.getUser();
+      if (userError || !userResponse.user)
+        throw new Error("User not authenticated");
 
-      // Get invitation data and insert member in one transaction
-      const { data: invitationData, error: invitationError } = await supabase
-        .from("hub_invitations")
-        .select("hub_id, invitee, invited_by")
-        .eq("id", invitationId)
-        .single();
+      const userId = userResponse.user.id;
 
-      if (invitationError) throw invitationError;
+      const { data: hubId, error: rpcError } = await supabase.rpc(
+        "accept_hub_invitation",
+        {
+          invitation_id: invitationId,
+          user_id: userId,
+        }
+      );
 
-      // Insert new member
-      const { error: insertError } = await supabase.from("hub_members").insert({
-        hub_id: invitationData.hub_id,
-        user_id: invitationData.invitee,
-        role: "member",
-        invited_by: invitationData.invited_by,
-      });
-
-      if (insertError) throw insertError;
-
-      // Delete the invitation (fix typo: "invitaions" -> "invitations")
-      const { error: deleteError } = await supabase
-        .from("hub_invitations")
-        .delete()
-        .eq("id", invitationId);
-
-      if (deleteError) throw deleteError;
+      if (rpcError) throw rpcError;
 
       // Refresh data
       await Promise.all([get().fetchUserInvitations(), get().initializeHubs()]);
 
       set({ loadingInvitations: false });
-      return { success: true, data: { hub_id: invitationData.hub_id } };
+      return { success: true, data: { hub_id: hubId } };
     } catch (error) {
       console.error("Error accepting invitation:", error);
       const errorMessage =
@@ -562,10 +523,15 @@ export const useHubStore = create<HubStore>((set, get) => ({
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error("User not authenticated");
 
-      // Call the database function to decline invitation
+      const userId = user.user.id;
+
+      console.log(invitationId);
+      console.log(userId);
+
+      // Call the RPC function
       const { data, error } = await supabase.rpc("decline_hub_invitation", {
         invitation_id: invitationId,
-        user_id: user.user.id,
+        user_id: userId,
       });
 
       if (error) throw error;
@@ -576,7 +542,7 @@ export const useHubStore = create<HubStore>((set, get) => ({
         throw new Error(result.error || "Failed to decline invitation");
       }
 
-      // Refresh user invitations
+      // Refresh the invitation list
       await get().fetchUserInvitations();
 
       set({ loadingInvitations: false });

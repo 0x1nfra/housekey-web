@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, MapPin, Users, Repeat } from 'lucide-react';
-import { format } from 'date-fns';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
+import { format } from "date-fns";
 
 interface EventCreationModalProps {
   isOpen: boolean;
@@ -10,50 +10,71 @@ interface EventCreationModalProps {
   onClose: () => void;
 }
 
+/*
+FIXME:
+1. change to dayjs
+2. move types to type folders
+*/
+
 const EventCreationModal: React.FC<EventCreationModalProps> = ({
   isOpen,
   defaultDate,
   onEventSave,
-  onClose
+  onClose,
 }) => {
   const [eventData, setEventData] = useState({
-    title: '',
-    date: format(defaultDate, 'yyyy-MM-dd'),
-    startTime: '09:00',
-    endTime: '10:00',
+    title: "",
+    date: format(defaultDate, "yyyy-MM-dd"),
+    startTime: "09:00",
+    endTime: "10:00",
     assignedTo: [] as string[],
-    location: '',
-    type: 'activity' as 'appointment' | 'chore' | 'activity',
+    location: "",
+    type: "activity" as "appointment" | "chore" | "activity",
     recurring: false,
-    recurrencePattern: 'weekly' as 'daily' | 'weekly' | 'monthly',
-    notes: ''
+    recurrencePattern: "weekly" as "daily" | "weekly" | "monthly",
+    notes: "",
   });
 
   const familyMembers = [
-    { id: '1', name: 'Sarah', avatar: '👩‍💼' },
-    { id: '2', name: 'Mike', avatar: '👨‍💻' },
-    { id: '3', name: 'Emma', avatar: '👧' }
+    { id: "1", name: "Sarah", avatar: "👩‍💼" },
+    { id: "2", name: "Mike", avatar: "👨‍💻" },
+    { id: "3", name: "Emma", avatar: "👧" },
   ];
 
   const eventTypes = [
-    { value: 'appointment', label: 'Appointment', icon: Calendar, color: 'bg-indigo-100 text-indigo-700' },
-    { value: 'activity', label: 'Activity', icon: Users, color: 'bg-emerald-100 text-emerald-700' },
-    { value: 'chore', label: 'Chore', icon: Clock, color: 'bg-amber-100 text-amber-700' }
+    {
+      value: "appointment",
+      label: "Appointment",
+      icon: Calendar,
+      color: "bg-indigo-100 text-indigo-700",
+    },
+    {
+      value: "activity",
+      label: "Activity",
+      icon: Users,
+      color: "bg-emerald-100 text-emerald-700",
+    },
+    {
+      value: "chore",
+      label: "Chore",
+      icon: Clock,
+      color: "bg-amber-100 text-amber-700",
+    },
   ];
 
   const handleInputChange = (field: string, value: any) => {
-    setEventData(prev => ({
+    setEventData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleMemberToggle = (memberName: string) => {
-    setEventData(prev => ({
+    setEventData((prev) => ({
       ...prev,
       assignedTo: prev.assignedTo.includes(memberName)
-        ? prev.assignedTo.filter(name => name !== memberName)
-        : [...prev.assignedTo, memberName]
+        ? prev.assignedTo.filter((name) => name !== memberName)
+        : [...prev.assignedTo, memberName],
     }));
   };
 
@@ -61,16 +82,16 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     onEventSave(eventData);
     // Reset form
     setEventData({
-      title: '',
-      date: format(new Date(), 'yyyy-MM-dd'),
-      startTime: '09:00',
-      endTime: '10:00',
+      title: "",
+      date: format(new Date(), "yyyy-MM-dd"),
+      startTime: "09:00",
+      endTime: "10:00",
       assignedTo: [],
-      location: '',
-      type: 'activity',
+      location: "",
+      type: "activity",
       recurring: false,
-      recurrencePattern: 'weekly',
-      notes: ''
+      recurrencePattern: "weekly",
+      notes: "",
     });
   };
 
@@ -93,7 +114,9 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Create New Event</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Create New Event
+              </h2>
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
@@ -111,7 +134,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                 <input
                   type="text"
                   value={eventData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter event title"
                 />
@@ -123,17 +146,19 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Event Type
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                  {eventTypes.map(type => (
+                  {eventTypes.map((type) => (
                     <button
                       key={type.value}
-                      onClick={() => handleInputChange('type', type.value)}
+                      onClick={() => handleInputChange("type", type.value)}
                       className={`p-3 border rounded-lg transition-colors ${
                         eventData.type === type.value
-                          ? 'border-indigo-300 bg-indigo-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? "border-indigo-300 bg-indigo-50"
+                          : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 ${type.color}`}>
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 ${type.color}`}
+                      >
                         <type.icon size={16} />
                       </div>
                       <span className="text-sm font-medium">{type.label}</span>
@@ -151,7 +176,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   <input
                     type="date"
                     value={eventData.date}
-                    onChange={(e) => handleInputChange('date', e.target.value)}
+                    onChange={(e) => handleInputChange("date", e.target.value)}
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   />
                 </div>
@@ -162,7 +187,9 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   <input
                     type="time"
                     value={eventData.startTime}
-                    onChange={(e) => handleInputChange('startTime', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("startTime", e.target.value)
+                    }
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   />
                 </div>
@@ -173,7 +200,9 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   <input
                     type="time"
                     value={eventData.endTime}
-                    onChange={(e) => handleInputChange('endTime', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("endTime", e.target.value)
+                    }
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   />
                 </div>
@@ -185,14 +214,14 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Assign to Family Members
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {familyMembers.map(member => (
+                  {familyMembers.map((member) => (
                     <button
                       key={member.id}
                       onClick={() => handleMemberToggle(member.name)}
                       className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                         eventData.assignedTo.includes(member.name)
-                          ? 'border-indigo-300 bg-indigo-50 text-indigo-700'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? "border-indigo-300 bg-indigo-50 text-indigo-700"
+                          : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       <span className="text-lg">{member.avatar}</span>
@@ -208,11 +237,16 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Location
                 </label>
                 <div className="relative">
-                  <MapPin size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <MapPin
+                    size={20}
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
                   <input
                     type="text"
                     value={eventData.location}
-                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("location", e.target.value)
+                    }
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                     placeholder="Enter location (optional)"
                   />
@@ -226,18 +260,25 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                     type="checkbox"
                     id="recurring"
                     checked={eventData.recurring}
-                    onChange={(e) => handleInputChange('recurring', e.target.checked)}
+                    onChange={(e) =>
+                      handleInputChange("recurring", e.target.checked)
+                    }
                     className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
                   />
-                  <label htmlFor="recurring" className="text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="recurring"
+                    className="text-sm font-medium text-gray-700"
+                  >
                     Recurring Event
                   </label>
                 </div>
-                
+
                 {eventData.recurring && (
                   <select
                     value={eventData.recurrencePattern}
-                    onChange={(e) => handleInputChange('recurrencePattern', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("recurrencePattern", e.target.value)
+                    }
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   >
                     <option value="daily">Daily</option>
@@ -254,7 +295,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                 </label>
                 <textarea
                   value={eventData.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  onChange={(e) => handleInputChange("notes", e.target.value)}
                   rows={3}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
                   placeholder="Add any additional notes..."

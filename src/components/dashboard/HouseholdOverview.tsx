@@ -1,13 +1,13 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, CheckSquare, Users, Clock } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Calendar, CheckSquare, Users, Clock } from "lucide-react";
 
 interface Event {
   id: string;
   title: string;
   time: string;
   assignedTo: string;
-  type: 'appointment' | 'activity' | 'reminder';
+  type: "appointment" | "activity" | "reminder";
 }
 
 interface Task {
@@ -15,95 +15,101 @@ interface Task {
   title: string;
   assignedTo: string;
   dueDate: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: "high" | "medium" | "low";
 }
 
 interface Member {
   id: string;
   name: string;
-  role: 'parent' | 'child' | 'roommate';
+  role: "parent" | "child" | "roommate";
   avatar: string;
   lastActive: string;
 }
+
+/*
+FIXME:
+1. change to dayjs
+2. move types to type folders
+*/
 
 const HouseholdOverview: React.FC = () => {
   // Mock data - in real app, this would come from props or API
   const todayEvents: Event[] = [
     {
-      id: '1',
-      title: 'Soccer Practice',
-      time: '2024-01-15T16:00:00Z',
-      assignedTo: 'Emma',
-      type: 'activity'
+      id: "1",
+      title: "Soccer Practice",
+      time: "2024-01-15T16:00:00Z",
+      assignedTo: "Emma",
+      type: "activity",
     },
     {
-      id: '2',
-      title: 'Dentist Appointment',
-      time: '2024-01-15T14:30:00Z',
-      assignedTo: 'Mom',
-      type: 'appointment'
-    }
+      id: "2",
+      title: "Dentist Appointment",
+      time: "2024-01-15T14:30:00Z",
+      assignedTo: "Mom",
+      type: "appointment",
+    },
   ];
 
   const pendingTasks: Task[] = [
     {
-      id: '1',
-      title: 'Take out trash',
-      assignedTo: 'Dad',
-      dueDate: '2024-01-15',
-      priority: 'high'
+      id: "1",
+      title: "Take out trash",
+      assignedTo: "Dad",
+      dueDate: "2024-01-15",
+      priority: "high",
     },
     {
-      id: '2',
-      title: 'Feed the cat',
-      assignedTo: 'Emma',
-      dueDate: '2024-01-15',
-      priority: 'medium'
-    }
+      id: "2",
+      title: "Feed the cat",
+      assignedTo: "Emma",
+      dueDate: "2024-01-15",
+      priority: "medium",
+    },
   ];
 
   const householdMembers: Member[] = [
     {
-      id: '1',
-      name: 'Sarah',
-      role: 'parent',
-      avatar: '👩‍💼',
-      lastActive: '2024-01-15T08:00:00Z'
+      id: "1",
+      name: "Sarah",
+      role: "parent",
+      avatar: "👩‍💼",
+      lastActive: "2024-01-15T08:00:00Z",
     },
     {
-      id: '2',
-      name: 'Mike',
-      role: 'parent',
-      avatar: '👨‍💻',
-      lastActive: '2024-01-15T07:30:00Z'
+      id: "2",
+      name: "Mike",
+      role: "parent",
+      avatar: "👨‍💻",
+      lastActive: "2024-01-15T07:30:00Z",
     },
     {
-      id: '3',
-      name: 'Emma',
-      role: 'child',
-      avatar: '👧',
-      lastActive: '2024-01-15T07:45:00Z'
-    }
+      id: "3",
+      name: "Emma",
+      role: "child",
+      avatar: "👧",
+      lastActive: "2024-01-15T07:45:00Z",
+    },
   ];
 
   const formatTime = (timeString: string) => {
-    return new Date(timeString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+    return new Date(timeString).toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high':
-        return 'text-red-600 bg-red-50';
-      case 'medium':
-        return 'text-amber-600 bg-amber-50';
-      case 'low':
-        return 'text-green-600 bg-green-50';
+      case "high":
+        return "text-red-600 bg-red-50";
+      case "medium":
+        return "text-amber-600 bg-amber-50";
+      case "low":
+        return "text-green-600 bg-green-50";
       default:
-        return 'text-gray-600 bg-gray-50';
+        return "text-gray-600 bg-gray-50";
     }
   };
 
@@ -122,15 +128,22 @@ const HouseholdOverview: React.FC = () => {
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">Today's Events</h3>
-            <p className="text-sm text-gray-500">{todayEvents.length} scheduled</p>
+            <p className="text-sm text-gray-500">
+              {todayEvents.length} scheduled
+            </p>
           </div>
         </div>
 
         <div className="space-y-3">
           {todayEvents.map((event) => (
-            <div key={event.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div
+              key={event.id}
+              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+            >
               <div className="flex-1">
-                <p className="font-medium text-gray-900 text-sm">{event.title}</p>
+                <p className="font-medium text-gray-900 text-sm">
+                  {event.title}
+                </p>
                 <p className="text-xs text-gray-500">
                   {formatTime(event.time)} • {event.assignedTo}
                 </p>
@@ -138,7 +151,7 @@ const HouseholdOverview: React.FC = () => {
               <Clock size={16} className="text-gray-400" />
             </div>
           ))}
-          
+
           {todayEvents.length === 0 && (
             <p className="text-gray-500 text-sm text-center py-4">
               No events scheduled for today
@@ -160,23 +173,36 @@ const HouseholdOverview: React.FC = () => {
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">Pending Tasks</h3>
-            <p className="text-sm text-gray-500">{pendingTasks.length} remaining</p>
+            <p className="text-sm text-gray-500">
+              {pendingTasks.length} remaining
+            </p>
           </div>
         </div>
 
         <div className="space-y-3">
           {pendingTasks.map((task) => (
-            <div key={task.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div
+              key={task.id}
+              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+            >
               <div className="flex-1">
-                <p className="font-medium text-gray-900 text-sm">{task.title}</p>
-                <p className="text-xs text-gray-500">Assigned to {task.assignedTo}</p>
+                <p className="font-medium text-gray-900 text-sm">
+                  {task.title}
+                </p>
+                <p className="text-xs text-gray-500">
+                  Assigned to {task.assignedTo}
+                </p>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
+                  task.priority
+                )}`}
+              >
                 {task.priority}
               </span>
             </div>
           ))}
-          
+
           {pendingTasks.length === 0 && (
             <p className="text-gray-500 text-sm text-center py-4">
               All tasks completed! 🎉
@@ -198,17 +224,26 @@ const HouseholdOverview: React.FC = () => {
           </div>
           <div>
             <h3 className="font-semibold text-gray-900">Family Members</h3>
-            <p className="text-sm text-gray-500">{householdMembers.length} active</p>
+            <p className="text-sm text-gray-500">
+              {householdMembers.length} active
+            </p>
           </div>
         </div>
 
         <div className="space-y-3">
           {householdMembers.map((member) => (
-            <div key={member.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <div
+              key={member.id}
+              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+            >
               <div className="text-2xl">{member.avatar}</div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900 text-sm">{member.name}</p>
-                <p className="text-xs text-gray-500 capitalize">{member.role}</p>
+                <p className="font-medium text-gray-900 text-sm">
+                  {member.name}
+                </p>
+                <p className="text-xs text-gray-500 capitalize">
+                  {member.role}
+                </p>
               </div>
               <div className="w-2 h-2 bg-green-500 rounded-full" />
             </div>

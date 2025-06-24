@@ -15,10 +15,20 @@ import {
 import { useHubStore } from "../../store/hubStore";
 import { formatDistanceToNow } from "date-fns";
 import { shallow } from "zustand/shallow";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 interface InvitationsListProps {
   onHubSwitch: (hubId: string) => Promise<void>;
 }
+
+/*
+FIXME:
+1. change to dayjs
+2. move types to type folders
+*/
 
 const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
   const {
@@ -203,11 +213,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar size={16} />
-                      <span>
-                        {formatDistanceToNow(new Date(invitation.created_at), {
-                          addSuffix: true,
-                        })}
-                      </span>
+                      <span>{dayjs(invitation.created_at).fromNow()}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock size={16} />
