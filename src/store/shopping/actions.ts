@@ -205,8 +205,6 @@ export const createShoppingActions = (set: any, get: any) => ({
         created_by: userId,
       };
 
-      console.log("Insert data:", insertData);
-
       const { data: item, error } = await supabase
         .from("shopping_list_items")
         .insert(insertData)
@@ -274,7 +272,7 @@ export const createShoppingActions = (set: any, get: any) => ({
     }
   },
 
-  edit: async (itemId: string) => {
+  editItem: async (itemId: string) => {
     try {
       // Get the item first to know which list to update
       const state = get();

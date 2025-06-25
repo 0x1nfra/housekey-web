@@ -102,7 +102,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
               <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                 <Plus size={20} className="text-emerald-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Add Item</h2>
+              <h2 className="text-xl font-bold text-gray-900">Edit Item</h2>
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"

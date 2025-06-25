@@ -19,9 +19,11 @@ import { useShoppingData } from "./hooks/useShoppingData";
 import { CreateItemData, useShoppingStore } from "../../store/shopping";
 import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
+import EditItemModal from "./modals/EditItemModal";
 
 const CollaborativeShoppingList: React.FC = () => {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  // const [showEditItemModal, setShowEditItemModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -69,9 +71,9 @@ const CollaborativeShoppingList: React.FC = () => {
     }
   };
 
-  // const handleEditItem = async (itemId: string) => {
+  // const handleEditItem = async (itemId: CreateItemData) => {
   //   try {
-  //     await deleteItem(itemId);
+  //     await editItem(itemId);
   //   } catch (error) {
   //     console.error("Error editing item:", error);
   //   }
@@ -188,7 +190,7 @@ const CollaborativeShoppingList: React.FC = () => {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => setShowEditModal(true)}
+                          onClick={() => setShowEditItemModal(true)}
                           className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                           title="Edit list"
                         >
@@ -537,6 +539,12 @@ const CollaborativeShoppingList: React.FC = () => {
         onClose={() => setShowAddItemModal(false)}
         onItemAdd={handleItemAdd}
       />
+
+      {/* <EditItemModal
+        isOpen={showEditItemModal}
+        onClose={() => setShowEditItemModal(false)}
+        onItemAdd={handleEditItem}
+      /> */}
 
       <CreateListModal
         isOpen={showCreateModal}

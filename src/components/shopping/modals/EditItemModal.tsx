@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Camera, Zap, Edit3 } from "lucide-react";
 import { CreateItemData } from "../../../store/shopping/types";
 
-interface AddItemModalProps {
+interface EditItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onItemAdd: (itemData: CreateItemData) => void;
 }
 
-const AddItemModal: React.FC<AddItemModalProps> = ({
+const EditItemModal: React.FC<EditItemModalProps> = ({
   isOpen,
   onClose,
   onItemAdd,
@@ -263,4 +263,4 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   );
 };
 
-export default AddItemModal;
+export default EditItemModal;
