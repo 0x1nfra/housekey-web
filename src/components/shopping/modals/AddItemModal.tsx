@@ -1,49 +1,50 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Search, Camera, Package, Zap } from 'lucide-react';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Search, Camera, Zap, Plus } from "lucide-react";
+import { CreateItemData } from "../../../store/shopping/types";
 
-interface SmartItemInputProps {
+interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onItemAdd: (itemData: any) => void;
+  onItemAdd: (itemData: CreateItemData) => void;
 }
 
-const SmartItemInput: React.FC<SmartItemInputProps> = ({
+const AddItemModal: React.FC<AddItemModalProps> = ({
   isOpen,
   onClose,
-  onItemAdd
+  onItemAdd,
 }) => {
-  const [itemName, setItemName] = useState('');
+  const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [category, setCategory] = useState('');
-  const [notes, setNotes] = useState('');
+  const [category, setCategory] = useState("");
+  const [note, setNotes] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Mock suggestions - in real app, these would be dynamic based on input and household history
   const suggestions = [
-    { name: 'Milk', category: 'Dairy', icon: '🥛' },
-    { name: 'Bread', category: 'Bakery', icon: '🍞' },
-    { name: 'Bananas', category: 'Produce', icon: '🍌' },
-    { name: 'Chicken Breast', category: 'Meat', icon: '🍗' },
-    { name: 'Eggs', category: 'Dairy', icon: '🥚' },
-    { name: 'Apples', category: 'Produce', icon: '🍎' },
-    { name: 'Rice', category: 'Pantry', icon: '🍚' },
-    { name: 'Yogurt', category: 'Dairy', icon: '🥛' }
+    { name: "Milk", category: "Dairy", icon: "🥛" },
+    { name: "Bread", category: "Bakery", icon: "🍞" },
+    { name: "Bananas", category: "Produce", icon: "🍌" },
+    { name: "Chicken Breast", category: "Meat", icon: "🍗" },
+    { name: "Eggs", category: "Dairy", icon: "🥚" },
+    { name: "Apples", category: "Produce", icon: "🍎" },
+    { name: "Rice", category: "Pantry", icon: "🍚" },
+    { name: "Yogurt", category: "Dairy", icon: "🥛" },
   ];
 
   const categories = [
-    'Produce',
-    'Dairy',
-    'Meat',
-    'Bakery',
-    'Pantry',
-    'Frozen',
-    'Household',
-    'Personal Care',
-    'Other'
+    "Produce",
+    "Dairy",
+    "Meat",
+    "Bakery",
+    "Pantry",
+    "Frozen",
+    "Household",
+    "Personal Care",
+    "Other",
   ];
 
-  const filteredSuggestions = suggestions.filter(suggestion =>
+  const filteredSuggestions = suggestions.filter((suggestion) =>
     suggestion.name.toLowerCase().includes(itemName.toLowerCase())
   );
 
@@ -55,15 +56,14 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
       name: itemName,
       quantity,
       category,
-      notes,
-      addedBy: 'Sarah' // Current user
+      note,
     });
 
     // Reset form
-    setItemName('');
+    setItemName("");
     setQuantity(1);
-    setCategory('');
-    setNotes('');
+    setCategory("");
+    setNotes("");
     setShowSuggestions(false);
   };
 
@@ -75,9 +75,9 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
 
   const handleBarcodeScanned = (barcode: string) => {
     // Mock barcode scanning - in real app, this would lookup product info
-    console.log('Barcode scanned:', barcode);
-    setItemName('Scanned Product');
-    setCategory('Unknown');
+    console.log("Barcode scanned:", barcode);
+    setItemName("Scanned Product");
+    setCategory("Unknown");
   };
 
   return (
@@ -99,6 +99,9 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
+              <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
+                <Plus size={20} className="text-emerald-600" />
+              </div>
               <h2 className="text-xl font-bold text-gray-900">Add Item</h2>
               <button
                 onClick={onClose}
@@ -115,7 +118,10 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
                   Item Name *
                 </label>
                 <div className="relative">
-                  <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Search
+                    size={20}
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  />
                   <input
                     type="text"
                     value={itemName}
@@ -145,8 +151,12 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
                       >
                         <span className="text-2xl">{suggestion.icon}</span>
                         <div>
-                          <p className="font-medium text-gray-900">{suggestion.name}</p>
-                          <p className="text-sm text-gray-500">{suggestion.category}</p>
+                          <p className="font-medium text-gray-900">
+                            {suggestion.name}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {suggestion.category}
+                          </p>
                         </div>
                       </button>
                     ))}
@@ -160,13 +170,13 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   type="button"
-                  onClick={() => handleBarcodeScanned('123456789')}
+                  onClick={() => handleBarcodeScanned("123456789")}
                   className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200 transition-colors"
                 >
                   <Camera size={16} />
                   Scan Barcode
                 </motion.button>
-                
+
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -203,8 +213,10 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   >
                     <option value="">Select category</option>
-                    {categories.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -217,7 +229,7 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
                 </label>
                 <input
                   type="text"
-                  value={notes}
+                  value={note}
                   onChange={(e) => setNotes(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Brand preference, size, etc."
@@ -251,4 +263,4 @@ const SmartItemInput: React.FC<SmartItemInputProps> = ({
   );
 };
 
-export default SmartItemInput;
+export default AddItemModal;

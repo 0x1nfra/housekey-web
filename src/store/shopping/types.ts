@@ -37,7 +37,7 @@ export interface ListCollaborator {
   };
 }
 
-export type CollaboratorRole = 'owner' | 'editor' | 'member';
+export type CollaboratorRole = "owner" | "editor" | "member";
 
 export interface ListStats {
   totalItems: number;
@@ -89,17 +89,17 @@ export interface ShoppingState {
   // Lists
   lists: ShoppingList[];
   currentList: ShoppingList | null;
-  
+
   // Items (keyed by listId)
   items: Record<string, ShoppingListItem[]>;
-  
+
   // Collaborators (keyed by listId)
   collaborators: Record<string, ListCollaborator[]>;
-  
+
   // Stats (keyed by listId)
   listStats: Record<string, ListStats>;
   hubStats: Record<string, HubShoppingStats>;
-  
+
   // UI State
   loading: {
     lists: boolean;
@@ -108,7 +108,7 @@ export interface ShoppingState {
     stats: boolean;
   };
   error: string | null;
-  
+
   // Realtime subscriptions
   subscriptions: Record<string, any>;
 }
@@ -119,28 +119,38 @@ export interface ShoppingActions {
   createList: (hubId: string, data: CreateListData) => Promise<ShoppingList>;
   updateList: (listId: string, data: UpdateListData) => Promise<void>;
   deleteList: (listId: string) => Promise<void>;
-  
+
   // Item Management
   fetchItems: (listId: string) => Promise<void>;
-  createItem: (listId: string, data: CreateItemData) => Promise<ShoppingListItem>;
+  createItem: (
+    listId: string,
+    data: CreateItemData
+  ) => Promise<ShoppingListItem>;
   updateItem: (itemId: string, data: UpdateItemData) => Promise<void>;
   deleteItem: (itemId: string) => Promise<void>;
   toggleItemComplete: (itemId: string) => Promise<void>;
-  
+
   // Collaborator Management
   fetchCollaborators: (listId: string) => Promise<void>;
-  addCollaborator: (listId: string, userId: string, role: CollaboratorRole) => Promise<void>;
-  updateCollaboratorRole: (collaboratorId: string, role: CollaboratorRole) => Promise<void>;
+  addCollaborator: (
+    listId: string,
+    userId: string,
+    role: CollaboratorRole
+  ) => Promise<void>;
+  updateCollaboratorRole: (
+    collaboratorId: string,
+    role: CollaboratorRole
+  ) => Promise<void>;
   removeCollaborator: (collaboratorId: string) => Promise<void>;
-  
+
   // Statistics
   fetchListStats: (listId: string) => Promise<void>;
   fetchHubStats: (hubId: string) => Promise<void>;
-  
+
   // Realtime
   subscribeToList: (listId: string) => void;
   unsubscribeFromList: (listId: string) => void;
-  
+
   // Utility
   setCurrentList: (list: ShoppingList | null) => void;
   clearError: () => void;

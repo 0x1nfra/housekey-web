@@ -1,23 +1,40 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Check, X, ShoppingCart, Users, Clock, Edit3, Trash2, Settings } from "lucide-react";
-import SmartItemInput from "./SmartItemInput";
+import {
+  Plus,
+  Check,
+  X,
+  ShoppingCart,
+  Users,
+  Clock,
+  Edit3,
+  Trash2,
+  Settings,
+} from "lucide-react";
+import AddItemModal from "./modals/AddItemModal";
 import CreateListModal from "./modals/CreateListModal";
 import EditListModal from "./modals/EditListModal";
 import DeleteListModal from "./modals/DeleteListModal";
 import { useShoppingData } from "./hooks/useShoppingData";
-import { useShoppingStore } from "../../store/shopping";
+import { CreateItemData, useShoppingStore } from "../../store/shopping";
 import { useAuthStore } from "../../store/authStore";
+import { shallow } from "zustand/shallow";
 
 const CollaborativeShoppingList: React.FC = () => {
-  const [isAddingItem, setIsAddingItem] = useState(false);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { user } = useAuthStore();
+  const { user, profile } = useAuthStore(
+    (state) => ({
+      user: state.user,
+      profile: state.profile,
+    }),
+    shallow
+  );
   const { toggleItemComplete, createItem, deleteItem } = useShoppingStore();
-  
+
   const {
     lists,
     currentList,
@@ -40,16 +57,25 @@ const CollaborativeShoppingList: React.FC = () => {
     }
   };
 
-  const handleItemAdd = async (itemData: any) => {
+  const handleItemAdd = async (itemData: CreateItemData) => {
     if (!currentList) return;
-    
+    console.log(`user: ${user?.id}`);
+
     try {
       await createItem(currentList.id, itemData);
-      setIsAddingItem(false);
+      setShowAddItemModal(false);
     } catch (error) {
       console.error("Error adding item:", error);
     }
   };
+
+  // const handleEditItem = async (itemId: string) => {
+  //   try {
+  //     await deleteItem(itemId);
+  //   } catch (error) {
+  //     console.error("Error editing item:", error);
+  //   }
+  // };
 
   const handleItemDelete = async (itemId: string) => {
     try {
@@ -79,8 +105,14 @@ const CollaborativeShoppingList: React.FC = () => {
     return colors[category || ""] || "bg-gray-100 text-gray-700";
   };
 
-  const canUserEdit = currentList && user ? selectors.canUserEdit(currentList.id, user.id) : false;
-  const canUserManage = currentList && user ? selectors.canUserManage(currentList.id, user.id) : false;
+  const canUserEdit =
+    currentList && user
+      ? selectors.canUserEdit(currentList.id, user.id)
+      : false;
+  const canUserManage =
+    currentList && user
+      ? selectors.canUserManage(currentList.id, user.id)
+      : false;
 
   if (error) {
     return (
@@ -177,7 +209,7 @@ const CollaborativeShoppingList: React.FC = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsAddingItem(true)}
+                    onClick={() => setShowAddItemModal(true)}
                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                   >
                     <Plus size={16} />
@@ -186,7 +218,9 @@ const CollaborativeShoppingList: React.FC = () => {
                 </div>
 
                 {currentList.description && (
-                  <p className="text-gray-600 mb-4">{currentList.description}</p>
+                  <p className="text-gray-600 mb-4">
+                    {currentList.description}
+                  </p>
                 )}
 
                 <div className="flex items-center gap-4 text-sm text-gray-500">
@@ -209,7 +243,8 @@ const CollaborativeShoppingList: React.FC = () => {
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-gray-600">Progress</span>
                       <span className="text-gray-900 font-medium">
-                        {quickStats.completedItems} of {quickStats.totalItems} items
+                        {quickStats.completedItems} of {quickStats.totalItems}{" "}
+                        items
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -295,7 +330,12 @@ const CollaborativeShoppingList: React.FC = () => {
                               <span className="text-lg">
                                 {getMemberAvatar("User")}
                               </span>
-                              <span>Added by User</span>
+                              <span>
+                                by{" "}
+                                <span className="font-semibold">
+                                  {profile?.name}
+                                </span>
+                              </span>
                               {item.note && (
                                 <>
                                   <span>•</span>
@@ -304,6 +344,18 @@ const CollaborativeShoppingList: React.FC = () => {
                               )}
                             </div>
                           </div>
+
+                          {(canUserEdit || item.created_by === user?.id) && (
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              // onClick={() => handleEditItem(item.id)}
+                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+                              title="Delete item"
+                            >
+                              <Edit3 size={16} />
+                            </motion.button>
+                          )}
 
                           {(canUserEdit || item.created_by === user?.id) && (
                             <motion.button
@@ -354,8 +406,14 @@ const CollaborativeShoppingList: React.FC = () => {
                             {item.name}
                           </span>
                           {item.completed_by && (
+                            // <span className="text-sm text-gray-500 ml-2">
+                            //   by User
+                            // </span>
                             <span className="text-sm text-gray-500 ml-2">
-                              by User
+                              by{" "}
+                              <span className="font-semibold">
+                                {profile?.name}
+                              </span>
                             </span>
                           )}
                         </div>
@@ -394,11 +452,14 @@ const CollaborativeShoppingList: React.FC = () => {
                   </motion.button>
                 )}
               </div>
-              
+
               {loading.collaborators ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse flex items-center gap-3">
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-center gap-3"
+                    >
                       <div className="w-8 h-8 bg-gray-200 rounded-lg" />
                       <div className="flex-1">
                         <div className="h-4 bg-gray-200 rounded w-1/2 mb-1" />
@@ -410,9 +471,14 @@ const CollaborativeShoppingList: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {collaborators.map((collaborator) => (
-                    <div key={collaborator.id} className="flex items-center gap-3">
+                    <div
+                      key={collaborator.id}
+                      className="flex items-center gap-3"
+                    >
                       <span className="text-2xl">
-                        {getMemberAvatar(collaborator.user_profile?.name || "User")}
+                        {getMemberAvatar(
+                          collaborator.user_profile?.name || "User"
+                        )}
                       </span>
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">
@@ -432,7 +498,9 @@ const CollaborativeShoppingList: React.FC = () => {
             {/* Quick Stats */}
             {quickStats && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Quick Stats</h3>
+                <h3 className="font-semibold text-gray-900 mb-4">
+                  Quick Stats
+                </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Total Items</span>
@@ -464,9 +532,9 @@ const CollaborativeShoppingList: React.FC = () => {
       )}
 
       {/* Modals */}
-      <SmartItemInput
-        isOpen={isAddingItem}
-        onClose={() => setIsAddingItem(false)}
+      <AddItemModal
+        isOpen={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
         onItemAdd={handleItemAdd}
       />
 
