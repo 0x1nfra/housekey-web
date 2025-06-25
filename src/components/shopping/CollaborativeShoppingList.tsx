@@ -10,11 +10,13 @@ import {
   Edit3,
   Trash2,
   Settings,
+  BarChart3,
 } from "lucide-react";
 import AddItemModal from "./modals/AddItemModal";
 import CreateListModal from "./modals/CreateListModal";
 import EditListModal from "./modals/EditListModal";
 import DeleteListModal from "./modals/DeleteListModal";
+import StatsModal from "./modals/StatsModal";
 import { useShoppingData } from "./hooks/useShoppingData";
 import { CreateItemData, useShoppingStore } from "../../store/shopping";
 import { useAuthStore } from "../../store/authStore";
@@ -27,6 +29,7 @@ const CollaborativeShoppingList: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
 
   const { user, profile } = useAuthStore(
     (state) => ({
@@ -162,15 +165,29 @@ const CollaborativeShoppingList: React.FC = () => {
           ))}
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowCreateModal(true)}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-        >
-          <Plus size={16} />
-          New List
-        </motion.button>
+        <div className="flex items-center gap-3">
+          {currentList && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowStatsModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+              <BarChart3 size={16} />
+              Stats
+            </motion.button>
+          )}
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowCreateModal(true)}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+          >
+            <Plus size={16} />
+            New List
+          </motion.button>
+        </div>
       </div>
 
       {currentList && (
@@ -561,6 +578,14 @@ const CollaborativeShoppingList: React.FC = () => {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         list={currentList}
+      />
+
+      <StatsModal
+        isOpen={showStatsModal}
+        onClose={() => setShowStatsModal(false)}
+        list={currentList}
+        collaborators={collaborators}
+        quickStats={quickStats}
       />
     </div>
   );
