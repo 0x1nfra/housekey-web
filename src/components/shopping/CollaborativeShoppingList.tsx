@@ -26,16 +26,25 @@ import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
 // import dayjs from "dayjs";
 import EditItemModal from "./modals/EditItemModal";
-import { ShoppingItem } from "../../types/components/shopping";
 
 /*
 
 TODO:
+- break this into smaller components
 - simplfy color scheme: page, stats, buttons
 - update get member avatar/emoji logic
 - add categories table
 - implement suggestion logic
 */
+interface ShoppingItem {
+  id: string;
+  name: string;
+  quantity: number;
+  category?: string;
+  note?: string;
+  created_by: string;
+  completed_by?: string;
+}
 
 const CollaborativeShoppingList: React.FC = () => {
   const [showAddItemModal, setShowAddItemModal] = useState(false);

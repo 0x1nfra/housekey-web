@@ -2,13 +2,18 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 // import { X, Search, Camera, Zap, Plus } from "lucide-react";
 import { X, Search, Plus } from "lucide-react";
-import { AddItemModalProps } from "../../../types/components/shopping";
 import { useShoppingData } from "../hooks/useShoppingData";
+import { CreateItemData } from "../../../store/shopping/types";
 
 /*
 FIXME: 
 - add suggestion logic
 */
+interface AddItemModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onItemAdd: (itemData: CreateItemData) => void;
+}
 
 const AddItemModal: React.FC<AddItemModalProps> = ({
   isOpen,
