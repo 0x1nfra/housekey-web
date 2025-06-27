@@ -18,7 +18,7 @@ import { useTasksStore } from "../../store/tasks";
 import { useHubStore } from "../../store/hubStore";
 import { useAuthStore } from "../../store/authStore";
 import { useTasksData } from "./hooks/useTasksData";
-import { Task, TaskFilters } from "../../store/tasks/types";
+import { Task, TaskFilters, TaskPriority, getPriorityLabel, getPriorityColor, getPriorityBorderColor } from "../../store/tasks/types";
 import ChoreCreationForm from "./ChoreCreationForm";
 import TaskEditModal from "./TaskEditModal";
 import { shallow } from "zustand/shallow";
@@ -46,19 +46,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   const [showActions, setShowActions] = useState(false);
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "border-l-red-500 bg-red-50";
-      case "medium":
-        return "border-l-amber-500 bg-amber-50";
-      case "low":
-        return "border-l-green-500 bg-green-50";
-      default:
-        return "border-l-gray-500 bg-gray-50";
-    }
-  };
-
   const getStatusIcon = (completed: boolean) => {
     return completed ? CheckCircle : Clock;
   };
@@ -77,7 +64,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className={`p-4 border-l-4 rounded-lg transition-all hover:shadow-md ${getPriorityColor(task.priority)} ${
+      className={`p-4 border-l-4 rounded-lg transition-all hover:shadow-md ${getPriorityBorderColor(task.priority)} ${
         isSelected ? "ring-2 ring-indigo-500" : ""
       }`}
       onMouseEnter={() => setShowActions(true)}
@@ -106,12 +93,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
               </h4>
               
               {/* Priority Badge */}
-              <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
-                task.priority === "high" ? "bg-red-100 text-red-700" :
-                task.priority === "medium" ? "bg-amber-100 text-amber-700" :
-                "bg-green-100 text-green-700"
-              }`}>
-                {task.priority}
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(task.priority)}`}>
+                {getPriorityLabel(task.priority)}
               </span>
 
               {/* Overdue Badge */}
@@ -302,7 +285,7 @@ const TaskDashboard: React.FC = () => {
     }
   };
 
-  const handleBulkPriorityUpdate = async (priority: Task['priority']) => {
+  const handleBulkPriorityUpdate = async (priority: TaskPriority) => {
     if (selectedTasks.length === 0) return;
     
     try {
@@ -386,16 +369,17 @@ const TaskDashboard: React.FC = () => {
             </select>
 
             <select
-              value={filters.priority || ""}
+              value={filters.priority?.toString() || ""}
               onChange={(e) => handleFilterChange({ 
-                priority: e.target.value as Task['priority'] || undefined 
+                priority: e.target.value ? Number(e.target.value) as TaskPriority : undefined 
               })}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">All Priorities</option>
-              <option value="high">High Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="low">Low Priority</option>
+              <option value={TaskPriority.URGENT}>Urgent Priority</option>
+              <option value={TaskPriority.HIGH}>High Priority</option>
+              <option value={TaskPriority.MEDIUM}>Medium Priority</option>
+              <option value={TaskPriority.LOW}>Low Priority</option>
             </select>
 
             {(filters.completed !== undefined || filters.priority || filters.search) && (
@@ -437,22 +421,28 @@ const TaskDashboard: React.FC = () => {
               
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => handleBulkPriorityUpdate('high')}
+                  onClick={() => handleBulkPriorityUpdate(TaskPriority.URGENT)}
                   className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition-colors"
                 >
-                  High Priority
+                  Urgent
                 </button>
                 <button
-                  onClick={() => handleBulkPriorityUpdate('medium')}
-                  className="px-3 py-1 text-xs bg-amber-100 text-amber-700 rounded-full hover:bg-amber-200 transition-colors"
+                  onClick={() => handleBulkPriorityUpdate(TaskPriority.HIGH)}
+                  className="px-3 py-1 text-xs bg-orange-100 text-orange-700 rounded-full hover:bg-orange-200 transition-colors"
                 >
-                  Medium Priority
+                  High
                 </button>
                 <button
-                  onClick={() => handleBulkPriorityUpdate('low')}
+                  onClick={() => handleBulkPriorityUpdate(TaskPriority.MEDIUM)}
+                  className="px-3 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-full hover:bg-yellow-200 transition-colors"
+                >
+                  Medium
+                </button>
+                <button
+                  onClick={() => handleBulkPriorityUpdate(TaskPriority.LOW)}
                   className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
                 >
-                  Low Priority
+                  Low
                 </button>
               </div>
             </div>

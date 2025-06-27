@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Users, Tag } from 'lucide-react';
-import { Task } from '../../store/tasks/types';
+import { Task, TaskPriority, getPriorityLabel, getPriorityColor } from '../../store/tasks/types';
 import { useHubStore } from '../../store/hubStore';
 import { useAuthStore } from '../../store/authStore';
 import { shallow } from 'zustand/shallow';
@@ -22,7 +22,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
   const [taskData, setTaskData] = useState({
     title: '',
     description: '',
-    priority: 'medium' as Task['priority'],
+    priority: TaskPriority.MEDIUM,
     dueDate: '',
     assignedTo: '',
   });
@@ -84,9 +84,10 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
   };
 
   const priorityOptions = [
-    { value: 'high', label: 'High', color: 'bg-red-100 text-red-700' },
-    { value: 'medium', label: 'Medium', color: 'bg-amber-100 text-amber-700' },
-    { value: 'low', label: 'Low', color: 'bg-green-100 text-green-700' }
+    { value: TaskPriority.LOW, label: getPriorityLabel(TaskPriority.LOW), color: getPriorityColor(TaskPriority.LOW) },
+    { value: TaskPriority.MEDIUM, label: getPriorityLabel(TaskPriority.MEDIUM), color: getPriorityColor(TaskPriority.MEDIUM) },
+    { value: TaskPriority.HIGH, label: getPriorityLabel(TaskPriority.HIGH), color: getPriorityColor(TaskPriority.HIGH) },
+    { value: TaskPriority.URGENT, label: getPriorityLabel(TaskPriority.URGENT), color: getPriorityColor(TaskPriority.URGENT) }
   ];
 
   // Get available assignees (hub members + current user)
@@ -166,7 +167,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
                     Priority
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {priorityOptions.map(priority => (
                       <button
                         key={priority.value}

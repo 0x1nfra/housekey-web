@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase';
-import { TasksState, Task, SetStateFunction, GetStateFunction, TaskFilters } from './types';
+import { TasksState, Task, TaskPriority, SetStateFunction, GetStateFunction, TaskFilters } from './types';
 
 export const createTasksActions = (
   set: SetStateFunction,
@@ -182,7 +182,7 @@ export const createTasksActions = (
     }
   },
 
-  bulkUpdatePriority: async (taskIds: string[], priority: Task['priority']) => {
+  bulkUpdatePriority: async (taskIds: string[], priority: TaskPriority) => {
     set(state => ({ 
       ...state, 
       loading: { ...state.loading, updating: true }, 

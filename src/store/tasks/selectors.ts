@@ -1,4 +1,4 @@
-import { TasksStore, Task } from './types';
+import { TasksStore, Task, TaskPriority } from './types';
 
 export const selectCurrentTasks = (state: TasksStore): Task[] => {
   const { tasks, currentHub } = state;
@@ -42,9 +42,10 @@ export const selectTasksByPriority = (state: TasksStore) => {
   const filteredTasks = selectFilteredTasks(state);
   
   return {
-    high: filteredTasks.filter(task => task.priority === 'high'),
-    medium: filteredTasks.filter(task => task.priority === 'medium'),
-    low: filteredTasks.filter(task => task.priority === 'low')
+    urgent: filteredTasks.filter(task => task.priority === TaskPriority.URGENT),
+    high: filteredTasks.filter(task => task.priority === TaskPriority.HIGH),
+    medium: filteredTasks.filter(task => task.priority === TaskPriority.MEDIUM),
+    low: filteredTasks.filter(task => task.priority === TaskPriority.LOW)
   };
 };
 
@@ -123,4 +124,21 @@ export const selectHasSelectedTasks = (state: TasksStore): boolean => {
 
 export const selectSelectedTasksCount = (state: TasksStore): number => {
   return state.selectedTasks.length;
+};
+
+// Priority-based selectors
+export const selectHighPriorityTasks = (state: TasksStore): Task[] => {
+  const currentTasks = selectCurrentTasks(state);
+  return currentTasks.filter(task => task.priority >= TaskPriority.HIGH);
+};
+
+export const selectUrgentTasks = (state: TasksStore): Task[] => {
+  const currentTasks = selectCurrentTasks(state);
+  return currentTasks.filter(task => task.priority === TaskPriority.URGENT);
+};
+
+// Sorted tasks by priority (highest first)
+export const selectTasksSortedByPriority = (state: TasksStore): Task[] => {
+  const currentTasks = selectCurrentTasks(state);
+  return [...currentTasks].sort((a, b) => b.priority - a.priority);
 };

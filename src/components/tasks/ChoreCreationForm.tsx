@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, Repeat, Tag } from 'lucide-react';
+import { X, Calendar, Users, Tag } from 'lucide-react';
+import { TaskPriority, getPriorityLabel, getPriorityColor } from '../../store/tasks/types';
+import { useHubStore } from '../../store/hubStore';
+import { useAuthStore } from '../../store/authStore';
+import { shallow } from 'zustand/shallow';
 
 interface ChoreCreationFormProps {
   isOpen: boolean;
@@ -18,7 +22,7 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
     description: '',
     assignedTo: '',
     dueDate: '',
-    priority: 'medium' as 'high' | 'medium' | 'low',
+    priority: TaskPriority.MEDIUM,
     category: '',
     recurring: false,
     recurrencePattern: 'weekly' as 'daily' | 'weekly' | 'monthly',
@@ -26,11 +30,13 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
     notes: ''
   });
 
-  const familyMembers = [
-    { name: 'Sarah', avatar: '👩‍💼' },
-    { name: 'Mike', avatar: '👨‍💻' },
-    { name: 'Emma', avatar: '👧' }
-  ];
+  const { hubMembers } = useHubStore();
+  const { profile } = useAuthStore(
+    (state) => ({
+      profile: state.profile,
+    }),
+    shallow
+  );
 
   const taskCategories = [
     'Cleaning',
@@ -44,10 +50,22 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
   ];
 
   const priorityOptions = [
-    { value: 'high', label: 'High', color: 'bg-red-100 text-red-700' },
-    { value: 'medium', label: 'Medium', color: 'bg-amber-100 text-amber-700' },
-    { value: 'low', label: 'Low', color: 'bg-green-100 text-green-700' }
+    { value: TaskPriority.LOW, label: getPriorityLabel(TaskPriority.LOW), color: getPriorityColor(TaskPriority.LOW) },
+    { value: TaskPriority.MEDIUM, label: getPriorityLabel(TaskPriority.MEDIUM), color: getPriorityColor(TaskPriority.MEDIUM) },
+    { value: TaskPriority.HIGH, label: getPriorityLabel(TaskPriority.HIGH), color: getPriorityColor(TaskPriority.HIGH) },
+    { value: TaskPriority.URGENT, label: getPriorityLabel(TaskPriority.URGENT), color: getPriorityColor(TaskPriority.URGENT) }
   ];
+
+  // Get available assignees (hub members + current user)
+  const availableAssignees = [
+    ...(profile ? [{ email: profile.email, name: profile.name }] : []),
+    ...hubMembers
+      .filter(member => member.user_profile?.email !== profile?.email)
+      .map(member => ({
+        email: member.user_profile?.email || '',
+        name: member.user_profile?.name || 'Unknown User'
+      }))
+  ].filter(assignee => assignee.email);
 
   const handleInputChange = (field: string, value: any) => {
     setTaskData(prev => ({
@@ -66,7 +84,7 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
       description: '',
       assignedTo: '',
       dueDate: '',
-      priority: 'medium',
+      priority: TaskPriority.MEDIUM,
       category: '',
       recurring: false,
       recurrencePattern: 'weekly',
@@ -137,34 +155,44 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Assign To *
+                    Assign To
                   </label>
-                  <select
-                    value={taskData.assignedTo}
-                    onChange={(e) => handleInputChange('assignedTo', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                    required
-                  >
-                    <option value="">Select family member</option>
-                    {familyMembers.map(member => (
-                      <option key={member.name} value={member.name}>
-                        {member.avatar} {member.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <Users
+                      size={20}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
+                    <select
+                      value={taskData.assignedTo}
+                      onChange={(e) => handleInputChange('assignedTo', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    >
+                      <option value="">Unassigned</option>
+                      {availableAssignees.map(assignee => (
+                        <option key={assignee.email} value={assignee.email}>
+                          {assignee.name} ({assignee.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Due Date *
+                    Due Date
                   </label>
-                  <input
-                    type="date"
-                    value={taskData.dueDate}
-                    onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                    required
-                  />
+                  <div className="relative">
+                    <Calendar
+                      size={20}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
+                    <input
+                      type="date"
+                      value={taskData.dueDate}
+                      onChange={(e) => handleInputChange('dueDate', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -173,7 +201,7 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
                   Priority
                 </label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {priorityOptions.map(priority => (
                     <button
                       key={priority.value}
@@ -200,18 +228,24 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
                     Category
                   </label>
-                  <select
-                    value={taskData.category}
-                    onChange={(e) => handleInputChange('category', e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  >
-                    <option value="">Select category</option>
-                    {taskCategories.map(category => (
-                      <option key={category} value={category}>
-                        {category}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <Tag
+                      size={20}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    />
+                    <select
+                      value={taskData.category}
+                      onChange={(e) => handleInputChange('category', e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    >
+                      <option value="">Select category</option>
+                      {taskCategories.map(category => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div>
@@ -289,7 +323,7 @@ const ChoreCreationForm: React.FC<ChoreCreationFormProps> = ({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  disabled={!taskData.title || !taskData.assignedTo || !taskData.dueDate}
+                  disabled={!taskData.title}
                   className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Create Task
