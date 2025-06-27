@@ -16,25 +16,25 @@ const TaskStats: React.FC<TaskStatsProps> = ({ taskStats, overdueCount }) => {
     {
       label: "Total Tasks",
       value: taskStats.total,
-      color: "bg-blue-100 text-blue-700",
+      color: "text-blue-500",
       icon: CheckCircle,
     },
     {
       label: "Pending",
       value: taskStats.pending,
-      color: "bg-amber-100 text-amber-700",
+      color: "text-amber-500",
       icon: Clock,
     },
     {
       label: "Completed",
       value: taskStats.completed,
-      color: "bg-emerald-100 text-emerald-700",
+      color: "text-emerald-500",
       icon: CheckCircle,
     },
     {
       label: "Overdue",
       value: overdueCount,
-      color: "bg-red-100 text-red-700",
+      color: "text-red-500",
       icon: AlertCircle,
     },
   ];

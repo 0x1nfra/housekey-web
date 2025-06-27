@@ -35,12 +35,11 @@ const TaskList: React.FC<TaskListProps> = ({
     filters.completed !== undefined || filters.priority || filters.search;
 
   const LoadingSkeleton = () => (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {[1, 2, 3].map((i) => (
         <div key={i} className="animate-pulse">
           <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-            <div className="w-4 h-4 bg-gray-200 rounded" />
-            <div className="w-8 h-8 bg-gray-200 rounded-lg" />
+            <div className="w-6 h-6 bg-gray-200 rounded-full" />
             <div className="flex-1">
               <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
               <div className="h-3 bg-gray-200 rounded w-1/2" />
@@ -53,16 +52,18 @@ const TaskList: React.FC<TaskListProps> = ({
 
   const EmptyState = () => (
     <div className="text-center py-12">
-      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <CheckCircle size={24} className="text-gray-400" />
+      <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <CheckCircle size={24} className="text-emerald-600" />
       </div>
       <h3 className="text-lg font-medium text-gray-900 mb-2">
-        {hasActiveFilters ? "No tasks match your filters" : "No tasks yet"}
+        {hasActiveFilters
+          ? "No tasks match your filters"
+          : "All tasks completed! 🎉"}
       </h3>
       <p className="text-gray-500 mb-4">
         {hasActiveFilters
           ? "Try adjusting your filters to see more tasks"
-          : "Create your first task to get started"}
+          : "You're all caught up"}
       </p>
       {!hasActiveFilters && (
         <motion.button
@@ -71,7 +72,7 @@ const TaskList: React.FC<TaskListProps> = ({
           onClick={onCreateTask}
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
         >
-          Create Your First Task
+          Create a Task
         </motion.button>
       )}
     </div>
@@ -110,7 +111,7 @@ const TaskList: React.FC<TaskListProps> = ({
         {loading ? (
           <LoadingSkeleton />
         ) : tasks.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             <AnimatePresence>
               {tasks.map((task) => (
                 <TaskItem

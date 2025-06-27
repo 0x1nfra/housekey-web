@@ -1,8 +1,21 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Users } from "lucide-react";
 import {
-  Task,
+  X,
+  Calendar,
+  Users,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Tag,
+  Repeat,
+  Check,
+} from "lucide-react";
+import {
+  type Task,
   getPriorityLabel,
   getPriorityColor,
 } from "../../../../store/tasks/types";
@@ -18,18 +31,44 @@ interface EditTaskModalProps {
   task: Task | null;
 }
 
+const TASK_CATEGORIES = [
+  "Cleaning",
+  "Cooking",
+  "Pet Care",
+  "Yard Work",
+  "Shopping",
+  "Maintenance",
+  "Organization",
+  "Other",
+] as const;
+
+const DURATION_OPTIONS = [
+  { value: "", label: "Any" },
+  { value: "15min", label: "15 min" },
+  { value: "30min", label: "30 min" },
+  { value: "1hour", label: "1 hour" },
+  { value: "2hours", label: "2 hours" },
+  { value: "halfday", label: "Half day" },
+  { value: "fullday", label: "Full day" },
+] as const;
+
 const EditTaskModal: React.FC<EditTaskModalProps> = ({
   isOpen,
   onClose,
   onTaskUpdate,
   task,
 }) => {
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
-    priority: TaskPriority.MEDIUM,
-    dueDate: "",
     assignedTo: "",
+    dueDate: "",
+    priority: TaskPriority.MEDIUM,
+    category: "",
+    recurring: false,
+    recurrencePattern: "weekly" as const,
+    estimatedTime: "",
   });
 
   const { hubMembers } = useHubStore();
@@ -52,47 +91,13 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
           ? new Date(task.due_date).toISOString().split("T")[0]
           : "",
         assignedTo: task.assigned_to_email || "",
+        category: task.category || "",
+        recurring: task.recurring || false,
+        recurrencePattern: task.recurrence_pattern || "weekly",
+        estimatedTime: task.estimated_time || "",
       });
     }
   }, [task]);
-
-  const handleInputChange = (field: string, value: any) => {
-    setTaskData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!task || !taskData.title.trim()) return;
-
-    const updates: Partial<Task> = {
-      title: taskData.title.trim(),
-      description: taskData.description.trim() || undefined,
-      priority: taskData.priority,
-      due_date: taskData.dueDate
-        ? new Date(taskData.dueDate).toISOString()
-        : undefined,
-    };
-
-    // Handle assignment
-    if (taskData.assignedTo) {
-      if (taskData.assignedTo === profile?.email) {
-        updates.assigned_to = user?.id;
-      } else {
-        // Find the user ID from hub members
-        const member = hubMembers.find(
-          (m) => m.user_profile?.email === taskData.assignedTo
-        );
-        updates.assigned_to = member?.user_id;
-      }
-    } else {
-      updates.assigned_to = undefined;
-    }
-
-    onTaskUpdate(task.id, updates);
-  };
 
   const priorityOptions = [
     {
@@ -128,6 +133,50 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
       })),
   ].filter((assignee) => assignee.email);
 
+  const handleInputChange = (field: string, value: any) => {
+    setTaskData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!task || !taskData.title.trim()) return;
+
+    const updates: Partial<Task> = {
+      title: taskData.title.trim(),
+      description: taskData.description.trim() || undefined,
+      priority: taskData.priority,
+      due_date: taskData.dueDate
+        ? new Date(taskData.dueDate).toISOString()
+        : undefined,
+      category: taskData.category || undefined,
+      recurring: taskData.recurring,
+      recurrence_pattern: taskData.recurring
+        ? taskData.recurrencePattern
+        : undefined,
+      estimated_time: taskData.estimatedTime || undefined,
+    };
+
+    // Handle assignment
+    if (taskData.assignedTo) {
+      if (taskData.assignedTo === profile?.email) {
+        updates.assigned_to = user?.id;
+      } else {
+        // Find the user ID from hub members
+        const member = hubMembers.find(
+          (m) => m.user_profile?.email === taskData.assignedTo
+        );
+        updates.assigned_to = member?.user_id;
+      }
+    } else {
+      updates.assigned_to = undefined;
+    }
+
+    onTaskUpdate(task.id, updates);
+  };
+
   if (!task) return null;
 
   return (
@@ -137,146 +186,292 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
           onClick={onClose}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Edit Task</h2>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Check size={16} className="text-blue-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Edit Task
+                </h2>
+              </div>
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <X size={20} className="text-gray-500" />
+                <X size={18} className="text-gray-500" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Essential Fields */}
+
               {/* Task Title */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Task Title *
-                </label>
                 <input
                   type="text"
                   value={taskData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="Enter task title"
+                  className="w-full border-0 border-b-2 border-gray-200 px-0 py-3 text-lg font-medium placeholder-gray-400 focus:border-gray-900 focus:ring-0 transition-colors bg-transparent"
+                  placeholder="Task title"
                   required
                 />
               </div>
 
               {/* Description */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Description
-                </label>
                 <textarea
                   value={taskData.description}
                   onChange={(e) =>
                     handleInputChange("description", e.target.value)
                   }
-                  rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
-                  placeholder="Add task details..."
+                  rows={2}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-400 focus:border-gray-400 focus:ring-0 transition-colors resize-none"
+                  placeholder="Description (optional)"
                 />
               </div>
 
-              {/* Priority and Due Date */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Priority
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {priorityOptions.map((priority) => (
-                      <button
-                        key={priority.value}
-                        type="button"
-                        onClick={() =>
-                          handleInputChange("priority", priority.value)
-                        }
-                        className={`p-3 border rounded-lg transition-colors text-center ${
-                          taskData.priority === priority.value
-                            ? "border-indigo-300 bg-indigo-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
+              {/* Priority */}
+              <div>
+                <label className="text-xs font-medium text-gray-500 mb-2 block">
+                  Priority
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {priorityOptions.map((priority) => (
+                    <button
+                      key={priority.value}
+                      type="button"
+                      onClick={() =>
+                        handleInputChange("priority", priority.value)
+                      }
+                      className={`p-2 border rounded-lg transition-all text-center ${
+                        taskData.priority === priority.value
+                          ? "border-gray-900 bg-gray-50 shadow-sm"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded flex items-center justify-center mx-auto mb-1 ${priority.color}`}
                       >
-                        <div
-                          className={`w-6 h-6 rounded-lg flex items-center justify-center mx-auto mb-1 ${priority.color}`}
-                        >
-                          <span className="text-xs font-bold">!</span>
-                        </div>
-                        <span className="text-xs font-medium">
-                          {priority.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
+                        <span className="text-xs font-bold">!</span>
+                      </div>
+                      <span className="text-xs font-medium">
+                        {priority.label}
+                      </span>
+                    </button>
+                  ))}
                 </div>
+              </div>
 
+              {/* Quick Actions Row */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Assign To */}
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Due Date
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    Assigned to
                   </label>
                   <div className="relative">
-                    <Calendar
-                      size={20}
-                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                    <Users
+                      size={16}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
                     />
-                    <input
-                      type="date"
-                      value={taskData.dueDate}
+                    <select
+                      value={taskData.assignedTo}
                       onChange={(e) =>
-                        handleInputChange("dueDate", e.target.value)
+                        handleInputChange("assignedTo", e.target.value)
                       }
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                    >
+                      <option value="">Unassigned</option>
+                      {availableAssignees.map((assignee) => (
+                        <option key={assignee.email} value={assignee.email}>
+                          {assignee.name.split(" ")[0]}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                    Category
+                  </label>
+                  <div className="relative">
+                    <Tag
+                      size={16}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
                     />
+                    <select
+                      value={taskData.category}
+                      onChange={(e) =>
+                        handleInputChange("category", e.target.value)
+                      }
+                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                    >
+                      <option value="">None</option>
+                      {TASK_CATEGORIES.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
 
-              {/* Assign To */}
-              <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  Assign To
-                </label>
-                <div className="relative">
-                  <Users
-                    size={20}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+              {/* Task Status Indicator */}
+              <div className="bg-gray-50 rounded-lg p-3 text-center">
+                <div className="text-xs text-gray-500 mb-1">Task Status</div>
+                <div className="flex items-center justify-center gap-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      task?.completed_at ? "bg-green-500" : "bg-yellow-500"
+                    }`}
                   />
-                  <select
-                    value={taskData.assignedTo}
-                    onChange={(e) =>
-                      handleInputChange("assignedTo", e.target.value)
-                    }
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  >
-                    <option value="">Unassigned</option>
-                    {availableAssignees.map((assignee) => (
-                      <option key={assignee.email} value={assignee.email}>
-                        {assignee.name} ({assignee.email})
-                      </option>
-                    ))}
-                  </select>
+                  <span className="text-sm font-medium text-gray-700">
+                    {task?.completed_at ? "Completed" : "In Progress"}
+                  </span>
                 </div>
               </div>
 
+              {/* Advanced Options Toggle */}
+              <button
+                type="button"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <span>Advanced Options</span>
+                {showAdvanced ? (
+                  <ChevronUp size={16} />
+                ) : (
+                  <ChevronDown size={16} />
+                )}
+              </button>
+
+              {/* Advanced Options */}
+              <AnimatePresence>
+                {showAdvanced && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-4 border-t border-gray-100 pt-4"
+                  >
+                    {/* Due date and Estimated Time */}
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Due Date */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 mb-1 block">
+                          Due date
+                        </label>
+                        <div className="relative">
+                          <Calendar
+                            size={16}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          />
+                          <input
+                            type="date"
+                            value={taskData.dueDate}
+                            onChange={(e) =>
+                              handleInputChange("dueDate", e.target.value)
+                            }
+                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                          />
+                        </div>
+                      </div>
+                      {/* Duration */}
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 mb-1 block">
+                          Duration
+                        </label>
+                        <div className="relative">
+                          <Clock
+                            size={16}
+                            className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                          />
+                          <select
+                            value={taskData.estimatedTime}
+                            onChange={(e) =>
+                              handleInputChange("estimatedTime", e.target.value)
+                            }
+                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                          >
+                            {DURATION_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recurring Task */}
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Repeat size={16} className="text-gray-500" />
+                        <input
+                          type="checkbox"
+                          id="recurring"
+                          checked={taskData.recurring}
+                          onChange={(e) =>
+                            handleInputChange("recurring", e.target.checked)
+                          }
+                          className="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500"
+                        />
+                        <label
+                          htmlFor="recurring"
+                          className="text-sm font-medium text-gray-700"
+                        >
+                          Recurring task
+                        </label>
+                      </div>
+
+                      {taskData.recurring && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                        >
+                          <select
+                            value={taskData.recurrencePattern}
+                            onChange={(e) =>
+                              handleInputChange(
+                                "recurrencePattern",
+                                e.target.value
+                              )
+                            }
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                          >
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                          </select>
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Footer */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-3 pt-6">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors rounded-lg"
                 >
                   Cancel
                 </button>
@@ -285,9 +480,9 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={!taskData.title.trim()}
-                  className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Update Task
+                  Save Changes
                 </motion.button>
               </div>
             </form>

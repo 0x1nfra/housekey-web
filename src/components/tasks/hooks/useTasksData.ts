@@ -1,6 +1,6 @@
-import { useEffect } from 'react';
-import { useTasksStore } from '../../../store/tasks';
-import { useHubStore } from '../../../store/hubStore';
+import { useEffect } from "react";
+import { useTasksStore } from "../../../store/tasks";
+import { useHubStore } from "../../../store/hubStore";
 import {
   selectCurrentTasks,
   selectFilteredTasks,
@@ -9,13 +9,12 @@ import {
   selectTasksByStatus,
   selectOverdueTasks,
   selectTasksDueToday,
-  selectIsLoading
-} from '../../../store/tasks/selectors';
+  selectIsLoading,
+} from "../../../store/tasks/selectors";
 
 export const useTasksData = () => {
   const { currentHub } = useHubStore();
   const {
-    tasks,
     loading,
     error,
     filters,
@@ -66,14 +65,14 @@ export const useTasksData = () => {
     overdueTasks,
     tasksDueToday,
     taskStats,
-    
+
     // State
     loading,
     error,
     filters,
     selectedTasks,
     isLoading,
-    
+
     // Actions
     clearError,
   };

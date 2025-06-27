@@ -15,6 +15,8 @@ import BulkActions from "./ui/BulkAction";
 import TaskStats from "./ui/TaskStats";
 import TaskList from "./ui/TaskList";
 import { TaskData, TaskPriority } from "../../types/tasks";
+import EditTaskModal from "./ui/modal/EditTaskModal";
+import AddTaskModal from "./ui/modal/AddTaskModal";
 
 const TaskDashboard: React.FC = () => {
   const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
@@ -92,12 +94,10 @@ const TaskDashboard: React.FC = () => {
 
   // Handle task deletion
   const handleTaskDelete = async (taskId: string) => {
-    if (window.confirm("Are you sure you want to delete this task?")) {
-      try {
-        await deleteTask(taskId);
-      } catch (error) {
-        console.error("Error deleting task:", error);
-      }
+    try {
+      await deleteTask(taskId);
+    } catch (error) {
+      console.error("Error deleting task:", error);
     }
   };
 
@@ -105,16 +105,10 @@ const TaskDashboard: React.FC = () => {
   const handleBulkDelete = async () => {
     if (selectedTasks.length === 0) return;
 
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${selectedTasks.length} selected tasks?`
-      )
-    ) {
-      try {
-        await bulkDeleteTasks(selectedTasks);
-      } catch (error) {
-        console.error("Error bulk deleting tasks:", error);
-      }
+    try {
+      await bulkDeleteTasks(selectedTasks);
+    } catch (error) {
+      console.error("Error bulk deleting tasks:", error);
     }
   };
 
@@ -185,14 +179,14 @@ const TaskDashboard: React.FC = () => {
       />
 
       {/* Task Creation Form Modal */}
-      <TaskCreationForm
+      <AddTaskModal
         isOpen={isCreationFormOpen}
         onClose={() => setIsCreationFormOpen(false)}
         onTaskCreate={handleTaskCreate}
       />
 
       {/* Task Edit Modal */}
-      <TaskEditModal
+      <EditTaskModal
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);

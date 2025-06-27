@@ -97,7 +97,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
         className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
       >
         <Plus size={16} />
-        Create Task
+        New Task
       </motion.button>
     </div>
   );
