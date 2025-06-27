@@ -27,7 +27,7 @@ export const PRIORITY_BORDER_COLORS = {
 
 export interface TaskCategory {
   id: string;
-  user_id: string;
+  hub_id: string;  // Changed from user_id to hub_id
   name: string;
   color: string;
   created_at: string;
@@ -99,7 +99,7 @@ export interface SubscriptionGroup {
 export interface TasksActions {
   // Data fetching
   fetchTasks: (hubId: string) => Promise<void>;
-  fetchCategories: () => Promise<void>;
+  fetchCategories: (hubId?: string) => Promise<void>;  // Updated to accept optional hubId
 
   // CRUD operations
   createTask: (
@@ -109,7 +109,7 @@ export interface TasksActions {
   deleteTask: (id: string) => Promise<void>;
 
   // Category operations
-  createCategory: (category: Omit<TaskCategory, "id" | "created_at" | "user_id">) => Promise<void>;
+  createCategory: (category: Omit<TaskCategory, "id" | "created_at" | "hub_id">) => Promise<void>;  // Updated to exclude hub_id
   updateCategory: (id: string, updates: Partial<TaskCategory>) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
 

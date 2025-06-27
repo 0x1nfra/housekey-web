@@ -37,7 +37,7 @@ export const createTasksActions = (
     }
   },
 
-  fetchCategories: async () => {
+  fetchCategories: async (hubId?: string) => {
     set(state => ({ 
       ...state, 
       loading: { ...state.loading, categories: true }, 
@@ -45,11 +45,14 @@ export const createTasksActions = (
     }));
     
     try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('User not authenticated');
+      // Use the current hub if no hubId provided
+      const targetHubId = hubId || get().currentHub;
+      if (!targetHubId) {
+        throw new Error('No hub selected');
+      }
 
       const { data, error } = await supabase
-        .rpc('get_user_categories', { user_uuid: user.user.id });
+        .rpc('get_hub_categories', { hub_uuid: targetHubId });
       
       if (error) throw error;
       
@@ -187,7 +190,7 @@ export const createTasksActions = (
     }
   },
 
-  createCategory: async (categoryData: Omit<TaskCategory, 'id' | 'created_at' | 'user_id'>) => {
+  createCategory: async (categoryData: Omit<TaskCategory, 'id' | 'created_at' | 'hub_id'>) => {
     set(state => ({ 
       ...state, 
       loading: { ...state.loading, categories: true }, 
@@ -195,14 +198,16 @@ export const createTasksActions = (
     }));
     
     try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('User not authenticated');
+      const currentHubId = get().currentHub;
+      if (!currentHubId) {
+        throw new Error('No hub selected');
+      }
 
       const { data, error } = await supabase
         .from('tasks_categories')
         .insert([{
           ...categoryData,
-          user_id: user.user.id
+          hub_id: currentHubId
         }])
         .select()
         .single();

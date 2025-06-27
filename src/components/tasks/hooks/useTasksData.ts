@@ -20,6 +20,7 @@ export const useTasksData = () => {
     filters,
     selectedTasks,
     fetchTasks,
+    fetchCategories,  // Add fetchCategories
     subscribeToHub,
     unsubscribeFromHub,
     setCurrentHub,
@@ -31,8 +32,9 @@ export const useTasksData = () => {
     if (currentHub) {
       setCurrentHub(currentHub.id);
       fetchTasks(currentHub.id);
+      fetchCategories(currentHub.id);  // Fetch categories for the hub
     }
-  }, [currentHub, fetchTasks, setCurrentHub]);
+  }, [currentHub, fetchTasks, fetchCategories, setCurrentHub]);
 
   // Subscribe to real-time updates when current hub changes
   useEffect(() => {
