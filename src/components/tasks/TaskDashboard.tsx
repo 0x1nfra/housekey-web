@@ -20,7 +20,6 @@ const TaskDashboard: React.FC = () => {
   const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const { currentHub } = useHubStore();
   const { user, profile } = useAuthStore(
@@ -68,8 +67,12 @@ const TaskDashboard: React.FC = () => {
         completed: false,
         category_id: taskData.category || undefined,
         is_recurring: taskData.recurring || false,
-        recurrence_pattern: taskData.recurring ? taskData.recurrencePattern : undefined,
-        recurrence_interval: taskData.recurring ? taskData.recurrenceInterval : undefined,
+        recurrence_pattern: taskData.recurring
+          ? taskData.recurrencePattern
+          : undefined,
+        recurrence_interval: taskData.recurring
+          ? taskData.recurrenceInterval
+          : undefined,
       });
       setIsCreationFormOpen(false);
     } catch (error) {
@@ -125,7 +128,6 @@ const TaskDashboard: React.FC = () => {
 
   // Handle search
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
     setFilters({ search: query || undefined });
   };
 
@@ -145,7 +147,7 @@ const TaskDashboard: React.FC = () => {
 
       {/* Header Actions */}
       <TaskFiltersComponent
-        searchQuery={searchQuery}
+        searchQuery={filters.search || ""}
         onSearchChange={handleSearch}
         filters={filters}
         onFilterChange={handleFilterChange}

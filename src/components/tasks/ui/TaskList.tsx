@@ -32,7 +32,11 @@ const TaskList: React.FC<TaskListProps> = ({
   onCreateTask,
 }) => {
   const hasActiveFilters =
-    filters.completed !== undefined || filters.priority || filters.search;
+    filters.completed !== undefined ||
+    filters.priority ||
+    filters.search ||
+    filters.assigned_to ||
+    filters.category_id;
 
   const LoadingSkeleton = () => (
     <div className="space-y-3">

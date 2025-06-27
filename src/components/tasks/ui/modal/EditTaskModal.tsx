@@ -57,7 +57,10 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: "", color: "#3B82F6" });
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+    color: "#3B82F6",
+  });
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
@@ -173,6 +176,15 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
     e.preventDefault();
     if (!task || !taskData.title.trim()) return;
 
+    // Validate recurrence settings
+    if (
+      taskData.recurring &&
+      (!taskData.recurrenceInterval || taskData.recurrenceInterval < 1)
+    ) {
+      // TODO: Show error message
+      return;
+    }
+
     const updates: Partial<Task> = {
       title: taskData.title.trim(),
       description: taskData.description.trim() || undefined,
@@ -185,7 +197,9 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
       recurrence_pattern: taskData.recurring
         ? taskData.recurrencePattern
         : undefined,
-      recurrence_interval: taskData.recurring ? taskData.recurrenceInterval : undefined,
+      recurrence_interval: taskData.recurring
+        ? taskData.recurrenceInterval
+        : undefined,
     };
 
     // Handle assignment
@@ -347,12 +361,15 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                           {category.name}
                         </option>
                       ))}
-                      <option value="__create_new__">+ Create New Category</option>
+                      <option value="__create_new__">
+                        + Create New Category
+                      </option>
                     </select>
                   </div>
-                  
+
                   {/* Create Category Form */}
-                  {(showCategoryForm || taskData.category === "__create_new__") && (
+                  {(showCategoryForm ||
+                    taskData.category === "__create_new__") && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
@@ -363,14 +380,24 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                         <input
                           type="text"
                           value={newCategory.name}
-                          onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                          onChange={(e) =>
+                            setNewCategory((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
                           placeholder="Category name"
                           className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
                         />
                         <input
                           type="color"
                           value={newCategory.color}
-                          onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                          onChange={(e) =>
+                            setNewCategory((prev) => ({
+                              ...prev,
+                              color: e.target.value,
+                            }))
+                          }
                           className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
                         />
                       </div>
@@ -386,7 +413,10 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                           type="button"
                           onClick={() => {
                             setShowCategoryForm(false);
-                            setTaskData(prev => ({ ...prev, category: task.category_id || "" }));
+                            setTaskData((prev) => ({
+                              ...prev,
+                              category: task.category_id || "",
+                            }));
                           }}
                           className="px-3 py-1 text-gray-600 text-xs rounded hover:bg-gray-200"
                         >
@@ -539,7 +569,10 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                                 min="1"
                                 value={taskData.recurrenceInterval}
                                 onChange={(e) =>
-                                  handleInputChange("recurrenceInterval", parseInt(e.target.value) || 1)
+                                  handleInputChange(
+                                    "recurrenceInterval",
+                                    parseInt(e.target.value) || 1
+                                  )
                                 }
                                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
                               />

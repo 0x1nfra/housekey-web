@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Edit3, Trash2, Calendar, User, Repeat, Tag } from "lucide-react";
+import {
+  Check,
+  Edit3,
+  Trash2,
+  Calendar,
+  User,
+  Repeat,
+  Tag,
+} from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -17,8 +25,6 @@ interface TaskItemProps {
   onToggleComplete: (id: string) => void;
   onEdit: (task: Task) => void;
   onDelete: (id: string) => void;
-  onToggleSelect: (id: string) => void;
-  isSelected: boolean;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -89,9 +95,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
           </span>
 
           {task.category_name && (
-            <span 
+            <span
               className="px-2 py-1 text-xs rounded-full font-medium text-white flex items-center gap-1"
-              style={{ backgroundColor: task.category_color || '#3B82F6' }}
+              style={{ backgroundColor: task.category_color || "#3B82F6" }}
             >
               <Tag size={12} />
               {task.category_name}
@@ -101,7 +107,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
           {task.is_recurring && (
             <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium flex items-center gap-1">
               <Repeat size={12} />
-              {task.recurrence_pattern && getRecurrenceLabel(task.recurrence_pattern)}
+              {task.recurrence_pattern &&
+                getRecurrenceLabel(task.recurrence_pattern)}
             </span>
           )}
 

@@ -61,13 +61,23 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
 
           <select
             value={filters.priority?.toString() || ""}
-            onChange={(e) =>
+            onChange={(e) => {
+              const value = e.target.value;
+              const numValue = value ? Number(value) : undefined;
+              const validPriorities = [
+                TaskPriority.LOW,
+                TaskPriority.MEDIUM,
+                TaskPriority.HIGH,
+                TaskPriority.URGENT,
+              ];
+              const priority =
+                numValue !== undefined && validPriorities.includes(numValue)
+                  ? (numValue as TaskPriority)
+                  : undefined;
               onFilterChange({
-                priority: e.target.value
-                  ? (Number(e.target.value) as TaskPriority)
-                  : undefined,
-              })
-            }
+                priority,
+              });
+            }}
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="">All Priorities</option>

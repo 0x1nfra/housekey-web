@@ -27,19 +27,20 @@ import { TaskPriority } from "../../../../types/tasks";
 interface AddTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onTaskCreate: (taskData: any) => void;
+  onTaskCreate: (taskData: {
+    title: string;
+    description: string;
+    assignedTo: string;
+    dueDate: string;
+    priority: TaskPriority;
+    category: string;
+    recurring: boolean;
+    recurrencePattern: "daily" | "weekly" | "monthly" | "yearly";
+    recurrenceInterval: number;
+    estimatedTime: string;
+    notes: string;
+  }) => void;
 }
-
-const TASK_CATEGORIES = [
-  "Cleaning",
-  "Cooking",
-  "Pet Care",
-  "Yard Work",
-  "Shopping",
-  "Maintenance",
-  "Organization",
-  "Other",
-] as const;
 
 const DURATION_OPTIONS = [
   { value: "", label: "Any" },
@@ -80,7 +81,10 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [taskData, setTaskData] = useState(INITIAL_TASK_DATA);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [newCategory, setNewCategory] = useState({ name: "", color: "#3B82F6" });
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+    color: "#3B82F6",
+  });
 
   const { hubMembers } = useHubStore();
   const { profile } = useAuthStore(
@@ -156,6 +160,8 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
       await fetchCategories();
     } catch (error) {
       console.error("Error creating category:", error);
+      // TODO: Show error toast or inline error message to user
+      alert("Failed to create category. Please try again.");
     }
   };
 
@@ -315,12 +321,15 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                           {category.name}
                         </option>
                       ))}
-                      <option value="__create_new__">+ Create New Category</option>
+                      <option value="__create_new__">
+                        + Create New Category
+                      </option>
                     </select>
                   </div>
-                  
+
                   {/* Create Category Form */}
-                  {(showCategoryForm || taskData.category === "__create_new__") && (
+                  {(showCategoryForm ||
+                    taskData.category === "__create_new__") && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
@@ -331,14 +340,24 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                         <input
                           type="text"
                           value={newCategory.name}
-                          onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                          onChange={(e) =>
+                            setNewCategory((prev) => ({
+                              ...prev,
+                              name: e.target.value,
+                            }))
+                          }
                           placeholder="Category name"
                           className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
                         />
                         <input
                           type="color"
                           value={newCategory.color}
-                          onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                          onChange={(e) =>
+                            setNewCategory((prev) => ({
+                              ...prev,
+                              color: e.target.value,
+                            }))
+                          }
                           className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
                         />
                       </div>
@@ -354,7 +373,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                           type="button"
                           onClick={() => {
                             setShowCategoryForm(false);
-                            setTaskData(prev => ({ ...prev, category: "" }));
+                            setTaskData((prev) => ({ ...prev, category: "" }));
                           }}
                           className="px-3 py-1 text-gray-600 text-xs rounded hover:bg-gray-200"
                         >
@@ -492,7 +511,10 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                                 min="1"
                                 value={taskData.recurrenceInterval}
                                 onChange={(e) =>
-                                  handleInputChange("recurrenceInterval", parseInt(e.target.value) || 1)
+                                  handleInputChange(
+                                    "recurrenceInterval",
+                                    parseInt(e.target.value) || 1
+                                  )
                                 }
                                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
                               />
