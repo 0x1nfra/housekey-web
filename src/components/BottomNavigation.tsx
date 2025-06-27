@@ -1,15 +1,17 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Home, Calendar, CheckSquare, ShoppingCart, Settings } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { NavLink } from "react-router-dom";
+// import { Home, Calendar, CheckSquare, ShoppingCart, Settings } from 'lucide-react';
+import { Home, CheckSquare, ShoppingCart, Bell } from "lucide-react";
+import { motion } from "framer-motion";
 
 const BottomNavigation: React.FC = () => {
   const navItems = [
-    { path: '/dashboard', icon: Home, label: 'Home' },
-    { path: '/calendar', icon: Calendar, label: 'Calendar' },
-    { path: '/tasks', icon: CheckSquare, label: 'Tasks' },
-    { path: '/shopping', icon: ShoppingCart, label: 'Shopping' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: "/dashboard", icon: Home, label: "Home" },
+    // { path: '/calendar', icon: Calendar, label: 'Calendar' },
+    { path: "/tasks", icon: CheckSquare, label: "Tasks" },
+    { path: "/shopping", icon: ShoppingCart, label: "Shopping" },
+    { path: "/notifications", icon: Bell, label: "Notifications" },
+    // { path: "/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
@@ -22,17 +24,14 @@ const BottomNavigation: React.FC = () => {
             className={({ isActive }) =>
               `flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
                 isActive
-                  ? 'text-indigo-600 bg-indigo-50'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? "text-indigo-600 bg-indigo-50"
+                  : "text-gray-500 hover:text-gray-700"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <motion.div
-                  whileTap={{ scale: 0.95 }}
-                  className="relative"
-                >
+                <motion.div whileTap={{ scale: 0.95 }} className="relative">
                   <Icon size={20} />
                   {isActive && (
                     <motion.div

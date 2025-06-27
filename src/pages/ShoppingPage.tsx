@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import CollaborativeShoppingList from '../components/shopping/CollaborativeShoppingList';
+import React from "react";
+import { motion } from "framer-motion";
+import CollaborativeShoppingList from "../components/shopping/CollaborativeShoppingList";
 
 const ShoppingPage: React.FC = () => {
   return (
@@ -11,11 +11,9 @@ const ShoppingPage: React.FC = () => {
         className="max-w-4xl mx-auto"
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Shopping Lists
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Shopping</h1>
           <p className="text-gray-600">
-            Collaborate on shopping in real-time with your family
+            Collaborate on shopping in real-time with your Hub
           </p>
         </div>
 

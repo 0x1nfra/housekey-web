@@ -45,7 +45,9 @@ FIXME:
 1. update all calls to RPC
 2. add state for errors/robust error handling
 3. add logging to Sentry
-4. move interface/types/enums to types folder
+4. split this store to match similiar to shopping store structure
+5. add avatar/emoji to user profile data
+
 */
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
