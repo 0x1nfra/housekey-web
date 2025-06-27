@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // import { X, Search, Camera, Zap, Plus } from "lucide-react";
 import { X, Search, Plus } from "lucide-react";
 import { AddItemModalProps } from "../../../types/components/shopping";
+import { useShoppingData } from "../hooks/useShoppingData";
 
 /*
 FIXME: 
@@ -20,20 +21,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   const [note, setNote] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Mock suggestions - in real app, these would be dynamic based on input and household history
-  const suggestions = [
-    { name: "Milk", category: "Dairy", icon: "🥛" },
-    { name: "Bread", category: "Bakery", icon: "🍞" },
-    { name: "Bananas", category: "Produce", icon: "🍌" },
-    { name: "Chicken Breast", category: "Meat", icon: "🍗" },
-    { name: "Eggs", category: "Dairy", icon: "🥚" },
-    { name: "Apples", category: "Produce", icon: "🍎" },
-    { name: "Rice", category: "Pantry", icon: "🍚" },
-    { name: "Yogurt", category: "Dairy", icon: "🥛" },
-  ];
-
-  // TODO: Use a selector or hook to get suggestions
-  // const suggestions = useShoppingSuggestions(currentHub?.id);
+  // Get dynamic suggestions from the store
+  const { shoppingSuggestions } = useShoppingData();
 
   const categories = [
     "Produce",
@@ -47,7 +36,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     "Other",
   ];
 
-  const filteredSuggestions = suggestions.filter((suggestion) =>
+  const filteredSuggestions = shoppingSuggestions.filter((suggestion) =>
     suggestion.name.toLowerCase().includes(itemName.toLowerCase())
   );
 
@@ -259,7 +248,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                   className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Add Item
-                </motion.button>
+                </button>
               </div>
             </form>
           </motion.div>

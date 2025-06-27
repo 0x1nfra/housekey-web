@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 // import { X, Search, Camera, Zap, Edit3 } from "lucide-react";
 import { X, Search, Edit3 } from "lucide-react";
 import { EditItemModalProps } from "../../../types/components/shopping";
+import { useShoppingData } from "../hooks/useShoppingData";
 
 /*
 FIXME: 
@@ -22,6 +23,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const [note, setNote] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
+  // Get dynamic suggestions from the store
+  const { shoppingSuggestions } = useShoppingData();
+
   // Initialize form with existing item data
   useEffect(() => {
     if (initialData) {
@@ -31,21 +35,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       setNote(initialData.note);
     }
   }, [initialData, isOpen]);
-
-  // Mock suggestions - in real app, these would be dynamic based on input and household history
-  const suggestions = [
-    { name: "Milk", category: "Dairy", icon: "🥛" },
-    { name: "Bread", category: "Bakery", icon: "🍞" },
-    { name: "Bananas", category: "Produce", icon: "🍌" },
-    { name: "Chicken Breast", category: "Meat", icon: "🍗" },
-    { name: "Eggs", category: "Dairy", icon: "🥚" },
-    { name: "Apples", category: "Produce", icon: "🍎" },
-    { name: "Rice", category: "Pantry", icon: "🍚" },
-    { name: "Yogurt", category: "Dairy", icon: "🥛" },
-  ];
-
-  // TODO: Use a selector or hook to get suggestions
-  // const suggestions = useShoppingSuggestions(currentHub?.id);
 
   const categories = [
     "Produce",
@@ -59,7 +48,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     "Other",
   ];
 
-  const filteredSuggestions = suggestions.filter((suggestion) =>
+  const filteredSuggestions = shoppingSuggestions.filter((suggestion) =>
     suggestion.name.toLowerCase().includes(itemName.toLowerCase())
   );
 

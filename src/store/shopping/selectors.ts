@@ -165,4 +165,125 @@ export const createShoppingSelectors = (state: ShoppingState) => ({
 
     return categoryStats;
   },
+
+  // Shopping suggestions based on hub data
+  getShoppingSuggestions: (hubId: string) => {
+    // Get all items from all lists in the hub
+    const hubLists = state.lists.filter((list) => list.hub_id === hubId);
+    const allItems: ShoppingListItem[] = [];
+
+    hubLists.forEach((list) => {
+      const listItems = state.items[list.id] || [];
+      allItems.push(...listItems);
+    });
+
+    // Create frequency map of item names
+    const itemFrequency: Record<string, { count: number; category?: string; icon?: string }> = {};
+
+    allItems.forEach((item) => {
+      const normalizedName = item.name.toLowerCase().trim();
+      if (!itemFrequency[normalizedName]) {
+        itemFrequency[normalizedName] = {
+          count: 0,
+          category: item.category,
+          icon: getItemIcon(item.name, item.category),
+        };
+      }
+      itemFrequency[normalizedName].count++;
+    });
+
+    // Convert to suggestions array and sort by frequency
+    const suggestions = Object.entries(itemFrequency)
+      .map(([name, data]) => ({
+        name: capitalizeWords(name),
+        category: data.category || "Other",
+        icon: data.icon || "🛒",
+        frequency: data.count,
+      }))
+      .sort((a, b) => b.frequency - a.frequency)
+      .slice(0, 20); // Limit to top 20 suggestions
+
+    return suggestions;
+  },
 });
+
+// Helper function to get appropriate icon for items
+const getItemIcon = (itemName: string, category?: string): string => {
+  const name = itemName.toLowerCase();
+  
+  // Category-based icons
+  if (category) {
+    const categoryIcons: Record<string, string> = {
+      dairy: "🥛",
+      produce: "🥬",
+      meat: "🥩",
+      bakery: "🍞",
+      pantry: "🥫",
+      frozen: "🧊",
+      household: "🧽",
+      "personal care": "🧴",
+    };
+    
+    const categoryIcon = categoryIcons[category.toLowerCase()];
+    if (categoryIcon) return categoryIcon;
+  }
+
+  // Item-specific icons
+  const itemIcons: Record<string, string> = {
+    milk: "🥛",
+    bread: "🍞",
+    eggs: "🥚",
+    cheese: "🧀",
+    butter: "🧈",
+    yogurt: "🥛",
+    chicken: "🍗",
+    beef: "🥩",
+    fish: "🐟",
+    salmon: "🐟",
+    banana: "🍌",
+    bananas: "🍌",
+    apple: "🍎",
+    apples: "🍎",
+    orange: "🍊",
+    oranges: "🍊",
+    tomato: "🍅",
+    tomatoes: "🍅",
+    potato: "🥔",
+    potatoes: "🥔",
+    onion: "🧅",
+    onions: "🧅",
+    carrot: "🥕",
+    carrots: "🥕",
+    lettuce: "🥬",
+    spinach: "🥬",
+    rice: "🍚",
+    pasta: "🍝",
+    cereal: "🥣",
+    coffee: "☕",
+    tea: "🍵",
+    juice: "🧃",
+    water: "💧",
+    soap: "🧼",
+    shampoo: "🧴",
+    toothpaste: "🦷",
+    toilet: "🧻",
+    paper: "📄",
+  };
+
+  // Check for partial matches
+  for (const [key, icon] of Object.entries(itemIcons)) {
+    if (name.includes(key)) {
+      return icon;
+    }
+  }
+
+  return "🛒"; // Default shopping cart icon
+};
+
+// Helper function to capitalize words
+const capitalizeWords = (str: string): string => {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};

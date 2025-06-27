@@ -60,6 +60,9 @@ export const useShoppingData = () => {
   const collaborators = currentList ? selectors.getCollaboratorsByList(currentList.id) : [];
   const quickStats = currentList ? selectors.getQuickStats(currentList.id) : null;
 
+  // Get shopping suggestions for the current hub
+  const shoppingSuggestions = currentHub ? selectors.getShoppingSuggestions(currentHub.id) : [];
+
   return {
     // Data
     lists,
@@ -69,6 +72,7 @@ export const useShoppingData = () => {
     completedItems,
     collaborators,
     quickStats,
+    shoppingSuggestions,
     
     // State
     loading,
