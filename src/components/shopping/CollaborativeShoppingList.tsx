@@ -83,7 +83,6 @@ const CollaborativeShoppingList: React.FC = () => {
 
   const handleItemAdd = async (itemData: CreateItemData) => {
     if (!currentList) return;
-    console.log(`user: ${user?.id}`);
 
     try {
       await createItem(currentList.id, itemData);
@@ -386,6 +385,8 @@ const CollaborativeShoppingList: React.FC = () => {
                               <span>
                                 <span className="font-semibold">
                                   {profile?.name}
+                                  {/* TODO: add item completer name logic */}
+                                  {/* {getItemCompleterName(item.completed_by)} */}
                                 </span>
                               </span>
                               {item.note && (
@@ -462,6 +463,8 @@ const CollaborativeShoppingList: React.FC = () => {
                               by{" "}
                               <span className="font-semibold">
                                 {profile?.name}
+                                {/* TODO: add item completer name logic */}
+                                {/* {getItemCompleterName(item.completed_by)} */}
                               </span>
                             </span>
                           )}

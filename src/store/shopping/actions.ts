@@ -10,10 +10,14 @@ import {
   CollaboratorRole,
   ListStats,
   HubShoppingStats,
-  ShoppingState,
   SetStateFunction,
   GetStateFunction,
 } from "./types";
+
+/*
+FIXME:
+- add rpc functions for complex actions
+*/
 
 export const createShoppingActions = (
   set: SetStateFunction,
@@ -21,11 +25,10 @@ export const createShoppingActions = (
 ) => ({
   // List Management
   fetchLists: async (hubId: string) => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, lists: true },
-      error: null,
-    }));
+    set((state) => {
+      state.loading.lists = true;
+      state.error = null;
+    });
 
     try {
       const { data: lists, error } = await supabase
@@ -36,18 +39,17 @@ export const createShoppingActions = (
 
       if (error) throw error;
 
-      set((state: ShoppingState) => ({
-        ...state,
-        lists: lists || [],
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        state.lists = lists || [];
+        state.loading.lists = false;
+      });
     } catch (error) {
       console.error("Error fetching lists:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to fetch lists",
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to fetch lists";
+        state.loading.lists = false;
+      });
     }
   },
 
@@ -55,11 +57,10 @@ export const createShoppingActions = (
     hubId: string,
     data: CreateListData
   ): Promise<ShoppingList> => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, lists: true },
-      error: null,
-    }));
+    set((state) => {
+      state.error = null;
+      state.loading.lists = true;
+    });
 
     try {
       const {
@@ -81,32 +82,30 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Optimistically update state
-      set((state: ShoppingState) => ({
-        ...state,
-        lists: [list, ...state.lists],
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        state.lists.unshift(list);
+        state.error = null;
+        state.loading.lists = false;
+      });
 
       return list;
     } catch (error) {
       console.error("Error creating list:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create list";
-      set((state: ShoppingState) => ({
-        ...state,
-        error: errorMessage,
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading.lists = false;
+      });
       throw error;
     }
   },
 
   updateList: async (listId: string, data: UpdateListData) => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, lists: true },
-      error: null,
-    }));
+    set((state) => {
+      state.loading.lists = true;
+      state.error = null;
+    });
 
     try {
       const { data: list, error } = await supabase
@@ -119,31 +118,27 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => ({
-        ...state,
-        lists: state.lists.map((l: ShoppingList) =>
-          l.id === listId ? list : l
-        ),
-        currentList:
-          state.currentList?.id === listId ? list : state.currentList,
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        const index = state.lists.findIndex((l) => l.id === listId);
+        if (index !== -1) state.lists[index] = list;
+        if (state.currentList?.id === listId) state.currentList = list;
+        state.loading.lists = false;
+      });
     } catch (error) {
       console.error("Error updating list:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to update list",
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to update list";
+        state.loading.lists = false;
+      });
     }
   },
 
   deleteList: async (listId: string) => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, lists: true },
-      error: null,
-    }));
+    set((state) => {
+      state.loading.lists = true;
+      state.error = null;
+    });
 
     try {
       const { error } = await supabase
@@ -154,33 +149,30 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => ({
-        ...state,
-        lists: state.lists.filter((l: ShoppingList) => l.id !== listId),
-        currentList:
-          state.currentList?.id === listId ? null : state.currentList,
-        items: { ...state.items, [listId]: undefined },
-        collaborators: { ...state.collaborators, [listId]: undefined },
-        listStats: { ...state.listStats, [listId]: undefined },
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        state.lists = state.lists.filter((l) => l.id !== listId);
+        if (state.currentList?.id === listId) state.currentList = null;
+        delete state.items[listId];
+        delete state.collaborators[listId];
+        delete state.listStats[listId];
+        state.loading.lists = false;
+      });
     } catch (error) {
       console.error("Error deleting list:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to delete list",
-        loading: { ...state.loading, lists: false },
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to delete list";
+        state.loading.lists = false;
+      });
     }
   },
 
   // Item Management
   fetchItems: async (listId: string) => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, items: true },
-      error: null,
-    }));
+    set((state) => {
+      state.loading.lists = true;
+      state.error = null;
+    });
 
     try {
       const { data: items, error } = await supabase
@@ -191,18 +183,17 @@ export const createShoppingActions = (
 
       if (error) throw error;
 
-      set((state: ShoppingState) => ({
-        ...state,
-        items: { ...state.items, [listId]: items || [] },
-        loading: { ...state.loading, items: false },
-      }));
+      set((state) => {
+        state.items[listId] = items || [];
+        state.loading.items = false;
+      });
     } catch (error) {
       console.error("Error fetching items:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to fetch items",
-        loading: { ...state.loading, items: false },
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to fetch items";
+        state.loading.items = false;
+      });
     }
   },
 
@@ -232,33 +223,25 @@ export const createShoppingActions = (
         .single();
 
       if (error) {
-        console.error("Supabase error details:", {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-        });
+        // Use proper error logging service in production
         throw error;
       }
 
-      console.log("Item created successfully:", item);
-
       // Optimistically update state
-      set((state: ShoppingState) => ({
-        ...state,
-        items: {
-          ...state.items,
-          [listId]: [...(state.items[listId] || []), item],
-        },
-      }));
+      set((state) => {
+        if (!state.items[listId]) {
+          state.items[listId] = [];
+        }
+        state.items[listId].push(item);
+      });
 
       return item;
     } catch (error) {
       console.error("Error creating item:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to create item",
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to create item";
+      });
       throw error;
     }
   },
@@ -275,38 +258,32 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => {
+      set((state) => {
         const listId = item.list_id;
-        return {
-          ...state,
-          items: {
-            ...state.items,
-            [listId]: (state.items[listId] || []).map((i: ShoppingListItem) =>
-              i.id === itemId ? item : i
-            ),
-          },
-        };
+        const itemList = state.items[listId] || [];
+        state.items[listId] = itemList.map((i) => (i.id === itemId ? item : i));
       });
     } catch (error) {
       console.error("Error updating item:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to update item",
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to update item";
+      });
     }
   },
 
   deleteItem: async (itemId: string) => {
     try {
-      // Get the item first to know which list to update
-      const state = get();
-      let listId = "";
-      for (const [lid, items] of Object.entries(state.items)) {
-        if ((items as ShoppingListItem[]).some((item) => item.id === itemId)) {
-          listId = lid;
-          break;
-        }
-      }
+      // Fetch the item to get its list_id
+      const { data: item, error: fetchError } = await supabase
+        .from("shopping_list_items")
+        .select("list_id")
+        .eq("id", itemId)
+        .single();
+
+      if (fetchError || !item) throw fetchError || new Error("Item not found");
+
+      const listId = item.list_id;
 
       const { error } = await supabase
         .from("shopping_list_items")
@@ -316,21 +293,16 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => ({
-        ...state,
-        items: {
-          ...state.items,
-          [listId]: (state.items[listId] || []).filter(
-            (i: ShoppingListItem) => i.id !== itemId
-          ),
-        },
-      }));
+      set((state) => {
+        const itemList = state.items[listId] || [];
+        state.items[listId] = itemList.filter((i) => i.id !== itemId);
+      });
     } catch (error) {
       console.error("Error deleting item:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to delete item",
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to delete item";
+      });
     }
   },
 
@@ -359,34 +331,26 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => {
+      set((state) => {
         const listId = item.list_id;
-        return {
-          ...state,
-          items: {
-            ...state.items,
-            [listId]: (state.items[listId] || []).map((i: ShoppingListItem) =>
-              i.id === itemId ? item : i
-            ),
-          },
-        };
+        const itemList = state.items[listId] || [];
+        state.items[listId] = itemList.map((i) => (i.id === itemId ? item : i));
       });
     } catch (error) {
       console.error("Error toggling item completion:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to update item",
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to update item";
+      });
     }
   },
 
   // Collaborator Management
   fetchCollaborators: async (listId: string) => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, collaborators: true },
-      error: null,
-    }));
+    set((state) => {
+      state.loading.collaborators = true;
+      state.error = null;
+    });
 
     try {
       const { data: collaborators, error } = await supabase
@@ -401,24 +365,19 @@ export const createShoppingActions = (
 
       if (error) throw error;
 
-      set((state: ShoppingState) => ({
-        ...state,
-        collaborators: {
-          ...state.collaborators,
-          [listId]: collaborators || [],
-        },
-        loading: { ...state.loading, collaborators: false },
-      }));
+      set((state) => {
+        state.collaborators[listId] = collaborators || [];
+        state.loading.collaborators = false;
+      });
     } catch (error) {
       console.error("Error fetching collaborators:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error:
+      set((state) => {
+        state.error =
           error instanceof Error
             ? error.message
-            : "Failed to fetch collaborators",
-        loading: { ...state.loading, collaborators: false },
-      }));
+            : "Failed to fetch collaborators";
+        state.loading.collaborators = false;
+      });
     }
   },
 
@@ -452,20 +411,18 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => ({
-        ...state,
-        collaborators: {
-          ...state.collaborators,
-          [listId]: [...(state.collaborators[listId] || []), collaborator],
-        },
-      }));
+      set((state) => {
+        if (!state.collaborators[listId]) {
+          state.collaborators[listId] = [];
+        }
+        state.collaborators[listId].push(collaborator);
+      });
     } catch (error) {
       console.error("Error adding collaborator:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error:
-          error instanceof Error ? error.message : "Failed to add collaborator",
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to add collaborator";
+      });
     }
   },
 
@@ -489,28 +446,21 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => {
+      set((state) => {
         const listId = collaborator.list_id;
-        return {
-          ...state,
-          collaborators: {
-            ...state.collaborators,
-            [listId]: (state.collaborators[listId] || []).map(
-              (c: ListCollaborator) =>
-                c.id === collaboratorId ? collaborator : c
-            ),
-          },
-        };
+        const listCollaborators = state.collaborators[listId] || [];
+        state.collaborators[listId] = listCollaborators.map((c) =>
+          c.id === collaboratorId ? collaborator : c
+        );
       });
     } catch (error) {
       console.error("Error updating collaborator role:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error:
+      set((state) => {
+        state.error =
           error instanceof Error
             ? error.message
-            : "Failed to update collaborator role",
-      }));
+            : "Failed to update collaborator role";
+      });
     }
   },
 
@@ -538,34 +488,29 @@ export const createShoppingActions = (
       if (error) throw error;
 
       // Update state
-      set((state: ShoppingState) => ({
-        ...state,
-        collaborators: {
-          ...state.collaborators,
-          [listId]: (state.collaborators[listId] || []).filter(
-            (c: ListCollaborator) => c.id !== collaboratorId
-          ),
-        },
-      }));
+      set((state) => {
+        const listCollaborators = state.collaborators[listId] || [];
+        state.collaborators[listId] = listCollaborators.filter(
+          (c) => c.id !== collaboratorId
+        );
+      });
     } catch (error) {
       console.error("Error removing collaborator:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error:
+      set((state) => {
+        state.error =
           error instanceof Error
             ? error.message
-            : "Failed to remove collaborator",
-      }));
+            : "Failed to remove collaborator";
+      });
     }
   },
 
   // Statistics
   fetchListStats: async (listId: string) => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, stats: true },
-      error: null,
-    }));
+    set((state) => {
+      state.loading.stats = true;
+      state.error = null;
+    });
 
     try {
       // Fetch items and collaborators for stats calculation
@@ -607,28 +552,25 @@ export const createShoppingActions = (
         collaboratorCount: collaborators.length,
       };
 
-      set((state: ShoppingState) => ({
-        ...state,
-        listStats: { ...state.listStats, [listId]: stats },
-        loading: { ...state.loading, stats: false },
-      }));
+      set((state) => {
+        state.listStats[listId] = stats;
+        state.loading.stats = false;
+      });
     } catch (error) {
       console.error("Error fetching list stats:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error:
-          error instanceof Error ? error.message : "Failed to fetch list stats",
-        loading: { ...state.loading, stats: false },
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to fetch list stats";
+        state.loading.stats = false;
+      });
     }
   },
 
   fetchHubStats: async (hubId: string) => {
-    set((state: ShoppingState) => ({
-      ...state,
-      loading: { ...state.loading, stats: true },
-      error: null,
-    }));
+    set((state) => {
+      state.loading.stats = true;
+      state.error = null;
+    });
 
     try {
       // Fetch all lists for the hub
@@ -647,11 +589,11 @@ export const createShoppingActions = (
           activeCollaborators: 0,
         };
 
-        set((state: ShoppingState) => ({
-          ...state,
-          hubStats: { ...state.hubStats, [hubId]: emptyStats },
-          loading: { ...state.loading, stats: false },
-        }));
+        set((state) => {
+          state.hubStats[hubId] = emptyStats;
+          state.loading.stats = false;
+        });
+
         return;
       }
 
@@ -706,29 +648,31 @@ export const createShoppingActions = (
             : undefined,
       };
 
-      set((state: ShoppingState) => ({
-        ...state,
-        hubStats: { ...state.hubStats, [hubId]: stats },
-        loading: { ...state.loading, stats: false },
-      }));
+      set((state) => {
+        state.hubStats[hubId] = stats;
+        state.loading.stats = false;
+      });
     } catch (error) {
       console.error("Error fetching hub stats:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error:
-          error instanceof Error ? error.message : "Failed to fetch hub stats",
-        loading: { ...state.loading, stats: false },
-      }));
+      set((state) => {
+        state.error =
+          error instanceof Error ? error.message : "Failed to fetch hub stats";
+        state.loading.stats = false;
+      });
     }
   },
 
   // Utility
   setCurrentList: (list: ShoppingList | null) => {
-    set((state: ShoppingState) => ({ ...state, currentList: list }));
+    set((state) => {
+      state.currentList = list;
+    });
   },
 
   clearError: () => {
-    set((state: ShoppingState) => ({ ...state, error: null }));
+    set((state) => {
+      state.error = null;
+    });
   },
 
   reset: () => {
@@ -745,22 +689,21 @@ export const createShoppingActions = (
       }
     });
 
-    set((state: ShoppingState) => ({
-      ...state,
-      lists: [],
-      currentList: null,
-      items: {},
-      collaborators: {},
-      listStats: {},
-      hubStats: {},
-      loading: {
+    set((state) => {
+      state.lists = [];
+      state.currentList = null;
+      state.items = {};
+      state.collaborators = {};
+      state.listStats = {};
+      state.hubStats = {};
+      state.loading = {
         lists: false,
         items: false,
         collaborators: false,
         stats: false,
-      },
-      error: null,
-      subscriptions: {},
-    }));
+      };
+      state.error = null;
+      state.subscriptions = {};
+    });
   },
 });

@@ -118,7 +118,7 @@ export interface ShoppingState {
   error: string | null;
 
   // Realtime subscriptions
-  subscriptions: Record<string, any>;
+  subscriptions: Record<string, SubscriptionGroup>;
 }
 
 export interface ShoppingActions {

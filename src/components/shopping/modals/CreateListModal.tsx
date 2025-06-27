@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ShoppingCart } from 'lucide-react';
-import { useShoppingStore } from '../../../store/shopping';
-import { useHubStore } from '../../../store/hubStore';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, ShoppingCart } from "lucide-react";
+import { useShoppingStore } from "../../../store/shopping";
+import { useHubStore } from "../../../store/hubStore";
 
 interface CreateListModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) => {
+const CreateListModal: React.FC<CreateListModalProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -21,7 +24,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentHub || !formData.name.trim()) return;
 
     setIsSubmitting(true);
@@ -30,19 +33,20 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
       });
-      
+
       // Reset form and close modal
-      setFormData({ name: '', description: '' });
+      setFormData({ name: "", description: "" });
       onClose();
     } catch (error) {
-      console.error('Error creating list:', error);
+      // TODO: Show error toast/notification to user
+      console.error("Error creating list:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    setFormData({ name: '', description: '' });
+    setFormData({ name: "", description: "" });
     onClose();
   };
 
@@ -68,7 +72,9 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
                 <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
                   <ShoppingCart size={20} className="text-indigo-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Create Shopping List</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Create Shopping List
+                </h2>
               </div>
               <button
                 onClick={handleClose}
@@ -86,7 +92,9 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                   placeholder="Enter list name"
                   required
@@ -100,7 +108,12 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
                 </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   rows={3}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
                   placeholder="Optional description..."
@@ -121,10 +134,12 @@ const CreateListModal: React.FC<CreateListModalProps> = ({ isOpen, onClose }) =>
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  disabled={isSubmitting || !formData.name.trim() || loading.lists}
+                  disabled={
+                    isSubmitting || !formData.name.trim() || loading.lists
+                  }
                   className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Creating...' : 'Create List'}
+                  {isSubmitting ? "Creating..." : "Create List"}
                 </motion.button>
               </div>
             </form>

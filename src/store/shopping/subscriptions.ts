@@ -34,8 +34,6 @@ export const createShoppingSubscriptions = (
           filter: `id=eq.${listId}`,
         },
         (payload: RealtimePostgresChangesPayload<ShoppingList>) => {
-          console.log("List change:", payload);
-
           if (payload.eventType === "UPDATE") {
             set((state: ShoppingState) => ({
               ...state,
@@ -53,9 +51,17 @@ export const createShoppingSubscriptions = (
               lists: state.lists.filter((list) => list.id !== listId),
               currentList:
                 state.currentList?.id === listId ? null : state.currentList,
-              items: { ...state.items, [listId]: undefined },
-              collaborators: { ...state.collaborators, [listId]: undefined },
-              listStats: { ...state.listStats, [listId]: undefined },
+              items: Object.fromEntries(
+                Object.entries(state.items).filter(([id]) => id !== listId)
+              ),
+              collaborators: Object.fromEntries(
+                Object.entries(state.collaborators).filter(
+                  ([id]) => id !== listId
+                )
+              ),
+              listStats: Object.fromEntries(
+                Object.entries(state.listStats).filter(([id]) => id !== listId)
+              ),
             }));
           }
         }

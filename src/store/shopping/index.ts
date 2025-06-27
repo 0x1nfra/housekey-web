@@ -6,8 +6,19 @@ import { createShoppingActions } from "./actions";
 import { createShoppingSelectors } from "./selectors";
 import { createShoppingSubscriptions } from "./subscriptions";
 
+// Define the set/get function types for immer
+type ImmerSet = (
+  nextStateOrUpdater:
+    | ShoppingStore
+    | Partial<ShoppingStore>
+    | ((state: ShoppingStore) => void),
+  shouldReplace?: boolean
+) => void;
+
+type ImmerGet = () => ShoppingStore;
+
 export const useShoppingStore = create<ShoppingStore>()(
-  immer((set, get) => ({
+  immer((set: ImmerSet, get: ImmerGet) => ({
     ...initialState,
 
     // Actions

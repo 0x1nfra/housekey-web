@@ -17,7 +17,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [category, setCategory] = useState("");
-  const [note, setNotes] = useState("");
+  const [note, setNote] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Mock suggestions - in real app, these would be dynamic based on input and household history
@@ -31,6 +31,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     { name: "Rice", category: "Pantry", icon: "🍚" },
     { name: "Yogurt", category: "Dairy", icon: "🥛" },
   ];
+
+  // TODO: Use a selector or hook to get suggestions
+  // const suggestions = useShoppingSuggestions(currentHub?.id);
 
   const categories = [
     "Produce",
@@ -63,7 +66,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     setItemName("");
     setQuantity(1);
     setCategory("");
-    setNotes("");
+    setNote("");
     setShowSuggestions(false);
   };
 
@@ -233,7 +236,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 <input
                   type="text"
                   value={note}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={(e) => setNote(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Brand preference, size, etc."
                 />

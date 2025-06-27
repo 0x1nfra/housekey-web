@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit3 } from 'lucide-react';
-import { useShoppingStore } from '../../../store/shopping';
-import { ShoppingList } from '../../../store/shopping/types';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Edit3 } from "lucide-react";
+import { useShoppingStore } from "../../../store/shopping";
+import { ShoppingList } from "../../../store/shopping/types";
 
 interface EditListModalProps {
   isOpen: boolean;
@@ -10,10 +10,14 @@ interface EditListModalProps {
   list: ShoppingList | null;
 }
 
-const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) => {
+const EditListModal: React.FC<EditListModalProps> = ({
+  isOpen,
+  onClose,
+  list,
+}) => {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,14 +27,14 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
     if (list) {
       setFormData({
         name: list.name,
-        description: list.description || '',
+        description: list.description || "",
       });
     }
   }, [list]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!list || !formData.name.trim()) return;
 
     setIsSubmitting(true);
@@ -39,10 +43,10 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
       });
-      
+
       onClose();
     } catch (error) {
-      console.error('Error updating list:', error);
+      console.error("Error updating list:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -52,7 +56,7 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
     if (list) {
       setFormData({
         name: list.name,
-        description: list.description || '',
+        description: list.description || "",
       });
     }
     onClose();
@@ -67,6 +71,9 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           onClick={handleClose}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="edit-list-title"
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -80,11 +87,17 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
                 <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                   <Edit3 size={20} className="text-emerald-600" />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Edit Shopping List</h2>
+                <h2
+                  id="edit-list-title"
+                  className="text-xl font-bold text-gray-900"
+                >
+                  Edit Shopping List
+                </h2>
               </div>
               <button
                 onClick={handleClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Close modal"
               >
                 <X size={20} className="text-gray-500" />
               </button>
@@ -98,7 +111,9 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Enter list name"
                   required
@@ -112,7 +127,12 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
                 </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
                   rows={3}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
                   placeholder="Optional description..."
@@ -133,10 +153,12 @@ const EditListModal: React.FC<EditListModalProps> = ({ isOpen, onClose, list }) 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  disabled={isSubmitting || !formData.name.trim() || loading.lists}
+                  disabled={
+                    isSubmitting || !formData.name.trim() || loading.lists
+                  }
                   className="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                  {isSubmitting ? "Saving..." : "Save Changes"}
                 </motion.button>
               </div>
             </form>

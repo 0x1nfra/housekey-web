@@ -19,7 +19,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [category, setCategory] = useState("");
-  const [note, setNotes] = useState("");
+  const [note, setNote] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // Initialize form with existing item data
@@ -28,7 +28,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       setItemName(initialData.name);
       setQuantity(initialData.quantity);
       setCategory(initialData.category);
-      setNotes(initialData.note);
+      setNote(initialData.note);
     }
   }, [initialData, isOpen]);
 
@@ -43,6 +43,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     { name: "Rice", category: "Pantry", icon: "🍚" },
     { name: "Yogurt", category: "Dairy", icon: "🥛" },
   ];
+
+  // TODO: Use a selector or hook to get suggestions
+  // const suggestions = useShoppingSuggestions(currentHub?.id);
 
   const categories = [
     "Produce",
@@ -100,7 +103,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       setItemName(initialData.name);
       setQuantity(initialData.quantity);
       setCategory(initialData.category);
-      setNotes(initialData.note);
+      setNote(initialData.note);
     }
     setShowSuggestions(false);
     onClose();
@@ -257,7 +260,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 <input
                   type="text"
                   value={note}
-                  onChange={(e) => setNotes(e.target.value)}
+                  onChange={(e) => setNote(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Brand preference, size, etc."
                 />
