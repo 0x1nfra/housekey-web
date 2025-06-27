@@ -1,7 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Search, Plus } from "lucide-react";
-import { TaskFilters, TaskPriority } from "../../../store/tasks/types";
+import { TaskFilters } from "../../../store/tasks/types";
+import { TaskPriority } from "../../../types/tasks";
 
 interface TaskFiltersProps {
   searchQuery: string;

@@ -1,35 +1,28 @@
 import { RealtimeChannel } from "@supabase/supabase-js";
-
-// Define numeric priority enum
-export enum TaskPriority {
-  LOW = 1,
-  MEDIUM = 2,
-  HIGH = 3,
-  URGENT = 4
-}
+import { TaskPriority } from "../../types/tasks";
 
 // Helper object for display labels
 export const PRIORITY_LABELS = {
-  [TaskPriority.LOW]: 'Low',
-  [TaskPriority.MEDIUM]: 'Medium', 
-  [TaskPriority.HIGH]: 'High',
-  [TaskPriority.URGENT]: 'Urgent'
+  [TaskPriority.LOW]: "Low",
+  [TaskPriority.MEDIUM]: "Medium",
+  [TaskPriority.HIGH]: "High",
+  [TaskPriority.URGENT]: "Urgent",
 } as const;
 
 // Helper object for display colors
 export const PRIORITY_COLORS = {
-  [TaskPriority.LOW]: 'bg-green-100 text-green-700',
-  [TaskPriority.MEDIUM]: 'bg-yellow-100 text-yellow-700',
-  [TaskPriority.HIGH]: 'bg-orange-100 text-orange-700',
-  [TaskPriority.URGENT]: 'bg-red-100 text-red-700'
+  [TaskPriority.LOW]: "bg-green-100 text-green-700",
+  [TaskPriority.MEDIUM]: "bg-yellow-100 text-yellow-700",
+  [TaskPriority.HIGH]: "bg-orange-100 text-orange-700",
+  [TaskPriority.URGENT]: "bg-red-100 text-red-700",
 } as const;
 
 // Helper object for border colors
 export const PRIORITY_BORDER_COLORS = {
-  [TaskPriority.LOW]: 'border-l-green-500 bg-green-50',
-  [TaskPriority.MEDIUM]: 'border-l-yellow-500 bg-yellow-50',
-  [TaskPriority.HIGH]: 'border-l-orange-500 bg-orange-50',
-  [TaskPriority.URGENT]: 'border-l-red-500 bg-red-50'
+  [TaskPriority.LOW]: "border-l-green-500 bg-green-50",
+  [TaskPriority.MEDIUM]: "border-l-yellow-500 bg-yellow-50",
+  [TaskPriority.HIGH]: "border-l-orange-500 bg-orange-50",
+  [TaskPriority.URGENT]: "border-l-red-500 bg-red-50",
 } as const;
 
 export interface Task {
@@ -38,7 +31,7 @@ export interface Task {
   title: string;
   description?: string;
   completed: boolean;
-  priority: TaskPriority;  // Use numeric enum
+  priority: TaskPriority; // Use numeric enum
   due_date?: string;
   created_at: string;
   updated_at: string;
@@ -59,7 +52,7 @@ export interface TasksState {
   // Tasks (keyed by hubId)
   tasks: Record<string, Task[]>;
   currentHub: string | null;
-  
+
   // UI State
   loading: {
     tasks: boolean;
@@ -70,7 +63,7 @@ export interface TasksState {
   error: string | null;
   filters: TaskFilters;
   selectedTasks: string[];
-  
+
   // Realtime subscriptions
   subscriptions: Record<string, SubscriptionGroup>;
 }
@@ -83,17 +76,22 @@ export interface SubscriptionGroup {
 export interface TasksActions {
   // Data fetching
   fetchTasks: (hubId: string) => Promise<void>;
-  
+
   // CRUD operations
-  createTask: (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  createTask: (
+    task: Omit<Task, "id" | "created_at" | "updated_at">
+  ) => Promise<void>;
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
-  
+
   // Bulk operations
   toggleTaskCompletion: (id: string) => Promise<void>;
-  bulkUpdatePriority: (taskIds: string[], priority: TaskPriority) => Promise<void>;
+  bulkUpdatePriority: (
+    taskIds: string[],
+    priority: TaskPriority
+  ) => Promise<void>;
   bulkDeleteTasks: (taskIds: string[]) => Promise<void>;
-  
+
   // UI state management
   setCurrentHub: (hubId: string | null) => void;
   setFilters: (filters: Partial<TaskFilters>) => void;
@@ -101,12 +99,12 @@ export interface TasksActions {
   toggleTaskSelection: (id: string) => void;
   selectAllTasks: () => void;
   clearSelection: () => void;
-  
+
   // Subscription management
   subscribeToHub: (hubId: string) => void;
   unsubscribeFromHub: (hubId: string) => void;
   unsubscribeAll: () => void;
-  
+
   // Utility
   reset: () => void;
   clearError: () => void;
@@ -137,6 +135,9 @@ export const sortTasksByPriority = (tasks: Task[]): Task[] => {
 };
 
 // Filter tasks by priority level
-export const filterTasksByPriority = (tasks: Task[], minPriority: TaskPriority): Task[] => {
-  return tasks.filter(task => task.priority >= minPriority);
+export const filterTasksByPriority = (
+  tasks: Task[],
+  minPriority: TaskPriority
+): Task[] => {
+  return tasks.filter((task) => task.priority >= minPriority);
 };

@@ -3,8 +3,8 @@ import { useTasksStore } from "../../store/tasks";
 import { useHubStore } from "../../store/hubStore";
 import { useAuthStore } from "../../store/authStore";
 import { useTasksData } from "./hooks/useTasksData";
-import { Task, TaskFilters, TaskPriority } from "../../store/tasks/types";
-import ChoreCreationForm from "./ChoreCreationForm";
+import { Task, TaskFilters } from "../../store/tasks/types";
+import TaskCreationForm from "./TaskCreationForm";
 import TaskEditModal from "./TaskEditModal";
 
 import { shallow } from "zustand/shallow";
@@ -14,6 +14,7 @@ import TaskFiltersComponent from "./ui/TaskFilters";
 import BulkActions from "./ui/BulkAction";
 import TaskStats from "./ui/TaskStats";
 import TaskList from "./ui/TaskList";
+import { TaskData, TaskPriority } from "../../types/tasks";
 
 const TaskDashboard: React.FC = () => {
   const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
@@ -51,7 +52,7 @@ const TaskDashboard: React.FC = () => {
     useTasksData();
 
   // Handle task creation
-  const handleTaskCreate = async (taskData: any) => {
+  const handleTaskCreate = async (taskData: TaskData) => {
     if (!currentHub || !user) return;
 
     try {
@@ -184,7 +185,7 @@ const TaskDashboard: React.FC = () => {
       />
 
       {/* Task Creation Form Modal */}
-      <ChoreCreationForm
+      <TaskCreationForm
         isOpen={isCreationFormOpen}
         onClose={() => setIsCreationFormOpen(false)}
         onTaskCreate={handleTaskCreate}

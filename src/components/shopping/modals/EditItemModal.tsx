@@ -2,13 +2,26 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 // import { X, Search, Camera, Zap, Edit3 } from "lucide-react";
 import { X, Search, Edit3 } from "lucide-react";
-import { EditItemModalProps } from "../../../types/components/shopping";
 import { useShoppingData } from "../hooks/useShoppingData";
+import { UpdateItemData } from "../../../store/shopping/types";
 
 /*
 FIXME: 
 - add suggestion logic
 */
+
+interface EditItemModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onItemEdit: (itemId: string, itemData: UpdateItemData) => Promise<void>;
+  itemId: string;
+  initialData?: {
+    name: string;
+    quantity: number;
+    category: string;
+    note: string;
+  };
+}
 
 const EditItemModal: React.FC<EditItemModalProps> = ({
   isOpen,

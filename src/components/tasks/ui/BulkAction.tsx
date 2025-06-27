@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Trash2 } from "lucide-react";
-import { TaskPriority } from "../../../store/tasks/types";
+import { TaskPriority } from "../../../types/tasks";
 
 interface BulkActionsProps {
   selectedCount: number;
