@@ -11,17 +11,14 @@ import {
   ListStats,
   HubShoppingStats,
   ShoppingState,
+  SetStateFunction,
+  GetStateFunction,
 } from "./types";
 
-type SetStateFunction = (updater: (state: ShoppingState) => void) => void;
-type GetStateFunction = () => ShoppingState;
-
-/*
-FIXME:
-- fix types of action
-*/
-
-export const createShoppingActions = (set: SetStateFunction, get: GetStateFunction) => ({
+export const createShoppingActions = (
+  set: SetStateFunction,
+  get: GetStateFunction
+) => ({
   // List Management
   fetchLists: async (hubId: string) => {
     set((state: ShoppingState) => ({
@@ -295,44 +292,6 @@ export const createShoppingActions = (set: SetStateFunction, get: GetStateFuncti
       set((state: ShoppingState) => ({
         ...state,
         error: error instanceof Error ? error.message : "Failed to update item",
-      }));
-    }
-  },
-
-  edit: async (itemId: string) => {
-    try {
-      // Get the item first to know which list to update
-      const state = get();
-      let listId = "";
-      for (const [lid, items] of Object.entries(state.items)) {
-        if ((items as ShoppingListItem[]).some((item) => item.id === itemId)) {
-          listId = lid;
-          break;
-        }
-      }
-
-      const { error } = await supabase
-        .from("shopping_list_items")
-        .update()
-        .eq("id", itemId);
-
-      if (error) throw error;
-
-      // Update state
-      set((state: ShoppingState) => ({
-        ...state,
-        items: {
-          ...state.items,
-          [listId]: (state.items[listId] || []).filter(
-            (i: ShoppingListItem) => i.id !== itemId
-          ),
-        },
-      }));
-    } catch (error) {
-      console.error("Error deleting item:", error);
-      set((state: ShoppingState) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to delete item",
       }));
     }
   },
@@ -776,7 +735,12 @@ export const createShoppingActions = (set: SetStateFunction, get: GetStateFuncti
     // Unsubscribe from all subscriptions
     const state = get();
     Object.values(state.subscriptions).forEach((subscription: unknown) => {
-      if (subscription && typeof subscription === 'object' && 'unsubscribe' in subscription && typeof subscription.unsubscribe === 'function') {
+      if (
+        subscription &&
+        typeof subscription === "object" &&
+        "unsubscribe" in subscription &&
+        typeof subscription.unsubscribe === "function"
+      ) {
         subscription.unsubscribe();
       }
     });

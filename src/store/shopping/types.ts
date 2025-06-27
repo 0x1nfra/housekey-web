@@ -1,3 +1,11 @@
+import { RealtimeChannel } from "@supabase/supabase-js";
+
+export type SetStateFunction = (
+  updater: (state: ShoppingState) => void
+) => void;
+
+export type GetStateFunction = () => ShoppingState;
+
 export interface ShoppingList {
   id: string;
   hub_id: string;
@@ -158,6 +166,13 @@ export interface ShoppingActions {
 }
 
 export type ShoppingStore = ShoppingState & ShoppingActions;
+
+export interface SubscriptionGroup {
+  list: RealtimeChannel;
+  items: RealtimeChannel;
+  collaborators: RealtimeChannel;
+  unsubscribe: () => void;
+}
 
 export interface Result<T = any> {
   success: boolean;

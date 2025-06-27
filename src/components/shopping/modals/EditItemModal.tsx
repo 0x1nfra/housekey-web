@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, Camera, Zap, Edit3 } from "lucide-react";
+// import { X, Search, Camera, Zap, Edit3 } from "lucide-react";
+import { X, Search, Edit3 } from "lucide-react";
 import { EditItemModalProps } from "../../../types/components/shopping";
 
 /*
@@ -85,12 +86,13 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     setShowSuggestions(false);
   };
 
-  const handleBarcodeScanned = (barcode: string) => {
-    // Mock barcode scanning - in real app, this would lookup product info
-    console.log("Barcode scanned:", barcode);
-    setItemName("Scanned Product");
-    setCategory("Unknown");
-  };
+  // TODO: add quick action logic
+  // const handleBarcodeScanned = (barcode: string) => {
+  //   // Mock barcode scanning - in real app, this would lookup product info
+  //   console.log("Barcode scanned:", barcode);
+  //   setItemName("Scanned Product");
+  //   setCategory("Unknown");
+  // };
 
   const handleClose = () => {
     // Reset form when closing
@@ -189,7 +191,8 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </div>
 
               {/* Quick Actions */}
-              <div className="flex gap-2">
+              {/* TODO: add quick action logic */}
+              {/* <div className="flex gap-2">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -210,7 +213,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   <Zap size={16} />
                   Quick Add
                 </motion.button>
-              </div>
+              </div> */}
 
               {/* Quantity and Category */}
               <div className="grid grid-cols-2 gap-4">

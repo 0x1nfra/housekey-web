@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, Camera, Zap, Plus } from "lucide-react";
+// import { X, Search, Camera, Zap, Plus } from "lucide-react";
+import { X, Search, Plus } from "lucide-react";
 import { AddItemModalProps } from "../../../types/components/shopping";
 
 /*
@@ -66,18 +67,20 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
     setShowSuggestions(false);
   };
 
+  // TODO: add item suggestion logic
   const handleSuggestionClick = (suggestion: any) => {
     setItemName(suggestion.name);
     setCategory(suggestion.category);
     setShowSuggestions(false);
   };
 
-  const handleBarcodeScanned = (barcode: string) => {
-    // Mock barcode scanning - in real app, this would lookup product info
-    console.log("Barcode scanned:", barcode);
-    setItemName("Scanned Product");
-    setCategory("Unknown");
-  };
+  // TODO: add quick action logic
+  // const handleBarcodeScanned = (barcode: string) => {
+  //   // Mock barcode scanning - in real app, this would lookup product info
+  //   console.log("Barcode scanned:", barcode);
+  //   setItemName("Scanned Product");
+  //   setCategory("Unknown");
+  // };
 
   return (
     <AnimatePresence>
@@ -101,7 +104,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
               <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                 <Plus size={20} className="text-emerald-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Edit Item</h2>
+              <h2 className="text-xl font-bold text-gray-900">Add Item</h2>
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
@@ -164,7 +167,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
               </div>
 
               {/* Quick Actions */}
-              <div className="flex gap-2">
+              {/* TODO: add quick action logic */}
+              {/* <div className="flex gap-2">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -185,7 +189,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                   <Zap size={16} />
                   Quick Add
                 </motion.button>
-              </div>
+              </div> */}
 
               {/* Quantity and Category */}
               <div className="grid grid-cols-2 gap-4">

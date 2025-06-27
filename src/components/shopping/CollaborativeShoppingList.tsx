@@ -6,7 +6,7 @@ import {
   X,
   ShoppingCart,
   Users,
-  Clock,
+  // Clock,
   Edit3,
   Trash2,
   BarChart3,
@@ -24,7 +24,7 @@ import {
 } from "../../store/shopping";
 import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 import EditItemModal from "./modals/EditItemModal";
 import { ShoppingItem } from "../../types/components/shopping";
 
@@ -35,7 +35,6 @@ TODO:
 - update get member avatar/emoji logic
 - add categories table
 - implement suggestion logic
-- add types to a folder
 */
 
 const CollaborativeShoppingList: React.FC = () => {
@@ -202,10 +201,10 @@ const CollaborativeShoppingList: React.FC = () => {
         <div className="flex items-center gap-3">
           {currentList && (
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setShowStatsModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="bg-white border border-gray-200 text-gray-700 hover:border-gray-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
             >
               <BarChart3 size={16} />
               Stats
@@ -281,13 +280,14 @@ const CollaborativeShoppingList: React.FC = () => {
                     <Users size={16} />
                     <span>{collaborators.length} collaborators</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  {/* <div className="flex items-center gap-2">
                     <Clock size={16} />
                     <span>
-                      {/* TODO: add 24/12 time format */}
+                      TODO: add 24/12 time format
+                      Last Update:{" "}
                       {dayjs(currentList.updated_at).format("h:mm A")}
                     </span>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Progress Bar */}
@@ -384,7 +384,6 @@ const CollaborativeShoppingList: React.FC = () => {
                                 {getMemberAvatar("User")}
                               </span>
                               <span>
-                                by{" "}
                                 <span className="font-semibold">
                                   {profile?.name}
                                 </span>
