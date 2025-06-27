@@ -9,7 +9,6 @@ import {
   Clock,
   Edit3,
   Trash2,
-  Settings,
   BarChart3,
 } from "lucide-react";
 import AddItemModal from "./modals/AddItemModal";
@@ -18,18 +17,38 @@ import EditListModal from "./modals/EditListModal";
 import DeleteListModal from "./modals/DeleteListModal";
 import StatsModal from "./modals/StatsModal";
 import { useShoppingData } from "./hooks/useShoppingData";
-import { CreateItemData, useShoppingStore } from "../../store/shopping";
+import {
+  CreateItemData,
+  UpdateItemData,
+  useShoppingStore,
+} from "../../store/shopping";
 import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
+import dayjs from "dayjs";
 import EditItemModal from "./modals/EditItemModal";
+import { ShoppingItem } from "../../types/components/shopping";
+
+/*
+
+TODO:
+- simplfy color scheme: page, stats, buttons
+- update get member avatar/emoji logic
+- add categories table
+- implement suggestion logic
+- add types to a folder
+*/
 
 const CollaborativeShoppingList: React.FC = () => {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
-  // const [showEditItemModal, setShowEditItemModal] = useState(false);
+  const [showEditItemModal, setShowEditItemModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
+
+  // Add state for tracking current item being edited
+  const [currentEditingItem, setCurrentEditingItem] =
+    useState<ShoppingItem | null>(null);
 
   const { user, profile } = useAuthStore(
     (state) => ({
@@ -38,7 +57,8 @@ const CollaborativeShoppingList: React.FC = () => {
     }),
     shallow
   );
-  const { toggleItemComplete, createItem, deleteItem } = useShoppingStore();
+  const { toggleItemComplete, createItem, updateItem, deleteItem } =
+    useShoppingStore();
 
   const {
     lists,
@@ -74,13 +94,15 @@ const CollaborativeShoppingList: React.FC = () => {
     }
   };
 
-  // const handleEditItem = async (itemId: CreateItemData) => {
-  //   try {
-  //     await editItem(itemId);
-  //   } catch (error) {
-  //     console.error("Error editing item:", error);
-  //   }
-  // };
+  const handleEditItem = async (itemId: string, itemData: UpdateItemData) => {
+    try {
+      await updateItem(itemId, itemData);
+      setShowEditItemModal(false);
+      setCurrentEditingItem(null);
+    } catch (error) {
+      console.error("Error editing item:", error);
+    }
+  };
 
   const handleItemDelete = async (itemId: string) => {
     try {
@@ -88,6 +110,18 @@ const CollaborativeShoppingList: React.FC = () => {
     } catch (error) {
       console.error("Error deleting item:", error);
     }
+  };
+
+  // Function to open edit modal with item data
+  const openEditModal = (item: ShoppingItem) => {
+    setCurrentEditingItem(item);
+    setShowEditItemModal(true);
+  };
+
+  // Function to close edit modal and reset current item
+  const closeEditModal = () => {
+    setShowEditItemModal(false);
+    setCurrentEditingItem(null);
   };
 
   const getMemberAvatar = (memberName: string) => {
@@ -177,12 +211,12 @@ const CollaborativeShoppingList: React.FC = () => {
               Stats
             </motion.button>
           )}
-          
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateModal(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
           >
             <Plus size={16} />
             New List
@@ -207,7 +241,7 @@ const CollaborativeShoppingList: React.FC = () => {
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={() => setShowEditItemModal(true)}
+                          onClick={() => setShowEditModal(true)}
                           className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                           title="Edit list"
                         >
@@ -250,8 +284,8 @@ const CollaborativeShoppingList: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <Clock size={16} />
                     <span>
-                      Updated{" "}
-                      {new Date(currentList.updated_at).toLocaleTimeString()}
+                      {/* TODO: add 24/12 time format */}
+                      {dayjs(currentList.updated_at).format("h:mm A")}
                     </span>
                   </div>
                 </div>
@@ -368,9 +402,9 @@ const CollaborativeShoppingList: React.FC = () => {
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              // onClick={() => handleEditItem(item.id)}
+                              onClick={() => openEditModal(item)}
                               className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
-                              title="Delete item"
+                              title="Edit item"
                             >
                               <Edit3 size={16} />
                             </motion.button>
@@ -425,9 +459,6 @@ const CollaborativeShoppingList: React.FC = () => {
                             {item.name}
                           </span>
                           {item.completed_by && (
-                            // <span className="text-sm text-gray-500 ml-2">
-                            //   by User
-                            // </span>
                             <span className="text-sm text-gray-500 ml-2">
                               by{" "}
                               <span className="font-semibold">
@@ -453,100 +484,6 @@ const CollaborativeShoppingList: React.FC = () => {
               )}
             </div>
           </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Collaborators */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Collaborators</h3>
-                {canUserManage && (
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                    title="Manage collaborators"
-                  >
-                    <Settings size={16} />
-                  </motion.button>
-                )}
-              </div>
-
-              {loading.collaborators ? (
-                <div className="space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="animate-pulse flex items-center gap-3"
-                    >
-                      <div className="w-8 h-8 bg-gray-200 rounded-lg" />
-                      <div className="flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-1/2 mb-1" />
-                        <div className="h-3 bg-gray-200 rounded w-1/3" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {collaborators.map((collaborator) => (
-                    <div
-                      key={collaborator.id}
-                      className="flex items-center gap-3"
-                    >
-                      <span className="text-2xl">
-                        {getMemberAvatar(
-                          collaborator.user_profile?.name || "User"
-                        )}
-                      </span>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">
-                          {collaborator.user_profile?.name || "User"}
-                        </p>
-                        <p className="text-sm text-gray-500 capitalize">
-                          {collaborator.role}
-                        </p>
-                      </div>
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Quick Stats */}
-            {quickStats && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">
-                  Quick Stats
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Items</span>
-                    <span className="font-medium">{quickStats.totalItems}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Completed</span>
-                    <span className="font-medium text-emerald-600">
-                      {quickStats.completedItems}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Remaining</span>
-                    <span className="font-medium text-amber-600">
-                      {quickStats.pendingItems}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Completion</span>
-                    <span className="font-medium">
-                      {quickStats.completionPercentage}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
       )}
 
@@ -557,11 +494,22 @@ const CollaborativeShoppingList: React.FC = () => {
         onItemAdd={handleItemAdd}
       />
 
-      {/* <EditItemModal
+      <EditItemModal
         isOpen={showEditItemModal}
-        onClose={() => setShowEditItemModal(false)}
-        onItemAdd={handleEditItem}
-      /> */}
+        onClose={closeEditModal}
+        onItemEdit={handleEditItem}
+        itemId={currentEditingItem?.id || ""}
+        initialData={
+          currentEditingItem
+            ? {
+                name: currentEditingItem.name,
+                quantity: currentEditingItem.quantity,
+                category: currentEditingItem.category || "",
+                note: currentEditingItem.note || "",
+              }
+            : undefined
+        }
+      />
 
       <CreateListModal
         isOpen={showCreateModal}

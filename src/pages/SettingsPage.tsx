@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Bell, Shield, Users, Home, Inbox } from "lucide-react";
+// TODO: add privacy settings
+// import { Bell, Shield, Users, Home, Inbox } from "lucide-react";
+import { Bell, Users, Home, Inbox } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import { getInitials } from "../utils/userUtils";
 import { useSearchParams } from "react-router-dom";
@@ -43,7 +45,8 @@ const SettingsPage: React.FC = () => {
     { id: "hubs", label: "Hubs", icon: Home },
     { id: "invitations", label: "Invitations", icon: Inbox },
     { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "privacy", label: "Privacy & Security", icon: Shield },
+    // TODO: add privacy settings
+    // { id: "privacy", label: "Privacy & Security", icon: Shield },
   ];
 
   const settingsSections = [
@@ -74,33 +77,34 @@ const SettingsPage: React.FC = () => {
         },
       ],
     },
-    {
-      title: "Privacy & Security",
-      icon: Shield,
-      color: "bg-emerald-100 text-emerald-600",
-      settings: [
-        {
-          name: "Location Sharing",
-          description: "Share location with family members",
-          enabled: false,
-        },
-        {
-          name: "Activity Visibility",
-          description: "Show your activity to family",
-          enabled: true,
-        },
-        {
-          name: "Data Backup",
-          description: "Automatic cloud backup",
-          enabled: true,
-        },
-        {
-          name: "Two-Factor Auth",
-          description: "Extra security for your account",
-          enabled: false,
-        },
-      ],
-    },
+    // TODO: add privacy settings
+    // {
+    //   title: "Privacy & Security",
+    //   icon: Shield,
+    //   color: "bg-emerald-100 text-emerald-600",
+    //   settings: [
+    //     {
+    //       name: "Location Sharing",
+    //       description: "Share location with family members",
+    //       enabled: false,
+    //     },
+    //     {
+    //       name: "Activity Visibility",
+    //       description: "Show your activity to family",
+    //       enabled: true,
+    //     },
+    //     {
+    //       name: "Data Backup",
+    //       description: "Automatic cloud backup",
+    //       enabled: true,
+    //     },
+    //     {
+    //       name: "Two-Factor Auth",
+    //       description: "Extra security for your account",
+    //       enabled: false,
+    //     },
+    //   ],
+    // },
   ];
 
   const { switchHub } = useHubStore(

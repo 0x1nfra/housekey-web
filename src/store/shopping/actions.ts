@@ -8,10 +8,14 @@ import {
   CreateItemData,
   UpdateItemData,
   CollaboratorRole,
-  Result,
   ListStats,
   HubShoppingStats,
 } from "./types";
+
+/*
+FIXME:
+- fix types of action
+*/
 
 export const createShoppingActions = (set: any, get: any) => ({
   // List Management
@@ -272,7 +276,7 @@ export const createShoppingActions = (set: any, get: any) => ({
     }
   },
 
-  editItem: async (itemId: string) => {
+  edit: async (itemId: string) => {
     try {
       // Get the item first to know which list to update
       const state = get();

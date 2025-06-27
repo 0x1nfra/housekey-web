@@ -1,24 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Camera, Zap, Edit3 } from "lucide-react";
-import { CreateItemData } from "../../../store/shopping/types";
+import { EditItemModalProps } from "../../../types/components/shopping";
 
-interface EditItemModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onItemAdd: (itemData: CreateItemData) => void;
-}
+/*
+FIXME: 
+- add suggestion logic
+*/
 
 const EditItemModal: React.FC<EditItemModalProps> = ({
   isOpen,
   onClose,
-  onItemAdd,
+  onItemEdit,
+  itemId,
+  initialData,
 }) => {
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [category, setCategory] = useState("");
   const [note, setNotes] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Initialize form with existing item data
+  useEffect(() => {
+    if (initialData) {
+      setItemName(initialData.name);
+      setQuantity(initialData.quantity);
+      setCategory(initialData.category);
+      setNotes(initialData.note);
+    }
+  }, [initialData, isOpen]);
 
   // Mock suggestions - in real app, these would be dynamic based on input and household history
   const suggestions = [
@@ -48,23 +59,24 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     suggestion.name.toLowerCase().includes(itemName.toLowerCase())
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!itemName.trim()) return;
 
-    onItemAdd({
-      name: itemName,
-      quantity,
-      category,
-      note,
-    });
+    try {
+      await onItemEdit(itemId, {
+        name: itemName,
+        quantity,
+        category,
+        note,
+      });
 
-    // Reset form
-    setItemName("");
-    setQuantity(1);
-    setCategory("");
-    setNotes("");
-    setShowSuggestions(false);
+      // Close modal after successful edit
+      onClose();
+    } catch (error) {
+      console.error("Error updating item:", error);
+      // Handle error (show toast, etc.)
+    }
   };
 
   const handleSuggestionClick = (suggestion: any) => {
@@ -80,6 +92,18 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     setCategory("Unknown");
   };
 
+  const handleClose = () => {
+    // Reset form when closing
+    if (initialData) {
+      setItemName(initialData.name);
+      setQuantity(initialData.quantity);
+      setCategory(initialData.category);
+      setNotes(initialData.note);
+    }
+    setShowSuggestions(false);
+    onClose();
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -88,7 +112,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -102,9 +126,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
                 <Edit3 size={20} className="text-emerald-600" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Add Item</h2>
+              <h2 className="text-xl font-bold text-gray-900">Edit Item</h2>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <X size={20} className="text-gray-500" />
@@ -240,7 +264,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Cancel
@@ -252,7 +276,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   disabled={!itemName.trim()}
                   className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Add Item
+                  Update Item
                 </motion.button>
               </div>
             </form>
