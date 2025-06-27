@@ -5,12 +5,16 @@ export const initialState: TasksState = {
   tasks: {},
   currentHub: null,
   
+  // Categories
+  categories: [],
+  
   // UI State
   loading: {
     tasks: false,
     creating: false,
     updating: false,
     deleting: false,
+    categories: false,
   },
   error: null,
   filters: {},

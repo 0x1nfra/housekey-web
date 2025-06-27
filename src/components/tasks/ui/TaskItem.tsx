@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Edit3, Trash2, Calendar, User } from "lucide-react";
+import { Check, Edit3, Trash2, Calendar, User, Repeat, Tag } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
   getPriorityColor,
   getPriorityLabel,
   Task,
+  getRecurrenceLabel,
 } from "../../../store/tasks/types";
 
 dayjs.extend(relativeTime);
@@ -70,7 +71,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
       </motion.button>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-3 mb-1">
+        <div className="flex items-center gap-3 mb-1 flex-wrap">
           <span
             className={`font-medium ${
               task.completed ? "line-through text-gray-500" : "text-gray-900"
@@ -87,6 +88,23 @@ const TaskItem: React.FC<TaskItemProps> = ({
             {getPriorityLabel(task.priority)}
           </span>
 
+          {task.category_name && (
+            <span 
+              className="px-2 py-1 text-xs rounded-full font-medium text-white flex items-center gap-1"
+              style={{ backgroundColor: task.category_color || '#3B82F6' }}
+            >
+              <Tag size={12} />
+              {task.category_name}
+            </span>
+          )}
+
+          {task.is_recurring && (
+            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium flex items-center gap-1">
+              <Repeat size={12} />
+              {task.recurrence_pattern && getRecurrenceLabel(task.recurrence_pattern)}
+            </span>
+          )}
+
           {isOverdue && (
             <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
               Overdue
@@ -98,7 +116,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
           <p className="text-sm text-gray-600 mb-1">{task.description}</p>
         )}
 
-        <div className="flex items-center gap-3 text-sm text-gray-500">
+        <div className="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
           {task.due_date && (
             <div className="flex items-center gap-1">
               <Calendar size={14} />
@@ -106,10 +124,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </div>
           )}
 
-          {task.assigned_to && (
+          {task.assigned_to_name && (
             <div className="flex items-center gap-1">
               <User size={14} />
-              <span>{task.assigned_to_email}</span>
+              <span>Assigned to {task.assigned_to_name}</span>
             </div>
           )}
 

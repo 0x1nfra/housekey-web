@@ -4,7 +4,6 @@ import { useHubStore } from "../../store/hubStore";
 import { useAuthStore } from "../../store/authStore";
 import { useTasksData } from "./hooks/useTasksData";
 import { Task, TaskFilters } from "../../store/tasks/types";
-import TaskCreationForm from "./ui/modal/AddTaskModal";
 import TaskEditModal from "./ui/modal/EditTaskModal";
 
 import { shallow } from "zustand/shallow";
@@ -15,7 +14,6 @@ import BulkActions from "./ui/BulkAction";
 import TaskStats from "./ui/TaskStats";
 import TaskList from "./ui/TaskList";
 import { TaskData, TaskPriority } from "../../types/tasks";
-import EditTaskModal from "./ui/modal/EditTaskModal";
 import AddTaskModal from "./ui/modal/AddTaskModal";
 
 const TaskDashboard: React.FC = () => {
@@ -69,6 +67,10 @@ const TaskDashboard: React.FC = () => {
         assigned_to:
           taskData.assignedTo === profile?.email ? user.id : undefined,
         completed: false,
+        category_id: taskData.category || undefined,
+        is_recurring: taskData.recurring || false,
+        recurrence_pattern: taskData.recurring ? taskData.recurrencePattern : undefined,
+        recurrence_interval: taskData.recurring ? taskData.recurrenceInterval : undefined,
       });
       setIsCreationFormOpen(false);
     } catch (error) {

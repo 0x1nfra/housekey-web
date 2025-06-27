@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase';
-import { TasksState, Task, TaskPriority, SetStateFunction, GetStateFunction, TaskFilters } from './types';
+import { TasksState, Task, TaskCategory, TaskPriority, SetStateFunction, GetStateFunction, TaskFilters } from './types';
 
 export const createTasksActions = (
   set: SetStateFunction,
@@ -33,6 +33,37 @@ export const createTasksActions = (
         ...state,
         error: error instanceof Error ? error.message : 'Failed to fetch tasks',
         loading: { ...state.loading, tasks: false }
+      }));
+    }
+  },
+
+  fetchCategories: async () => {
+    set(state => ({ 
+      ...state, 
+      loading: { ...state.loading, categories: true }, 
+      error: null 
+    }));
+    
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .rpc('get_user_categories', { user_uuid: user.user.id });
+      
+      if (error) throw error;
+      
+      set(state => ({
+        ...state,
+        categories: data || [],
+        loading: { ...state.loading, categories: false }
+      }));
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      set(state => ({
+        ...state,
+        error: error instanceof Error ? error.message : 'Failed to fetch categories',
+        loading: { ...state.loading, categories: false }
       }));
     }
   },
@@ -156,12 +187,129 @@ export const createTasksActions = (
     }
   },
 
+  createCategory: async (categoryData: Omit<TaskCategory, 'id' | 'created_at' | 'user_id'>) => {
+    set(state => ({ 
+      ...state, 
+      loading: { ...state.loading, categories: true }, 
+      error: null 
+    }));
+    
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('tasks_categories')
+        .insert([{
+          ...categoryData,
+          user_id: user.user.id
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      set(state => ({
+        ...state,
+        categories: [...state.categories, data],
+        loading: { ...state.loading, categories: false }
+      }));
+    } catch (error) {
+      console.error('Error creating category:', error);
+      set(state => ({
+        ...state,
+        error: error instanceof Error ? error.message : 'Failed to create category',
+        loading: { ...state.loading, categories: false }
+      }));
+    }
+  },
+
+  updateCategory: async (id: string, updates: Partial<TaskCategory>) => {
+    set(state => ({ 
+      ...state, 
+      loading: { ...state.loading, categories: true }, 
+      error: null 
+    }));
+    
+    try {
+      const { data, error } = await supabase
+        .from('tasks_categories')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
+      set(state => ({
+        ...state,
+        categories: state.categories.map(cat => 
+          cat.id === id ? { ...cat, ...data } : cat
+        ),
+        loading: { ...state.loading, categories: false }
+      }));
+    } catch (error) {
+      console.error('Error updating category:', error);
+      set(state => ({
+        ...state,
+        error: error instanceof Error ? error.message : 'Failed to update category',
+        loading: { ...state.loading, categories: false }
+      }));
+    }
+  },
+
+  deleteCategory: async (id: string) => {
+    set(state => ({ 
+      ...state, 
+      loading: { ...state.loading, categories: true }, 
+      error: null 
+    }));
+    
+    try {
+      const { error } = await supabase
+        .from('tasks_categories')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      set(state => ({
+        ...state,
+        categories: state.categories.filter(cat => cat.id !== id),
+        loading: { ...state.loading, categories: false }
+      }));
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      set(state => ({
+        ...state,
+        error: error instanceof Error ? error.message : 'Failed to delete category',
+        loading: { ...state.loading, categories: false }
+      }));
+    }
+  },
+
   toggleTaskCompletion: async (id: string) => {
     try {
+      // Get the task to check if it's recurring
+      const state = get();
+      let task: Task | null = null;
+      for (const hubTasks of Object.values(state.tasks)) {
+        const foundTask = (hubTasks as Task[]).find(t => t.id === id);
+        if (foundTask) {
+          task = foundTask;
+          break;
+        }
+      }
+
       const { data, error } = await supabase
         .rpc('toggle_task_completion', { task_id: id });
       
       if (error) throw error;
+      
+      // If task is recurring and was just completed, create next instance
+      if (task?.is_recurring && !task.completed && data.completed) {
+        await get().createNextRecurringTask(id);
+      }
       
       set(state => {
         const updatedTasks = { ...state.tasks };
@@ -178,6 +326,29 @@ export const createTasksActions = (
       set(state => ({
         ...state,
         error: error instanceof Error ? error.message : 'Failed to toggle task completion'
+      }));
+    }
+  },
+
+  createNextRecurringTask: async (taskId: string) => {
+    try {
+      const { data, error } = await supabase
+        .rpc('create_next_recurring_task', { task_id: taskId });
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        // Refresh tasks to show the new recurring instance
+        const state = get();
+        if (state.currentHub) {
+          await get().fetchTasks(state.currentHub);
+        }
+      }
+    } catch (error) {
+      console.error('Error creating next recurring task:', error);
+      set(state => ({
+        ...state,
+        error: error instanceof Error ? error.message : 'Failed to create next recurring task'
       }));
     }
   },
@@ -319,11 +490,13 @@ export const createTasksActions = (
     set(() => ({
       tasks: {},
       currentHub: null,
+      categories: [],
       loading: {
         tasks: false,
         creating: false,
         updating: false,
         deleting: false,
+        categories: false,
       },
       error: null,
       filters: {},

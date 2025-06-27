@@ -4,6 +4,10 @@ export interface TaskData {
   priority: TaskPriority;
   dueDate: Date;
   assignedTo: string;
+  category?: string;
+  recurring?: boolean;
+  recurrencePattern?: 'daily' | 'weekly' | 'monthly' | 'yearly';
+  recurrenceInterval?: number;
 }
 
 // Define numeric priority enum

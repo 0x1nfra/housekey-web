@@ -21,6 +21,7 @@ import {
 } from "../../../../store/tasks/types";
 import { useHubStore } from "../../../../store/hubStore";
 import { useAuthStore } from "../../../../store/authStore";
+import { useTasksStore } from "../../../../store/tasks";
 import { shallow } from "zustand/shallow";
 import { TaskPriority } from "../../../../types/tasks";
 
@@ -30,17 +31,6 @@ interface EditTaskModalProps {
   onTaskUpdate: (taskId: string, updates: Partial<Task>) => void;
   task: Task | null;
 }
-
-const TASK_CATEGORIES = [
-  "Cleaning",
-  "Cooking",
-  "Pet Care",
-  "Yard Work",
-  "Shopping",
-  "Maintenance",
-  "Organization",
-  "Other",
-] as const;
 
 const DURATION_OPTIONS = [
   { value: "", label: "Any" },
@@ -52,6 +42,13 @@ const DURATION_OPTIONS = [
   { value: "fullday", label: "Full day" },
 ] as const;
 
+const RECURRENCE_OPTIONS = [
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "monthly", label: "Monthly" },
+  { value: "yearly", label: "Yearly" },
+] as const;
+
 const EditTaskModal: React.FC<EditTaskModalProps> = ({
   isOpen,
   onClose,
@@ -59,6 +56,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
   task,
 }) => {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [newCategory, setNewCategory] = useState({ name: "", color: "#3B82F6" });
   const [taskData, setTaskData] = useState({
     title: "",
     description: "",
@@ -68,6 +67,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
     category: "",
     recurring: false,
     recurrencePattern: "weekly" as const,
+    recurrenceInterval: 1,
     estimatedTime: "",
   });
 
@@ -80,6 +80,21 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
     shallow
   );
 
+  const { categories, fetchCategories, createCategory } = useTasksStore(
+    (state) => ({
+      categories: state.categories,
+      fetchCategories: state.fetchCategories,
+      createCategory: state.createCategory,
+    }),
+    shallow
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchCategories();
+    }
+  }, [isOpen, fetchCategories]);
+
   // Initialize form data when task changes
   useEffect(() => {
     if (task) {
@@ -91,10 +106,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
           ? new Date(task.due_date).toISOString().split("T")[0]
           : "",
         assignedTo: task.assigned_to_email || "",
-        category: task.category || "",
-        recurring: task.recurring || false,
+        category: task.category_id || "",
+        recurring: task.is_recurring || false,
         recurrencePattern: task.recurrence_pattern || "weekly",
-        estimatedTime: task.estimated_time || "",
+        recurrenceInterval: task.recurrence_interval || 1,
+        estimatedTime: "", // This would need to be added to the task schema
       });
     }
   }, [task]);
@@ -140,6 +156,19 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
     }));
   };
 
+  const handleCreateCategory = async () => {
+    if (!newCategory.name.trim()) return;
+
+    try {
+      await createCategory(newCategory);
+      setNewCategory({ name: "", color: "#3B82F6" });
+      setShowCategoryForm(false);
+      await fetchCategories();
+    } catch (error) {
+      console.error("Error creating category:", error);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!task || !taskData.title.trim()) return;
@@ -151,12 +180,12 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
       due_date: taskData.dueDate
         ? new Date(taskData.dueDate).toISOString()
         : undefined,
-      category: taskData.category || undefined,
-      recurring: taskData.recurring,
+      category_id: taskData.category || undefined,
+      is_recurring: taskData.recurring,
       recurrence_pattern: taskData.recurring
         ? taskData.recurrencePattern
         : undefined,
-      estimated_time: taskData.estimatedTime || undefined,
+      recurrence_interval: taskData.recurring ? taskData.recurrenceInterval : undefined,
     };
 
     // Handle assignment
@@ -321,13 +350,59 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                       className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
                     >
                       <option value="">None</option>
-                      {TASK_CATEGORIES.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
                         </option>
                       ))}
+                      <option value="__create_new__">+ Create New Category</option>
                     </select>
                   </div>
+                  
+                  {/* Create Category Form */}
+                  {(showCategoryForm || taskData.category === "__create_new__") && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-2 p-3 border border-gray-200 rounded-lg bg-gray-50"
+                    >
+                      <div className="flex gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={newCategory.name}
+                          onChange={(e) => setNewCategory(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder="Category name"
+                          className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+                        />
+                        <input
+                          type="color"
+                          value={newCategory.color}
+                          onChange={(e) => setNewCategory(prev => ({ ...prev, color: e.target.value }))}
+                          className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleCreateCategory}
+                          className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+                        >
+                          Create
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowCategoryForm(false);
+                            setTaskData(prev => ({ ...prev, category: task.category_id || "" }));
+                          }}
+                          className="px-3 py-1 text-gray-600 text-xs rounded hover:bg-gray-200"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
               </div>
 
@@ -337,11 +412,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 <div className="flex items-center justify-center gap-2">
                   <div
                     className={`w-2 h-2 rounded-full ${
-                      task?.completed_at ? "bg-green-500" : "bg-yellow-500"
+                      task?.completed ? "bg-green-500" : "bg-yellow-500"
                     }`}
                   />
                   <span className="text-sm font-medium text-gray-700">
-                    {task?.completed_at ? "Completed" : "In Progress"}
+                    {task?.completed ? "Completed" : "In Progress"}
                   </span>
                 </div>
               </div>
@@ -444,21 +519,40 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
+                          className="space-y-3"
                         >
-                          <select
-                            value={taskData.recurrencePattern}
-                            onChange={(e) =>
-                              handleInputChange(
-                                "recurrencePattern",
-                                e.target.value
-                              )
-                            }
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
-                          >
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                          </select>
+                          <div className="grid grid-cols-2 gap-3">
+                            <select
+                              value={taskData.recurrencePattern}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  "recurrencePattern",
+                                  e.target.value
+                                )
+                              }
+                              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                            >
+                              {RECURRENCE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                            <div>
+                              <label className="text-xs text-gray-500 mb-1 block">
+                                Every
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                value={taskData.recurrenceInterval}
+                                onChange={(e) =>
+                                  handleInputChange("recurrenceInterval", parseInt(e.target.value) || 1)
+                                }
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                              />
+                            </div>
+                          </div>
                         </motion.div>
                       )}
                     </div>

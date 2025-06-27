@@ -25,6 +25,16 @@ export const PRIORITY_BORDER_COLORS = {
   [TaskPriority.URGENT]: "border-l-red-500 bg-red-50",
 } as const;
 
+export interface TaskCategory {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  created_at: string;
+}
+
+export type RecurrencePattern = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
 export interface Task {
   id: string;
   hub_id: string;
@@ -39,12 +49,21 @@ export interface Task {
   assigned_to?: string;
   created_by_email?: string;
   assigned_to_email?: string;
+  assigned_to_name?: string;
+  category_id?: string;
+  category_name?: string;
+  category_color?: string;
+  is_recurring?: boolean;
+  recurrence_pattern?: RecurrencePattern;
+  recurrence_interval?: number;
+  next_due_date?: string;
 }
 
 export interface TaskFilters {
   completed?: boolean;
   priority?: TaskPriority;
   assigned_to?: string;
+  category_id?: string;
   search?: string;
 }
 
@@ -53,12 +72,16 @@ export interface TasksState {
   tasks: Record<string, Task[]>;
   currentHub: string | null;
 
+  // Categories
+  categories: TaskCategory[];
+
   // UI State
   loading: {
     tasks: boolean;
     creating: boolean;
     updating: boolean;
     deleting: boolean;
+    categories: boolean;
   };
   error: string | null;
   filters: TaskFilters;
@@ -76,6 +99,7 @@ export interface SubscriptionGroup {
 export interface TasksActions {
   // Data fetching
   fetchTasks: (hubId: string) => Promise<void>;
+  fetchCategories: () => Promise<void>;
 
   // CRUD operations
   createTask: (
@@ -84,6 +108,11 @@ export interface TasksActions {
   updateTask: (id: string, updates: Partial<Task>) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
 
+  // Category operations
+  createCategory: (category: Omit<TaskCategory, "id" | "created_at" | "user_id">) => Promise<void>;
+  updateCategory: (id: string, updates: Partial<TaskCategory>) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+
   // Bulk operations
   toggleTaskCompletion: (id: string) => Promise<void>;
   bulkUpdatePriority: (
@@ -91,6 +120,9 @@ export interface TasksActions {
     priority: TaskPriority
   ) => Promise<void>;
   bulkDeleteTasks: (taskIds: string[]) => Promise<void>;
+
+  // Recurring tasks
+  createNextRecurringTask: (taskId: string) => Promise<void>;
 
   // UI state management
   setCurrentHub: (hubId: string | null) => void;
@@ -140,4 +172,16 @@ export const filterTasksByPriority = (
   minPriority: TaskPriority
 ): Task[] => {
   return tasks.filter((task) => task.priority >= minPriority);
+};
+
+// Recurrence pattern labels
+export const RECURRENCE_LABELS = {
+  daily: "Daily",
+  weekly: "Weekly", 
+  monthly: "Monthly",
+  yearly: "Yearly",
+} as const;
+
+export const getRecurrenceLabel = (pattern: RecurrencePattern): string => {
+  return RECURRENCE_LABELS[pattern];
 };
