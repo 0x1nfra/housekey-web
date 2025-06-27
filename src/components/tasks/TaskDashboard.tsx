@@ -4,8 +4,8 @@ import { useHubStore } from "../../store/hubStore";
 import { useAuthStore } from "../../store/authStore";
 import { useTasksData } from "./hooks/useTasksData";
 import { Task, TaskFilters } from "../../store/tasks/types";
-import TaskCreationForm from "./TaskCreationForm";
-import TaskEditModal from "./TaskEditModal";
+import TaskCreationForm from "./ui/modal/AddTaskModal";
+import TaskEditModal from "./ui/modal/EditTaskModal";
 
 import { shallow } from "zustand/shallow";
 import NoHubState from "./ui/NoHubState";

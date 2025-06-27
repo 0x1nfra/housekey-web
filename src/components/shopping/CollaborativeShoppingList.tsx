@@ -30,6 +30,7 @@ import EditItemModal from "./modals/EditItemModal";
 /*
 
 TODO:
+- break this into smaller components
 - simplfy color scheme: page, stats, buttons
 - update get member avatar/emoji logic
 - add categories table

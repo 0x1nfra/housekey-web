@@ -1,30 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, Tag } from 'lucide-react';
-import { Task, TaskPriority, getPriorityLabel, getPriorityColor } from '../../store/tasks/types';
-import { useHubStore } from '../../store/hubStore';
-import { useAuthStore } from '../../store/authStore';
-import { shallow } from 'zustand/shallow';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Calendar, Users } from "lucide-react";
+import {
+  Task,
+  getPriorityLabel,
+  getPriorityColor,
+} from "../../../../store/tasks/types";
+import { useHubStore } from "../../../../store/hubStore";
+import { useAuthStore } from "../../../../store/authStore";
+import { shallow } from "zustand/shallow";
+import { TaskPriority } from "../../../../types/tasks";
 
-interface TaskEditModalProps {
+interface EditTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   onTaskUpdate: (taskId: string, updates: Partial<Task>) => void;
   task: Task | null;
 }
 
-const TaskEditModal: React.FC<TaskEditModalProps> = ({
+const EditTaskModal: React.FC<EditTaskModalProps> = ({
   isOpen,
   onClose,
   onTaskUpdate,
-  task
+  task,
 }) => {
   const [taskData, setTaskData] = useState({
-    title: '',
-    description: '',
+    title: "",
+    description: "",
     priority: TaskPriority.MEDIUM,
-    dueDate: '',
-    assignedTo: '',
+    dueDate: "",
+    assignedTo: "",
   });
 
   const { hubMembers } = useHubStore();
@@ -41,18 +46,20 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
     if (task) {
       setTaskData({
         title: task.title,
-        description: task.description || '',
+        description: task.description || "",
         priority: task.priority,
-        dueDate: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '',
-        assignedTo: task.assigned_to_email || '',
+        dueDate: task.due_date
+          ? new Date(task.due_date).toISOString().split("T")[0]
+          : "",
+        assignedTo: task.assigned_to_email || "",
       });
     }
   }, [task]);
 
   const handleInputChange = (field: string, value: any) => {
-    setTaskData(prev => ({
+    setTaskData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -64,7 +71,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
       title: taskData.title.trim(),
       description: taskData.description.trim() || undefined,
       priority: taskData.priority,
-      due_date: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined,
+      due_date: taskData.dueDate
+        ? new Date(taskData.dueDate).toISOString()
+        : undefined,
     };
 
     // Handle assignment
@@ -73,7 +82,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
         updates.assigned_to = user?.id;
       } else {
         // Find the user ID from hub members
-        const member = hubMembers.find(m => m.user_profile?.email === taskData.assignedTo);
+        const member = hubMembers.find(
+          (m) => m.user_profile?.email === taskData.assignedTo
+        );
         updates.assigned_to = member?.user_id;
       }
     } else {
@@ -84,22 +95,38 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
   };
 
   const priorityOptions = [
-    { value: TaskPriority.LOW, label: getPriorityLabel(TaskPriority.LOW), color: getPriorityColor(TaskPriority.LOW) },
-    { value: TaskPriority.MEDIUM, label: getPriorityLabel(TaskPriority.MEDIUM), color: getPriorityColor(TaskPriority.MEDIUM) },
-    { value: TaskPriority.HIGH, label: getPriorityLabel(TaskPriority.HIGH), color: getPriorityColor(TaskPriority.HIGH) },
-    { value: TaskPriority.URGENT, label: getPriorityLabel(TaskPriority.URGENT), color: getPriorityColor(TaskPriority.URGENT) }
+    {
+      value: TaskPriority.LOW,
+      label: getPriorityLabel(TaskPriority.LOW),
+      color: getPriorityColor(TaskPriority.LOW),
+    },
+    {
+      value: TaskPriority.MEDIUM,
+      label: getPriorityLabel(TaskPriority.MEDIUM),
+      color: getPriorityColor(TaskPriority.MEDIUM),
+    },
+    {
+      value: TaskPriority.HIGH,
+      label: getPriorityLabel(TaskPriority.HIGH),
+      color: getPriorityColor(TaskPriority.HIGH),
+    },
+    {
+      value: TaskPriority.URGENT,
+      label: getPriorityLabel(TaskPriority.URGENT),
+      color: getPriorityColor(TaskPriority.URGENT),
+    },
   ];
 
   // Get available assignees (hub members + current user)
   const availableAssignees = [
     ...(profile ? [{ email: profile.email, name: profile.name }] : []),
     ...hubMembers
-      .filter(member => member.user_profile?.email !== profile?.email)
-      .map(member => ({
-        email: member.user_profile?.email || '',
-        name: member.user_profile?.name || 'Unknown User'
-      }))
-  ].filter(assignee => assignee.email);
+      .filter((member) => member.user_profile?.email !== profile?.email)
+      .map((member) => ({
+        email: member.user_profile?.email || "",
+        name: member.user_profile?.name || "Unknown User",
+      })),
+  ].filter((assignee) => assignee.email);
 
   if (!task) return null;
 
@@ -140,7 +167,7 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                 <input
                   type="text"
                   value={taskData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter task title"
                   required
@@ -154,7 +181,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                 </label>
                 <textarea
                   value={taskData.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   rows={3}
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
                   placeholder="Add task details..."
@@ -168,21 +197,27 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                     Priority
                   </label>
                   <div className="grid grid-cols-2 gap-2">
-                    {priorityOptions.map(priority => (
+                    {priorityOptions.map((priority) => (
                       <button
                         key={priority.value}
                         type="button"
-                        onClick={() => handleInputChange('priority', priority.value)}
+                        onClick={() =>
+                          handleInputChange("priority", priority.value)
+                        }
                         className={`p-3 border rounded-lg transition-colors text-center ${
                           taskData.priority === priority.value
-                            ? 'border-indigo-300 bg-indigo-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? "border-indigo-300 bg-indigo-50"
+                            : "border-gray-200 hover:border-gray-300"
                         }`}
                       >
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center mx-auto mb-1 ${priority.color}`}>
+                        <div
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center mx-auto mb-1 ${priority.color}`}
+                        >
                           <span className="text-xs font-bold">!</span>
                         </div>
-                        <span className="text-xs font-medium">{priority.label}</span>
+                        <span className="text-xs font-medium">
+                          {priority.label}
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -200,7 +235,9 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                     <input
                       type="date"
                       value={taskData.dueDate}
-                      onChange={(e) => handleInputChange('dueDate', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("dueDate", e.target.value)
+                      }
                       className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                     />
                   </div>
@@ -219,11 +256,13 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
                   />
                   <select
                     value={taskData.assignedTo}
-                    onChange={(e) => handleInputChange('assignedTo', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("assignedTo", e.target.value)
+                    }
                     className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   >
                     <option value="">Unassigned</option>
-                    {availableAssignees.map(assignee => (
+                    {availableAssignees.map((assignee) => (
                       <option key={assignee.email} value={assignee.email}>
                         {assignee.name} ({assignee.email})
                       </option>
@@ -259,4 +298,4 @@ const TaskEditModal: React.FC<TaskEditModalProps> = ({
   );
 };
 
-export default TaskEditModal;
+export default EditTaskModal;
