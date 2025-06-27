@@ -105,7 +105,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
         dueDate: task.due_date
           ? new Date(task.due_date).toISOString().split("T")[0]
           : "",
-        assignedTo: task.assigned_to_email || "",
+        assignedTo: task.assigned_to || "",
         category: task.category_id || "",
         recurring: task.is_recurring || false,
         recurrencePattern: task.recurrence_pattern || "weekly",
@@ -140,14 +140,14 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
   // Get available assignees (hub members + current user)
   const availableAssignees = [
-    ...(profile ? [{ email: profile.email, name: profile.name }] : []),
+    ...(profile ? [{ name: profile.name, user_id: profile.id }] : []),
     ...hubMembers
-      .filter((member) => member.user_profile?.email !== profile?.email)
+      .filter((member) => member.user_profile?.name !== profile?.name)
       .map((member) => ({
-        email: member.user_profile?.email || "",
         name: member.user_profile?.name || "Unknown User",
+        user_id: member.user_id,
       })),
-  ].filter((assignee) => assignee.email);
+  ].filter((assignee) => assignee.name);
 
   const handleInputChange = (field: string, value: any) => {
     setTaskData((prev) => ({
@@ -190,15 +190,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
     // Handle assignment
     if (taskData.assignedTo) {
-      if (taskData.assignedTo === profile?.email) {
-        updates.assigned_to = user?.id;
-      } else {
-        // Find the user ID from hub members
-        const member = hubMembers.find(
-          (m) => m.user_profile?.email === taskData.assignedTo
-        );
-        updates.assigned_to = member?.user_id;
-      }
+      updates.assigned_to = taskData.assignedTo;
     } else {
       updates.assigned_to = undefined;
     }
@@ -324,7 +316,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                     >
                       <option value="">Unassigned</option>
                       {availableAssignees.map((assignee) => (
-                        <option key={assignee.email} value={assignee.email}>
+                        <option key={assignee.user_id} value={assignee.user_id}>
                           {assignee.name.split(" ")[0]}
                         </option>
                       ))}

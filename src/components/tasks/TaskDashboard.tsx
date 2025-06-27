@@ -4,7 +4,7 @@ import { useHubStore } from "../../store/hubStore";
 import { useAuthStore } from "../../store/authStore";
 import { useTasksData } from "./hooks/useTasksData";
 import { Task, TaskFilters } from "../../store/tasks/types";
-import TaskEditModal from "./ui/modal/EditTaskModal";
+import EditTaskModal from "./ui/modal/EditTaskModal";
 
 import { shallow } from "zustand/shallow";
 import NoHubState from "./ui/NoHubState";
@@ -64,8 +64,7 @@ const TaskDashboard: React.FC = () => {
         due_date: taskData.dueDate
           ? new Date(taskData.dueDate).toISOString()
           : undefined,
-        assigned_to:
-          taskData.assignedTo === profile?.email ? user.id : undefined,
+        assigned_to: taskData.assignedTo || undefined,
         completed: false,
         category_id: taskData.category || undefined,
         is_recurring: taskData.recurring || false,
@@ -188,7 +187,7 @@ const TaskDashboard: React.FC = () => {
       />
 
       {/* Task Edit Modal */}
-      <TaskEditModal
+      <EditTaskModal
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);

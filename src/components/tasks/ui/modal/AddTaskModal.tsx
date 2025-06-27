@@ -130,14 +130,14 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
 
   // Get available assignees (hub members + current user)
   const availableAssignees = [
-    ...(profile ? [{ email: profile.email, name: profile.name }] : []),
+    ...(profile ? [{ name: profile.name, user_id: profile.id }] : []),
     ...hubMembers
-      .filter((member) => member.user_profile?.email !== profile?.email)
+      .filter((member) => member.user_profile?.name !== profile?.name)
       .map((member) => ({
-        email: member.user_profile?.email || "",
         name: member.user_profile?.name || "Unknown User",
+        user_id: member.user_id,
       })),
-  ].filter((assignee) => assignee.email);
+  ].filter((assignee) => assignee.name);
 
   const handleInputChange = (field: string, value: any) => {
     setTaskData((prev) => ({
@@ -284,7 +284,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     >
                       <option value="">Anyone</option>
                       {availableAssignees.map((assignee) => (
-                        <option key={assignee.email} value={assignee.email}>
+                        <option key={assignee.user_id} value={assignee.user_id}>
                           {assignee.name.split(" ")[0]}
                         </option>
                       ))}
