@@ -188,7 +188,7 @@ const TaskDashboard: React.FC = () => {
       />
 
       {/* Task Edit Modal */}
-      <EditTaskModal
+      <TaskEditModal
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);
