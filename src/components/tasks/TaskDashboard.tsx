@@ -1,180 +1,414 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Plus, Filter, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Plus, 
+  Filter, 
+  CheckCircle, 
+  Clock, 
+  AlertCircle, 
+  Search,
+  Calendar,
+  User,
+  Trash2,
+  Edit3,
+  MoreHorizontal,
+  X
+} from "lucide-react";
+import { useTasksStore } from "../../store/tasks";
+import { useHubStore } from "../../store/hubStore";
+import { useAuthStore } from "../../store/authStore";
+import { useTasksData } from "./hooks/useTasksData";
+import { Task, TaskFilters } from "../../store/tasks/types";
 import ChoreCreationForm from "./ChoreCreationForm";
+import TaskEditModal from "./TaskEditModal";
+import { shallow } from "zustand/shallow";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-interface Task {
-  id: string;
-  title: string;
-  assignedTo: string;
-  dueDate: string;
-  priority: "high" | "medium" | "low";
-  status: "pending" | "in-progress" | "completed";
-  recurring: boolean;
-  category: string;
+dayjs.extend(relativeTime);
+
+interface TaskItemProps {
+  task: Task;
+  onToggleComplete: (id: string) => void;
+  onEdit: (task: Task) => void;
+  onDelete: (id: string) => void;
+  onToggleSelect: (id: string) => void;
+  isSelected: boolean;
 }
 
-/*
-FIXME:
-1. change to dayjs
-2. move types to type folders
-*/
-
-const TaskDashboard: React.FC = () => {
-  const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
-  type Filter = "all" | "my-tasks" | "pending" | "in-progress" | "completed";
-  type Sort = "dueDate" | "priority" | "title";
-
-  const [filterBy, setFilterBy] = useState<Filter>("all");
-  const [sortBy, setSortBy] = useState<Sort>("dueDate");
-
-  // Mock data
-  const tasks: Task[] = [
-    {
-      id: "1",
-      title: "Take out trash",
-      assignedTo: "Mike",
-      dueDate: "2024-01-15",
-      priority: "high",
-      status: "pending",
-      recurring: true,
-      category: "Cleaning",
-    },
-    {
-      id: "2",
-      title: "Feed the cat",
-      assignedTo: "Emma",
-      dueDate: "2024-01-15",
-      priority: "medium",
-      status: "completed",
-      recurring: true,
-      category: "Pet Care",
-    },
-    {
-      id: "3",
-      title: "Grocery shopping",
-      assignedTo: "Sarah",
-      dueDate: "2024-01-16",
-      priority: "medium",
-      status: "in-progress",
-      recurring: false,
-      category: "Shopping",
-    },
-    {
-      id: "4",
-      title: "Clean bathroom",
-      assignedTo: "Mike",
-      dueDate: "2024-01-17",
-      priority: "low",
-      status: "pending",
-      recurring: true,
-      category: "Cleaning",
-    },
-  ];
-
-  const familyMembers = [
-    { name: "Sarah", avatar: "👩‍💼", color: "bg-indigo-100 text-indigo-700" },
-    { name: "Mike", avatar: "👨‍💻", color: "bg-emerald-100 text-emerald-700" },
-    { name: "Emma", avatar: "👧", color: "bg-amber-100 text-amber-700" },
-  ];
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return CheckCircle;
-      case "in-progress":
-        return Clock;
-      case "pending":
-        return AlertCircle;
-      default:
-        return AlertCircle;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "text-emerald-600 bg-emerald-50";
-      case "in-progress":
-        return "text-amber-600 bg-amber-50";
-      case "pending":
-        return "text-red-600 bg-red-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
-  };
+const TaskItem: React.FC<TaskItemProps> = ({
+  task,
+  onToggleComplete,
+  onEdit,
+  onDelete,
+  onToggleSelect,
+  isSelected
+}) => {
+  const [showActions, setShowActions] = useState(false);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "border-l-red-500";
+        return "border-l-red-500 bg-red-50";
       case "medium":
-        return "border-l-amber-500";
+        return "border-l-amber-500 bg-amber-50";
       case "low":
-        return "border-l-green-500";
+        return "border-l-green-500 bg-green-50";
       default:
-        return "border-l-gray-500";
+        return "border-l-gray-500 bg-gray-50";
     }
   };
 
-  const getMemberColor = (memberName: string) => {
-    const member = familyMembers.find((m) => m.name === memberName);
-    return member?.color || "bg-gray-100 text-gray-700";
+  const getStatusIcon = (completed: boolean) => {
+    return completed ? CheckCircle : Clock;
   };
 
-  const getMemberAvatar = (memberName: string) => {
-    const member = familyMembers.find((m) => m.name === memberName);
-    return member?.avatar || "👤";
+  const getStatusColor = (completed: boolean) => {
+    return completed 
+      ? "text-emerald-600 bg-emerald-50" 
+      : "text-amber-600 bg-amber-50";
   };
 
-  const filteredTasks = tasks.filter((task) => {
-    if (filterBy === "all") return true;
-    if (filterBy === "my-tasks") return task.assignedTo === "Sarah"; // Current user
-    return task.status === filterBy;
-  });
+  const isOverdue = task.due_date && !task.completed && new Date(task.due_date) < new Date();
+  const StatusIcon = getStatusIcon(task.completed);
 
-  const sortedTasks = [...filteredTasks].sort((a, b) => {
-    if (sortBy === "dueDate") {
-      return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className={`p-4 border-l-4 rounded-lg transition-all hover:shadow-md ${getPriorityColor(task.priority)} ${
+        isSelected ? "ring-2 ring-indigo-500" : ""
+      }`}
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-start gap-4 flex-1">
+          {/* Selection Checkbox */}
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onToggleSelect(task.id)}
+            className="mt-1 w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+          />
+
+          {/* Status Icon */}
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${getStatusColor(task.completed)}`}>
+            <StatusIcon size={16} />
+          </div>
+
+          {/* Task Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-2">
+              <h4 className={`font-medium ${task.completed ? "line-through text-gray-500" : "text-gray-900"}`}>
+                {task.title}
+              </h4>
+              
+              {/* Priority Badge */}
+              <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
+                task.priority === "high" ? "bg-red-100 text-red-700" :
+                task.priority === "medium" ? "bg-amber-100 text-amber-700" :
+                "bg-green-100 text-green-700"
+              }`}>
+                {task.priority}
+              </span>
+
+              {/* Overdue Badge */}
+              {isOverdue && (
+                <span className="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700">
+                  Overdue
+                </span>
+              )}
+            </div>
+
+            {/* Description */}
+            {task.description && (
+              <p className="text-sm text-gray-600 mb-2">{task.description}</p>
+            )}
+
+            {/* Task Meta */}
+            <div className="flex items-center gap-4 text-sm text-gray-500">
+              {task.due_date && (
+                <div className="flex items-center gap-1">
+                  <Calendar size={14} />
+                  <span>{dayjs(task.due_date).format("MMM DD, YYYY")}</span>
+                </div>
+              )}
+              
+              {task.assigned_to_email && (
+                <div className="flex items-center gap-1">
+                  <User size={14} />
+                  <span>{task.assigned_to_email}</span>
+                </div>
+              )}
+
+              <span>Created {dayjs(task.created_at).fromNow()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <AnimatePresence>
+          {showActions && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="flex items-center gap-2"
+            >
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onToggleComplete(task.id)}
+                className={`p-2 rounded-lg transition-colors ${
+                  task.completed 
+                    ? "bg-amber-100 text-amber-600 hover:bg-amber-200" 
+                    : "bg-emerald-100 text-emerald-600 hover:bg-emerald-200"
+                }`}
+                title={task.completed ? "Mark as incomplete" : "Mark as complete"}
+              >
+                <CheckCircle size={16} />
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onEdit(task)}
+                className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition-colors"
+                title="Edit task"
+              >
+                <Edit3 size={16} />
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onDelete(task.id)}
+                className="p-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors"
+                title="Delete task"
+              >
+                <Trash2 size={16} />
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
+
+const TaskDashboard: React.FC = () => {
+  const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const { currentHub } = useHubStore();
+  const { user, profile } = useAuthStore(
+    (state) => ({
+      user: state.user,
+      profile: state.profile,
+    }),
+    shallow
+  );
+
+  const {
+    createTask,
+    updateTask,
+    deleteTask,
+    toggleTaskCompletion,
+    setFilters,
+    clearFilters,
+    toggleTaskSelection,
+    selectAllTasks,
+    clearSelection,
+    bulkDeleteTasks,
+    bulkUpdatePriority,
+    filters,
+    selectedTasks,
+    clearError
+  } = useTasksStore();
+
+  const {
+    filteredTasks,
+    taskStats,
+    tasksByPriority,
+    tasksByStatus,
+    overdueTasks,
+    tasksDueToday,
+    loading,
+    error,
+    isLoading
+  } = useTasksData();
+
+  // Handle task creation
+  const handleTaskCreate = async (taskData: any) => {
+    if (!currentHub || !user) return;
+
+    try {
+      await createTask({
+        hub_id: currentHub.id,
+        title: taskData.title,
+        description: taskData.description,
+        priority: taskData.priority,
+        due_date: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : undefined,
+        assigned_to: taskData.assignedTo === profile?.email ? user.id : undefined,
+        completed: false
+      });
+      setIsCreationFormOpen(false);
+    } catch (error) {
+      console.error("Error creating task:", error);
     }
-    if (sortBy === "priority") {
-      const priorityOrder = { high: 3, medium: 2, low: 1 };
-      return priorityOrder[b.priority] - priorityOrder[a.priority];
-    }
-    return a.title.localeCompare(b.title);
-  });
-
-  const handleTaskComplete = (taskId: string) => {
-    // In real app, this would update the task status
-    console.log("Completing task:", taskId);
   };
+
+  // Handle task edit
+  const handleTaskEdit = (task: Task) => {
+    setEditingTask(task);
+    setIsEditModalOpen(true);
+  };
+
+  const handleTaskUpdate = async (taskId: string, updates: Partial<Task>) => {
+    try {
+      await updateTask(taskId, updates);
+      setIsEditModalOpen(false);
+      setEditingTask(null);
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
+  };
+
+  // Handle task deletion
+  const handleTaskDelete = async (taskId: string) => {
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      try {
+        await deleteTask(taskId);
+      } catch (error) {
+        console.error("Error deleting task:", error);
+      }
+    }
+  };
+
+  // Handle bulk operations
+  const handleBulkDelete = async () => {
+    if (selectedTasks.length === 0) return;
+    
+    if (window.confirm(`Are you sure you want to delete ${selectedTasks.length} selected tasks?`)) {
+      try {
+        await bulkDeleteTasks(selectedTasks);
+      } catch (error) {
+        console.error("Error bulk deleting tasks:", error);
+      }
+    }
+  };
+
+  const handleBulkPriorityUpdate = async (priority: Task['priority']) => {
+    if (selectedTasks.length === 0) return;
+    
+    try {
+      await bulkUpdatePriority(selectedTasks, priority);
+    } catch (error) {
+      console.error("Error updating task priorities:", error);
+    }
+  };
+
+  // Handle search
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setFilters({ search: query || undefined });
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (newFilters: Partial<TaskFilters>) => {
+    setFilters(newFilters);
+  };
+
+  if (!currentHub) {
+    return (
+      <div className="text-center py-12">
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle size={24} className="text-gray-400" />
+        </div>
+        <h3 className="text-lg font-medium text-gray-900 mb-2">No Hub Selected</h3>
+        <p className="text-gray-500">Please select a hub to view and manage tasks</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header Actions */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div className="flex items-center gap-4">
-          <select
-            value={filterBy}
-            onChange={(e) => setFilterBy(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="all">All Tasks</option>
-            <option value="my-tasks">My Tasks</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
+      {/* Error Display */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 rounded-lg p-4"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-red-700">{error}</p>
+            <button
+              onClick={clearError}
+              className="text-red-500 hover:text-red-700"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </motion.div>
+      )}
 
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="dueDate">Sort by Due Date</option>
-            <option value="priority">Sort by Priority</option>
-            <option value="title">Sort by Title</option>
-          </select>
+      {/* Header Actions */}
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center flex-1">
+          {/* Search */}
+          <div className="relative flex-1 max-w-md">
+            <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Search tasks..."
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex gap-2">
+            <select
+              value={filters.completed?.toString() || ""}
+              onChange={(e) => handleFilterChange({ 
+                completed: e.target.value === "" ? undefined : e.target.value === "true" 
+              })}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">All Tasks</option>
+              <option value="false">Pending</option>
+              <option value="true">Completed</option>
+            </select>
+
+            <select
+              value={filters.priority || ""}
+              onChange={(e) => handleFilterChange({ 
+                priority: e.target.value as Task['priority'] || undefined 
+              })}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">All Priorities</option>
+              <option value="high">High Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+
+            {(filters.completed !== undefined || filters.priority || filters.search) && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={clearFilters}
+                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Clear Filters
+              </motion.button>
+            )}
+          </div>
         </div>
 
         <motion.button
@@ -188,28 +422,86 @@ const TaskDashboard: React.FC = () => {
         </motion.button>
       </div>
 
+      {/* Bulk Actions */}
+      {selectedTasks.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-indigo-50 border border-indigo-200 rounded-lg p-4"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium text-indigo-900">
+                {selectedTasks.length} task{selectedTasks.length !== 1 ? 's' : ''} selected
+              </span>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleBulkPriorityUpdate('high')}
+                  className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 transition-colors"
+                >
+                  High Priority
+                </button>
+                <button
+                  onClick={() => handleBulkPriorityUpdate('medium')}
+                  className="px-3 py-1 text-xs bg-amber-100 text-amber-700 rounded-full hover:bg-amber-200 transition-colors"
+                >
+                  Medium Priority
+                </button>
+                <button
+                  onClick={() => handleBulkPriorityUpdate('low')}
+                  className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 transition-colors"
+                >
+                  Low Priority
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleBulkDelete}
+                className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-1"
+              >
+                <Trash2 size={14} />
+                Delete
+              </button>
+              <button
+                onClick={clearSelection}
+                className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Clear Selection
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Task Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           {
             label: "Total Tasks",
-            value: tasks.length,
+            value: taskStats.total,
             color: "bg-blue-100 text-blue-700",
+            icon: CheckCircle,
           },
           {
             label: "Pending",
-            value: tasks.filter((t) => t.status === "pending").length,
-            color: "bg-red-100 text-red-700",
-          },
-          {
-            label: "In Progress",
-            value: tasks.filter((t) => t.status === "in-progress").length,
+            value: taskStats.pending,
             color: "bg-amber-100 text-amber-700",
+            icon: Clock,
           },
           {
             label: "Completed",
-            value: tasks.filter((t) => t.status === "completed").length,
+            value: taskStats.completed,
             color: "bg-emerald-100 text-emerald-700",
+            icon: CheckCircle,
+          },
+          {
+            label: "Overdue",
+            value: overdueTasks.length,
+            color: "bg-red-100 text-red-700",
+            icon: AlertCircle,
           },
         ].map((stat, index) => (
           <motion.div
@@ -219,12 +511,15 @@ const TaskDashboard: React.FC = () => {
             transition={{ delay: index * 0.1 }}
             className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
           >
-            <div
-              className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${stat.color}`}
-            >
-              <span className="text-xl font-bold">{stat.value}</span>
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${stat.color}`}>
+                <stat.icon size={20} />
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </div>
             </div>
-            <p className="text-sm font-medium text-gray-900">{stat.label}</p>
           </motion.div>
         ))}
       </div>
@@ -232,112 +527,110 @@ const TaskDashboard: React.FC = () => {
       {/* Tasks List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">
-            Tasks ({sortedTasks.length})
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Tasks ({filteredTasks.length})
+            </h3>
+            
+            {filteredTasks.length > 0 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={selectAllTasks}
+                  className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                >
+                  Select All
+                </button>
+                {selectedTasks.length > 0 && (
+                  <button
+                    onClick={clearSelection}
+                    className="text-sm text-gray-600 hover:text-gray-700"
+                  >
+                    Clear Selection
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="divide-y divide-gray-100">
-          {sortedTasks.map((task, index) => {
-            const StatusIcon = getStatusIcon(task.status);
-
-            return (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={`p-6 hover:bg-gray-50 transition-colors border-l-4 ${getPriorityColor(
-                  task.priority
-                )}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 flex-1">
-                    <div
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center ${getStatusColor(
-                        task.status
-                      )}`}
-                    >
-                      <StatusIcon size={20} />
-                    </div>
-
+        <div className="p-6">
+          {loading.tasks ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="w-4 h-4 bg-gray-200 rounded" />
+                    <div className="w-8 h-8 bg-gray-200 rounded-lg" />
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h4 className="font-medium text-gray-900">
-                          {task.title}
-                        </h4>
-                        {task.recurring && (
-                          <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">
-                            Recurring
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>
-                          Due: {new Date(task.dueDate).toLocaleDateString()}
-                        </span>
-                        <span>•</span>
-                        <span>{task.category}</span>
-                        <span>•</span>
-                        <span className="capitalize">
-                          {task.priority} priority
-                        </span>
-                      </div>
+                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
+                      <div className="h-3 bg-gray-200 rounded w-1/2" />
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">
-                        {getMemberAvatar(task.assignedTo)}
-                      </span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getMemberColor(
-                          task.assignedTo
-                        )}`}
-                      >
-                        {task.assignedTo}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 ml-4">
-                    {task.status !== "completed" && (
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleTaskComplete(task.id)}
-                        className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                      >
-                        Mark Complete
-                      </motion.button>
-                    )}
                   </div>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {sortedTasks.length === 0 && (
-          <div className="p-12 text-center">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle size={24} className="text-gray-400" />
+              ))}
             </div>
-            <p className="text-gray-500">
-              No tasks found matching your filters
-            </p>
-          </div>
-        )}
+          ) : filteredTasks.length > 0 ? (
+            <div className="space-y-4">
+              <AnimatePresence>
+                {filteredTasks.map((task) => (
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    onToggleComplete={toggleTaskCompletion}
+                    onEdit={handleTaskEdit}
+                    onDelete={handleTaskDelete}
+                    onToggleSelect={toggleTaskSelection}
+                    isSelected={selectedTasks.includes(task.id)}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle size={24} className="text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {filters.completed !== undefined || filters.priority || filters.search
+                  ? "No tasks match your filters"
+                  : "No tasks yet"}
+              </h3>
+              <p className="text-gray-500 mb-4">
+                {filters.completed !== undefined || filters.priority || filters.search
+                  ? "Try adjusting your filters to see more tasks"
+                  : "Create your first task to get started"}
+              </p>
+              {!(filters.completed !== undefined || filters.priority || filters.search) && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsCreationFormOpen(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                >
+                  Create Your First Task
+                </motion.button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Task Creation Form Modal */}
       <ChoreCreationForm
         isOpen={isCreationFormOpen}
         onClose={() => setIsCreationFormOpen(false)}
-        onTaskCreate={(taskData) => {
-          console.log("Creating task:", taskData);
-          setIsCreationFormOpen(false);
+        onTaskCreate={handleTaskCreate}
+      />
+
+      {/* Task Edit Modal */}
+      <TaskEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingTask(null);
         }}
+        onTaskUpdate={handleTaskUpdate}
+        task={editingTask}
       />
     </div>
   );
