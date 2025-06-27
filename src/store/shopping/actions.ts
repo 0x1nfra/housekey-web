@@ -170,7 +170,7 @@ export const createShoppingActions = (
   // Item Management
   fetchItems: async (listId: string) => {
     set((state) => {
-      state.loading.lists = true;
+      state.loading.items = true;
       state.error = null;
     });
 
