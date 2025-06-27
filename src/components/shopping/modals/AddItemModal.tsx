@@ -248,7 +248,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                   className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Add Item
-                </button>
+                </motion.button>
               </div>
             </form>
           </motion.div>
