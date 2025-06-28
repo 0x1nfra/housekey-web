@@ -1,9 +1,18 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Edit, Trash2, Calendar, Clock, MapPin, User, Tag } from 'lucide-react';
-import { CalendarItem } from '../../../store/events/types';
-import { format } from 'date-fns';
-import { useEventsStore } from '../../../store/events';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  Edit,
+  Trash2,
+  Calendar,
+  Clock,
+  MapPin,
+  User,
+  Tag,
+} from "lucide-react";
+import { CalendarItem } from "../../../store/events/types";
+import { format } from "date-fns";
+import { useEventsStore } from "../../../store/events";
 
 interface EventPreviewModalProps {
   event: CalendarItem;
@@ -23,18 +32,16 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
   const { deleteEvent } = useEventsStore();
 
   const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this item?')) {
-      if (event.type === 'event') {
-        try {
-          await deleteEvent(event.id);
-          onClose();
-        } catch (error) {
-          console.error('Error deleting event:', error);
-        }
-      } else {
-        // Handle task deletion
-        onDelete(event.id);
+    if (event.type === "event") {
+      try {
+        await deleteEvent(event.id);
+        onClose();
+      } catch (error) {
+        console.error("Error deleting event:", error);
       }
+    } else {
+      // Handle task deletion
+      onDelete(event.id);
     }
   };
 
@@ -58,11 +65,11 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
             {/* Header with color indicator */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div 
+                <div
                   className="w-10 h-10 rounded-lg flex items-center justify-center text-white"
                   style={{ backgroundColor: event.color }}
                 >
-                  {event.type === 'event' ? (
+                  {event.type === "event" ? (
                     <Calendar size={20} />
                   ) : (
                     <Tag size={20} />
@@ -73,7 +80,9 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
                     {event.title}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {event.type === 'event' ? event.event_type : `Task - Priority ${event.priority}`}
+                    {event.type === "event"
+                      ? event.event_type
+                      : `Task - Priority ${event.priority}`}
                   </p>
                 </div>
               </div>
@@ -92,13 +101,14 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
                 <Calendar size={18} className="text-gray-500" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    {format(new Date(event.date), 'EEEE, MMMM d, yyyy')}
+                    {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
                   </p>
                   {event.all_day ? (
                     <p className="text-xs text-gray-500">All day</p>
                   ) : event.start_time ? (
                     <p className="text-xs text-gray-500">
-                      {event.start_time}{event.end_time ? ` - ${event.end_time}` : ''}
+                      {event.start_time}
+                      {event.end_time ? ` - ${event.end_time}` : ""}
                     </p>
                   ) : null}
                 </div>
@@ -125,7 +135,7 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
                   <User size={18} className="text-gray-500" />
                   <div>
                     <p className="text-xs text-gray-500">
-                      {event.type === 'event' ? 'Created by' : 'Assigned to'}
+                      {event.type === "event" ? "Created by" : "Assigned to"}
                     </p>
                     <p className="text-sm font-medium text-gray-900">
                       {event.assigned_to_name}
@@ -146,7 +156,7 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
                 <Edit size={16} />
                 Edit
               </motion.button>
-              
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
