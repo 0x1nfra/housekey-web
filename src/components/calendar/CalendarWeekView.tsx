@@ -46,8 +46,8 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
     let height = HOUR_HEIGHT;
     if (item.end_time) {
       const [endHours, endMinutes] = item.end_time.split(':').map(Number);
-      const endMinutes = endHours * 60 + endMinutes;
-      const durationMinutes = endMinutes - startMinutes;
+      const totalEndMinutes = endHours * 60 + endMinutes;
+      const durationMinutes = totalEndMinutes - startMinutes;
       height = (durationMinutes / 60) * HOUR_HEIGHT;
     }
     
