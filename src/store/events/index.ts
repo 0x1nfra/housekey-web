@@ -1,10 +1,10 @@
-import { create } from 'zustand';
-import { immer } from 'zustand/middleware/immer';
-import { EventsStore, SubscriptionGroup } from './types';
-import { initialState } from './state';
-import { createEventsActions } from './actions';
-import { createEventsSelectors } from './selectors';
-import { createEventsSubscriptions } from './subscriptions';
+import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
+import { EventsStore, SubscriptionGroup } from "./types";
+import { initialState } from "./state";
+import { createEventsActions } from "./actions";
+import { createEventsSelectors } from "./selectors";
+import { createEventsSubscriptions } from "./subscriptions";
 
 // Define the set/get function types for immer
 type ImmerSet = (
@@ -31,12 +31,11 @@ export const useEventsStore = create<EventsStore>()(
 
 // Export selectors as a separate hook for better performance
 export const useEventsSelectors = () => {
-  const state = useEventsStore();
-  return createEventsSelectors(state);
+  return useEventsStore((state) => createEventsSelectors(state));
 };
 
 // Export types
-export * from './types';
+export * from "./types";
 
 // Cleanup function for when the store is no longer needed
 export const cleanupEventsStore = () => {
@@ -46,7 +45,7 @@ export const cleanupEventsStore = () => {
   Object.values(
     store.subscriptions as Record<string, SubscriptionGroup>
   ).forEach((subscription) => {
-    if (subscription && typeof subscription.unsubscribe === 'function') {
+    if (subscription && typeof subscription.unsubscribe === "function") {
       subscription.unsubscribe();
     }
   });

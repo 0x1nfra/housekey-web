@@ -11,13 +11,7 @@ import EventCreationModal from "./EventCreationModal";
 import { CalendarItem } from "../../store/events/types";
 import dayjs from "dayjs";
 
-interface SharedCalendarViewProps {
-  onEventCreate: (date: Date) => void;
-}
-
-const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
-  onEventCreate,
-}) => {
+const SharedCalendarView: React.FC = () => {
   const {
     calendarMonth,
     selectedDateItems,
@@ -28,6 +22,14 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   } = useCalendarData();
 
   const { setSelectedDate, setCalendarView } = useEventsStore();
+  const { deleteEvent, updateEvent, createEvent, currentHub } = useEventsStore(
+    (state) => ({
+      deleteEvent: state.deleteEvent,
+      updateEvent: state.updateEvent,
+      createEvent: state.createEvent,
+      currentHub: state.currentHub,
+    })
+  );
 
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
   const [selectedEvent, setSelectedEvent] = useState<CalendarItem | null>(null);
@@ -76,7 +78,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
       .minute(minute)
       .second(0)
       .toDate();
-    
+
     setEventModalDate(clickedDate);
     setSelectedEvent(null);
     setShowEventCreationModal(true);
@@ -164,10 +166,10 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           isOpen={showEventPreview}
           onClose={handleCloseEventPreview}
           onEdit={handleEventEdit}
-          onDelete={(eventId) => {
+          onDelete={async (eventId) => {
             handleCloseEventPreview();
             if (selectedEvent.type === "event") {
-              useEventsStore.getState().deleteEvent(eventId);
+              await deleteEvent(eventId);
             }
           }}
         />
@@ -178,10 +180,25 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
         isOpen={showEventCreationModal}
         defaultDate={eventModalDate}
         existingEvent={selectedEvent}
-        onEventSave={(eventData) => {
+        onEventSave={async (eventData) => {
+          // Validate date and time formats
+          const isValidDate = (dateStr: string) =>
+            /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+          const isValidTime = (timeStr: string) =>
+            /^\d{2}:\d{2}$/.test(timeStr);
+          if (
+            !isValidDate(eventData.date) ||
+            !isValidTime(eventData.startTime) ||
+            !isValidTime(eventData.endTime)
+          ) {
+            alert(
+              "Invalid date or time format. Please use YYYY-MM-DD for date and HH:MM for time."
+            );
+            return;
+          }
           // If we have a selected event, we're editing
           if (selectedEvent && selectedEvent.type === "event") {
-            useEventsStore.getState().updateEvent(selectedEvent.id, {
+            await updateEvent(selectedEvent.id, {
               title: eventData.title,
               description: eventData.notes,
               start_date: new Date(
@@ -197,23 +214,27 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
             });
           } else {
             // Otherwise we're creating a new event
+            if (!currentHub) {
+              alert(
+                "No hub selected. Please select a hub before creating an event."
+              );
+              return;
+            }
             if (currentDate) {
-              useEventsStore
-                .getState()
-                .createEvent(useEventsStore.getState().currentHub || "", {
-                  title: eventData.title,
-                  description: eventData.notes,
-                  start_date: new Date(
-                    eventData.date + "T" + eventData.startTime
-                  ).toISOString(),
-                  end_date: new Date(
-                    eventData.date + "T" + eventData.endTime
-                  ).toISOString(),
-                  location: eventData.location,
-                  attendees: eventData.assignedTo || [],
-                  all_day: false,
-                  event_type: eventData.type,
-                });
+              await createEvent(currentHub, {
+                title: eventData.title,
+                description: eventData.notes,
+                start_date: new Date(
+                  eventData.date + "T" + eventData.startTime
+                ).toISOString(),
+                end_date: new Date(
+                  eventData.date + "T" + eventData.endTime
+                ).toISOString(),
+                location: eventData.location,
+                attendees: eventData.assignedTo || [],
+                all_day: false,
+                event_type: eventData.type,
+              });
             }
           }
           setShowEventCreationModal(false);

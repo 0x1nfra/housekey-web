@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
+import { X } from "lucide-react";
 import dayjs from "dayjs";
 import { useHubStore } from "../../store/hubStore";
 import { EventType, EVENT_TYPES, CalendarItem } from "../../store/events/types";
+import { getInitials } from "../../utils/userUtils";
 
 interface EventCreationModalProps {
   isOpen: boolean;
@@ -21,7 +22,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
   onClose,
 }) => {
   const { hubMembers } = useHubStore();
-  
+
   const [eventData, setEventData] = useState({
     title: "",
     date: dayjs(defaultDate).format("YYYY-MM-DD"),
@@ -39,13 +40,15 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
   useEffect(() => {
     if (existingEvent) {
       const startDate = dayjs(existingEvent.date);
-      
+
       setEventData({
         title: existingEvent.title,
         date: startDate.format("YYYY-MM-DD"),
         startTime: existingEvent.start_time || "09:00",
         endTime: existingEvent.end_time || "10:00",
-        assignedTo: existingEvent.assigned_to ? [existingEvent.assigned_to] : [],
+        assignedTo: existingEvent.assigned_to
+          ? [existingEvent.assigned_to]
+          : [],
         location: existingEvent.location || "",
         type: (existingEvent.event_type as EventType) || "FAMILY",
         recurring: false, // Set based on your data model
@@ -57,16 +60,16 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
       const formattedDate = dayjs(defaultDate).format("YYYY-MM-DD");
       let startTime = "09:00";
       let endTime = "10:00";
-      
+
       // If defaultDate includes time information, use it
       if (defaultDate instanceof Date && !isNaN(defaultDate.getTime())) {
         const dateObj = dayjs(defaultDate);
         if (dateObj.hour() !== 0 || dateObj.minute() !== 0) {
           startTime = dateObj.format("HH:mm");
-          endTime = dateObj.add(1, 'hour').format("HH:mm");
+          endTime = dateObj.add(1, "hour").format("HH:mm");
         }
       }
-      
+
       setEventData({
         title: "",
         date: formattedDate,
@@ -76,7 +79,11 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
         location: "",
         type: "FAMILY" as EventType,
         recurring: false,
-        recurrencePattern: "weekly" as "daily" | "weekly" | "monthly" | "yearly",
+        recurrencePattern: "weekly" as
+          | "daily"
+          | "weekly"
+          | "monthly"
+          | "yearly",
         notes: "",
       });
     }
@@ -88,15 +95,6 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     name: member.user_profile?.name || "Unknown User",
     avatar: getInitials(member.user_profile?.name || "U"),
   }));
-
-  function getInitials(name: string): string {
-    return name
-      .split(" ")
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  }
 
   const eventTypeOptions = Object.entries(EVENT_TYPES).map(([key, value]) => ({
     value: key as EventType,
@@ -198,8 +196,14 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                       style={{
-                        borderColor: eventData.type === type.value ? type.color : undefined,
-                        backgroundColor: eventData.type === type.value ? `${type.color}15` : undefined
+                        borderColor:
+                          eventData.type === type.value
+                            ? type.color
+                            : undefined,
+                        backgroundColor:
+                          eventData.type === type.value
+                            ? `${type.color}15`
+                            : undefined,
                       }}
                     >
                       <div
@@ -286,10 +290,6 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Location
                 </label>
                 <div className="relative">
-                  <MapPin
-                    size={20}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
                   <input
                     type="text"
                     value={eventData.location}

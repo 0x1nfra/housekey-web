@@ -11,6 +11,44 @@ import {
   CalendarTask,
 } from "./types";
 
+// Helper function to calculate date range based on selectedDate and calendarView
+function getDateRange(
+  selectedDate: string,
+  calendarView: "month" | "week" | "day"
+) {
+  const date = new Date(selectedDate);
+  let startDate: string;
+  let endDate: string;
+
+  if (calendarView === "month") {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    startDate = new Date(year, month, 1).toISOString();
+    endDate = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
+  } else if (calendarView === "week") {
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    startDate = startOfWeek.toISOString();
+    endDate = endOfWeek.toISOString();
+  } else {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    startDate = startOfDay.toISOString();
+    endDate = endOfDay.toISOString();
+  }
+
+  return { startDate, endDate };
+}
+
 export const createEventsActions = (
   set: SetStateFunction,
   get: GetStateFunction
@@ -141,9 +179,9 @@ export const createEventsActions = (
             location: item.location,
             attendees: [], // We don't have this in the combined query
             event_type: item.event_type || "OTHER",
-            created_by: item.assigned_to,
-            created_at: "", // Not available in this query
-            updated_at: "", // Not available in this query
+            created_by: item.created_by || "", // Use actual created_by if available
+            created_at: item.created_at || new Date().toISOString(),
+            updated_at: item.updated_at || new Date().toISOString(),
             all_day: item.all_day,
             creator_name: item.assigned_to_name,
           });
@@ -195,15 +233,15 @@ export const createEventsActions = (
         id: event.id,
         hub_id: hubId,
         title: event.title,
-        description: "",
+        description: event.description || "",
         start_date: event.start_date,
         end_date: event.end_date,
         location: event.location,
         attendees: [],
         event_type: event.event_type || "OTHER",
-        created_by: "",
-        created_at: "",
-        updated_at: "",
+        created_by: event.created_by || "",
+        created_at: event.created_at || new Date().toISOString(),
+        updated_at: event.updated_at || new Date().toISOString(),
         all_day: event.all_day,
         creator_name: event.creator_name,
       }));
@@ -409,36 +447,7 @@ export const createEventsActions = (
     // Refetch data with new filters if we have a current hub
     const { currentHub, selectedDate, calendarView } = get();
     if (currentHub) {
-      const date = new Date(selectedDate);
-      let startDate: string;
-      let endDate: string;
-
-      if (calendarView === "month") {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        startDate = new Date(year, month, 1).toISOString();
-        endDate = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
-      } else if (calendarView === "week") {
-        const startOfWeek = new Date(date);
-        startOfWeek.setDate(date.getDate() - date.getDay());
-        startOfWeek.setHours(0, 0, 0, 0);
-
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        endOfWeek.setHours(23, 59, 59, 999);
-
-        startDate = startOfWeek.toISOString();
-        endDate = endOfWeek.toISOString();
-      } else {
-        const startOfDay = new Date(date);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999);
-
-        startDate = startOfDay.toISOString();
-        endDate = endOfDay.toISOString();
-      }
-
+      const { startDate, endDate } = getDateRange(selectedDate, calendarView);
       get().fetchCalendarData(currentHub, startDate, endDate);
     }
   },
@@ -455,36 +464,7 @@ export const createEventsActions = (
     // Refetch data with cleared filters
     const { currentHub, selectedDate, calendarView } = get();
     if (currentHub) {
-      const date = new Date(selectedDate);
-      let startDate: string;
-      let endDate: string;
-
-      if (calendarView === "month") {
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        startDate = new Date(year, month, 1).toISOString();
-        endDate = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
-      } else if (calendarView === "week") {
-        const startOfWeek = new Date(date);
-        startOfWeek.setDate(date.getDate() - date.getDay());
-        startOfWeek.setHours(0, 0, 0, 0);
-
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        endOfWeek.setHours(23, 59, 59, 999);
-
-        startDate = startOfWeek.toISOString();
-        endDate = endOfWeek.toISOString();
-      } else {
-        const startOfDay = new Date(date);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(date);
-        endOfDay.setHours(23, 59, 59, 999);
-
-        startDate = startOfDay.toISOString();
-        endDate = endOfDay.toISOString();
-      }
-
+      const { startDate, endDate } = getDateRange(selectedDate, calendarView);
       get().fetchCalendarData(currentHub, startDate, endDate);
     }
   },
