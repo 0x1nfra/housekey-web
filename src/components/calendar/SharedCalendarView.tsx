@@ -9,6 +9,7 @@ import CalendarWeekView from "./CalendarWeekView";
 import CalendarMonthView from "./CalendarMonthView";
 import CalendarHeader from "./CalendarHeader";
 import EventPreviewModal from "./modals/EventPreviewModal";
+import EventCreationModal from "./EventCreationModal";
 import { CalendarItem } from "../../store/events/types";
 import dayjs from "dayjs";
 
@@ -33,6 +34,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
   const [selectedEvent, setSelectedEvent] = useState<CalendarItem | null>(null);
   const [showEventPreview, setShowEventPreview] = useState(false);
+  const [showEventCreationModal, setShowEventCreationModal] = useState(false);
 
   useEffect(() => {
     setCurrentDate(new Date(selectedDate));
@@ -60,6 +62,12 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   const handleCloseEventPreview = () => {
     setShowEventPreview(false);
     setSelectedEvent(null);
+  };
+
+  const handleEventEdit = (event: CalendarItem) => {
+    setShowEventPreview(false);
+    setSelectedEvent(event);
+    setShowEventCreationModal(true);
   };
 
   // Get the start date for the week view (Sunday)
@@ -118,6 +126,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           items={weekItems} 
           onDateClick={handleDateClick}
           onEventClick={handleEventClick}
+          onEventEdit={handleEventEdit}
         />
       )}
       
@@ -126,6 +135,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           date={selectedDate} 
           items={selectedDateItems}
           onEventClick={handleEventClick}
+          onEventEdit={handleEventEdit}
         />
       )}
       
@@ -135,19 +145,60 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           event={selectedEvent}
           isOpen={showEventPreview}
           onClose={handleCloseEventPreview}
-          onEdit={() => {
+          onEdit={handleEventEdit}
+          onDelete={(eventId) => {
             handleCloseEventPreview();
-            // Implement edit functionality
-            if (selectedEvent) {
-              onEventCreate(new Date(selectedEvent.date));
+            if (selectedEvent.type === 'event') {
+              useEventsStore.getState().deleteEvent(eventId);
             }
-          }}
-          onDelete={() => {
-            handleCloseEventPreview();
-            // Implement delete functionality
           }}
         />
       )}
+
+      {/* Event Creation/Edit Modal */}
+      <EventCreationModal
+        isOpen={showEventCreationModal}
+        defaultDate={selectedEvent ? new Date(selectedEvent.date) : currentDate}
+        existingEvent={selectedEvent}
+        onEventSave={(eventData) => {
+          // If we have a selected event, we're editing
+          if (selectedEvent && selectedEvent.type === 'event') {
+            useEventsStore.getState().updateEvent(selectedEvent.id, {
+              title: eventData.title,
+              description: eventData.notes,
+              start_date: new Date(eventData.date + 'T' + eventData.startTime).toISOString(),
+              end_date: new Date(eventData.date + 'T' + eventData.endTime).toISOString(),
+              location: eventData.location,
+              attendees: eventData.assignedTo || [],
+              all_day: false,
+              event_type: eventData.type,
+            });
+          } else {
+            // Otherwise we're creating a new event
+            if (currentDate) {
+              useEventsStore.getState().createEvent(
+                useEventsStore.getState().currentHub || '',
+                {
+                  title: eventData.title,
+                  description: eventData.notes,
+                  start_date: new Date(eventData.date + 'T' + eventData.startTime).toISOString(),
+                  end_date: new Date(eventData.date + 'T' + eventData.endTime).toISOString(),
+                  location: eventData.location,
+                  attendees: eventData.assignedTo || [],
+                  all_day: false,
+                  event_type: eventData.type,
+                }
+              );
+            }
+          }
+          setShowEventCreationModal(false);
+          setSelectedEvent(null);
+        }}
+        onClose={() => {
+          setShowEventCreationModal(false);
+          setSelectedEvent(null);
+        }}
+      />
     </div>
   );
 };

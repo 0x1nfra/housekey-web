@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
 import { format } from "date-fns";
 import { useHubStore } from "../../store/hubStore";
-import { EventType, EVENT_TYPES } from "../../store/events/types";
+import { EventType, EVENT_TYPES, CalendarItem } from "../../store/events/types";
 
 interface EventCreationModalProps {
   isOpen: boolean;
   defaultDate: Date;
+  existingEvent?: CalendarItem | null;
   onEventSave: (eventData: any) => void;
   onClose: () => void;
 }
@@ -15,6 +16,7 @@ interface EventCreationModalProps {
 const EventCreationModal: React.FC<EventCreationModalProps> = ({
   isOpen,
   defaultDate,
+  existingEvent,
   onEventSave,
   onClose,
 }) => {
@@ -32,6 +34,40 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     recurrencePattern: "weekly" as "daily" | "weekly" | "monthly" | "yearly",
     notes: "",
   });
+
+  // Initialize form with existing event data if editing
+  useEffect(() => {
+    if (existingEvent) {
+      const startDate = new Date(existingEvent.date);
+      
+      setEventData({
+        title: existingEvent.title,
+        date: format(startDate, "yyyy-MM-dd"),
+        startTime: existingEvent.start_time || "09:00",
+        endTime: existingEvent.end_time || "10:00",
+        assignedTo: existingEvent.assigned_to ? [existingEvent.assigned_to] : [],
+        location: existingEvent.location || "",
+        type: (existingEvent.event_type as EventType) || "FAMILY",
+        recurring: false, // Set based on your data model
+        recurrencePattern: "weekly",
+        notes: existingEvent.description || "",
+      });
+    } else {
+      // Reset form for new event
+      setEventData({
+        title: "",
+        date: format(defaultDate, "yyyy-MM-dd"),
+        startTime: "09:00",
+        endTime: "10:00",
+        assignedTo: [] as string[],
+        location: "",
+        type: "FAMILY" as EventType,
+        recurring: false,
+        recurrencePattern: "weekly" as "daily" | "weekly" | "monthly" | "yearly",
+        notes: "",
+      });
+    }
+  }, [existingEvent, defaultDate, isOpen]);
 
   // Get available assignees (hub members)
   const availableAssignees = hubMembers.map((member) => ({
@@ -54,13 +90,6 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     label: value.label,
     color: value.color,
   }));
-
-  useEffect(() => {
-    setEventData((prev) => ({
-      ...prev,
-      date: format(defaultDate, "yyyy-MM-dd"),
-    }));
-  }, [defaultDate]);
 
   const handleInputChange = (field: string, value: any) => {
     setEventData((prev) => ({
@@ -115,7 +144,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                Create New Event
+                {existingEvent ? "Edit Event" : "Create New Event"}
               </h2>
               <button
                 onClick={onClose}
@@ -326,7 +355,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                 disabled={!eventData.title}
                 className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Event
+                {existingEvent ? "Save Changes" : "Create Event"}
               </motion.button>
             </div>
           </motion.div>

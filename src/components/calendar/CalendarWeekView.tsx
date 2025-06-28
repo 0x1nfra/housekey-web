@@ -3,12 +3,14 @@ import { motion } from 'framer-motion';
 import dayjs from 'dayjs';
 import { CalendarItem } from '../../store/events/types';
 import { useEventsStore } from '../../store/events';
+import { Clock, MapPin, User, Edit, Trash2 } from 'lucide-react';
 
 interface CalendarWeekViewProps {
   startDate: string;
   items: Record<string, CalendarItem[]>;
   onDateClick: (date: string) => void;
   onEventClick: (event: CalendarItem) => void;
+  onEventEdit?: (event: CalendarItem) => void;
 }
 
 const HOUR_HEIGHT = 60; // Height in pixels for each hour
@@ -18,9 +20,10 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   startDate, 
   items,
   onDateClick,
-  onEventClick
+  onEventClick,
+  onEventEdit
 }) => {
-  const { selectedDate } = useEventsStore();
+  const { selectedDate, deleteEvent } = useEventsStore();
   
   // Generate array of 7 days starting from startDate (Sunday)
   const weekDays = Array.from({ length: 7 }, (_, i) => {
@@ -31,6 +34,22 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   // Format time for display
   const formatTimeLabel = (hour: number) => {
     return dayjs().hour(hour).minute(0).format('h A');
+  };
+
+  const handleDeleteEvent = async (e: React.MouseEvent, eventId: string) => {
+    e.stopPropagation();
+    try {
+      await deleteEvent(eventId);
+    } catch (error) {
+      console.error("Error deleting event:", error);
+    }
+  };
+
+  const handleEditEvent = (e: React.MouseEvent, item: CalendarItem) => {
+    e.stopPropagation();
+    if (onEventEdit) {
+      onEventEdit(item);
+    }
   };
 
   // Calculate position and height for an event
@@ -92,6 +111,55 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
         })}
       </div>
 
+      {/* All-day events row */}
+      <div className="grid grid-cols-8 border-b border-gray-100 bg-gray-50">
+        <div className="p-2 text-xs font-medium text-gray-500 border-r border-gray-100">
+          All day
+        </div>
+        
+        {weekDays.map((day, index) => {
+          const allDayItems = items[day]?.filter(item => item.all_day) || [];
+          
+          return (
+            <div key={`allday-${day}`} className="p-1 border-r border-gray-100">
+              {allDayItems.map((item) => (
+                <div
+                  key={`allday-${item.type}-${item.id}`}
+                  className="text-xs p-1 mb-1 rounded text-white truncate relative group"
+                  style={{ backgroundColor: item.color }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEventClick(item);
+                  }}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="truncate">{item.title}</span>
+                    {item.type === 'event' && (
+                      <div className="hidden group-hover:flex items-center gap-1 absolute right-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded px-1">
+                        <button
+                          onClick={(e) => handleEditEvent(e, item)}
+                          className="text-white hover:text-gray-200"
+                          title="Edit event"
+                        >
+                          <Edit size={10} />
+                        </button>
+                        <button
+                          onClick={(e) => handleDeleteEvent(e, item.id)}
+                          className="text-white hover:text-gray-200"
+                          title="Delete event"
+                        >
+                          <Trash2 size={10} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
+      </div>
+
       {/* Week grid */}
       <div className="relative">
         <div className="grid grid-cols-8">
@@ -110,8 +178,8 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
           </div>
           
           {/* Day columns */}
-          {weekDays.map((day) => (
-            <div key={day} className="relative">
+          {weekDays.map((day, dayIndex) => (
+            <div key={day} className="relative border-r border-gray-100">
               {/* Hour grid lines */}
               {HOURS.map((hour) => (
                 <div 
@@ -127,7 +195,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
               
               {/* Events for this day */}
               {items[day]?.map((item) => {
-                if (item.all_day) return null; // Skip all-day events for now
+                if (item.all_day) return null; // Skip all-day events
                 
                 const { top, height } = calculateEventPosition(item);
                 
@@ -136,7 +204,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                     key={`${item.type}-${item.id}`}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="absolute left-0 right-0 mx-1 rounded overflow-hidden shadow-sm border-l-4 z-10 bg-white"
+                    className="absolute left-0 right-0 mx-1 rounded overflow-hidden shadow-sm border-l-4 z-10 bg-white group"
                     style={{ 
                       top: `${top}px`, 
                       height: `${height}px`,
@@ -148,10 +216,42 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                     }}
                   >
                     <div className="p-1 text-xs overflow-hidden h-full">
-                      <div className="font-medium truncate">{item.title}</div>
+                      <div className="flex justify-between items-center">
+                        <div className="font-medium truncate">{item.title}</div>
+                        {item.type === 'event' && (
+                          <div className="hidden group-hover:flex items-center gap-1">
+                            <button
+                              onClick={(e) => handleEditEvent(e, item)}
+                              className="text-gray-500 hover:text-gray-700 p-0.5 rounded hover:bg-gray-100"
+                              title="Edit event"
+                            >
+                              <Edit size={10} />
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteEvent(e, item.id)}
+                              className="text-red-500 hover:text-red-700 p-0.5 rounded hover:bg-red-50"
+                              title="Delete event"
+                            >
+                              <Trash2 size={10} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
                       {item.start_time && (
                         <div className="text-gray-500 truncate">
                           {item.start_time}{item.end_time ? ` - ${item.end_time}` : ''}
+                        </div>
+                      )}
+                      {height > 60 && item.location && (
+                        <div className="flex items-center gap-1 text-gray-500 mt-1">
+                          <MapPin size={8} />
+                          <span className="truncate">{item.location}</span>
+                        </div>
+                      )}
+                      {height > 80 && item.assigned_to_name && (
+                        <div className="flex items-center gap-1 text-gray-500 mt-1">
+                          <User size={8} />
+                          <span className="truncate">{item.assigned_to_name}</span>
                         </div>
                       )}
                     </div>
@@ -160,35 +260,6 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
               })}
             </div>
           ))}
-        </div>
-        
-        {/* All-day events row */}
-        <div className="grid grid-cols-8 border-b border-gray-100 bg-gray-50">
-          <div className="p-2 text-xs font-medium text-gray-500 border-r border-gray-100">
-            All day
-          </div>
-          
-          {weekDays.map((day) => {
-            const allDayItems = items[day]?.filter(item => item.all_day) || [];
-            
-            return (
-              <div key={`allday-${day}`} className="p-1">
-                {allDayItems.map((item) => (
-                  <div
-                    key={`allday-${item.type}-${item.id}`}
-                    className="text-xs p-1 mb-1 rounded text-white truncate"
-                    style={{ backgroundColor: item.color }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEventClick(item);
-                    }}
-                  >
-                    {item.title}
-                  </div>
-                ))}
-              </div>
-            );
-          })}
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ interface CalendarDayViewProps {
   date: string;
   items: CalendarItem[];
   onEventClick?: (event: CalendarItem) => void;
+  onEventEdit?: (event: CalendarItem) => void;
 }
 
 const HOUR_HEIGHT = 60; // Height in pixels for each hour
@@ -18,6 +19,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   date,
   items,
   onEventClick,
+  onEventEdit,
 }) => {
   const { deleteEvent } = useEventsStore();
 
@@ -26,6 +28,13 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       await deleteEvent(eventId);
     } catch (error) {
       console.error("Error deleting event:", error);
+    }
+  };
+
+  const handleEditEvent = (e: React.MouseEvent, item: CalendarItem) => {
+    e.stopPropagation();
+    if (onEventEdit) {
+      onEventEdit(item);
     }
   };
 
@@ -47,8 +56,8 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
     let height = HOUR_HEIGHT;
     if (item.end_time) {
       const [endHours, endMinutes] = item.end_time.split(":").map(Number);
-      const endTotalMinutes = endHours * 60 + endMinutes;
-      const durationMinutes = endTotalMinutes - startMinutes;
+      const totalEndMinutes = endHours * 60 + endMinutes;
+      const durationMinutes = totalEndMinutes - startMinutes;
       height = (durationMinutes / 60) * HOUR_HEIGHT;
     }
 
@@ -83,10 +92,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                   {item.type === "event" && (
                     <div className="flex items-center gap-1">
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Implement edit functionality
-                        }}
+                        onClick={(e) => handleEditEvent(e, item)}
                         className="text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100"
                         title="Edit event"
                       >
@@ -184,10 +190,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                     {item.type === "event" && (
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Implement edit functionality
-                          }}
+                          onClick={(e) => handleEditEvent(e, item)}
                           className="text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100"
                           title="Edit event"
                         >
