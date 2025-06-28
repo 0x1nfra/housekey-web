@@ -1,232 +1,250 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameMonth,
-  isToday,
-  isSameDay,
-} from "date-fns";
+import React, { useState, useEffect } from "react";
+import { useCalendarData } from "./hooks/useCalendarData";
+import { useEventsStore } from "../../store/events";
+import CalendarFilters from "./CalendarFilters";
+import CalendarDayView from "./CalendarDayView";
+import CalendarWeekView from "./CalendarWeekView";
+import CalendarMonthView from "./CalendarMonthView";
+import CalendarHeader from "./CalendarHeader";
+import EventPreviewModal from "./modals/EventPreviewModal";
+import EventCreationModal from "./EventCreationModal";
+import { CalendarItem } from "../../store/events/types";
+import dayjs from "dayjs";
 
-interface Event {
-  id: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  assignedTo: string[];
-  type: "appointment" | "chore" | "activity";
-  recurring: boolean;
-  location?: string;
-}
+const SharedCalendarView: React.FC = () => {
+  const {
+    calendarMonth,
+    selectedDateItems,
+    weekItems,
+    loading,
+    selectedDate,
+    calendarView,
+  } = useCalendarData();
 
-interface SharedCalendarViewProps {
-  onEventCreate: (date: Date) => void;
-}
+  const { setSelectedDate, setCalendarView } = useEventsStore();
+  const { deleteEvent, updateEvent, createEvent, currentHub } = useEventsStore(
+    (state) => ({
+      deleteEvent: state.deleteEvent,
+      updateEvent: state.updateEvent,
+      createEvent: state.createEvent,
+      currentHub: state.currentHub,
+    })
+  );
 
-/*
-FIXME:
-1. change to dayjs
-2. move types to type folders
-*/
+  const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
+  const [selectedEvent, setSelectedEvent] = useState<CalendarItem | null>(null);
+  const [showEventPreview, setShowEventPreview] = useState(false);
+  const [showEventCreationModal, setShowEventCreationModal] = useState(false);
+  const [eventModalDate, setEventModalDate] = useState<Date>(new Date());
 
-const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
-  onEventCreate,
-}) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
+  useEffect(() => {
+    setCurrentDate(new Date(selectedDate));
+  }, [selectedDate]);
 
-  // Mock events data
-  const events: Event[] = [
-    {
-      id: "1",
-      title: "Soccer Practice",
-      startTime: "2024-01-15T16:00:00Z",
-      endTime: "2024-01-15T17:30:00Z",
-      assignedTo: ["Emma"],
-      type: "activity",
-      recurring: true,
-      location: "Community Center",
-    },
-    {
-      id: "2",
-      title: "Dentist Appointment",
-      startTime: "2024-01-16T14:30:00Z",
-      endTime: "2024-01-16T15:30:00Z",
-      assignedTo: ["Sarah"],
-      type: "appointment",
-      recurring: false,
-      location: "Downtown Dental",
-    },
-  ];
-
-  const familyMembers = [
-    { id: "1", name: "Sarah", color: "bg-indigo-500" },
-    { id: "2", name: "Mike", color: "bg-emerald-500" },
-    { id: "3", name: "Emma", color: "bg-amber-500" },
-  ];
-
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-
-  const navigateMonth = (direction: "prev" | "next") => {
-    const newDate = new Date(currentDate);
-    if (direction === "prev") {
-      newDate.setMonth(newDate.getMonth() - 1);
-    } else {
-      newDate.setMonth(newDate.getMonth() + 1);
-    }
-    setCurrentDate(newDate);
+  const handleDateChange = (date: Date) => {
+    setCurrentDate(date);
+    setSelectedDate(date.toISOString().split("T")[0]);
   };
 
-  const getEventsForDate = (date: Date) => {
-    return events.filter((event) => isSameDay(new Date(event.startTime), date));
+  const handleViewChange = (view: "month" | "week" | "day") => {
+    setCalendarView(view);
   };
 
-  const getMemberColor = (memberName: string) => {
-    const member = familyMembers.find((m) => m.name === memberName);
-    return member?.color || "bg-gray-500";
+  const handleDateClick = (date: string) => {
+    setSelectedDate(date);
   };
+
+  const handleEventClick = (item: CalendarItem) => {
+    setSelectedEvent(item);
+    setShowEventPreview(true);
+  };
+
+  const handleCloseEventPreview = () => {
+    setShowEventPreview(false);
+    setSelectedEvent(null);
+  };
+
+  const handleEventEdit = (event: CalendarItem) => {
+    setShowEventPreview(false);
+    setSelectedEvent(event);
+    setEventModalDate(new Date(event.date));
+    setShowEventCreationModal(true);
+  };
+
+  const handleTimeSlotClick = (date: string, hour: number, minute: number) => {
+    // Create a date object with the clicked time
+    const clickedDate = dayjs(date)
+      .hour(hour)
+      .minute(minute)
+      .second(0)
+      .toDate();
+
+    setEventModalDate(clickedDate);
+    setSelectedEvent(null);
+    setShowEventCreationModal(true);
+  };
+
+  // Get the start date for the week view (Sunday)
+  const getWeekStartDate = () => {
+    // Use the current date to get the start of the week (Sunday)
+    const date = dayjs(currentDate);
+    return date.startOf("week").format("YYYY-MM-DD");
+  };
+
+  if (loading.fetch) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="grid grid-cols-7 gap-4 mb-4">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="h-6 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-4">
+            {Array.from({ length: 35 }).map((_, i) => (
+              <div key={i} className="h-24 bg-gray-100 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="space-y-4">
       {/* Calendar Header */}
-      <div className="p-6 border-b border-gray-100">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {format(currentDate, "MMMM yyyy")}
-            </h2>
-            <div className="flex items-center gap-2">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigateMonth("prev")}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ChevronLeft size={16} />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigateMonth("next")}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <ChevronRight size={16} />
-              </motion.button>
-            </div>
-          </div>
+      <CalendarHeader
+        currentView={calendarView}
+        currentDate={currentDate}
+        onViewChange={handleViewChange}
+        onDateChange={handleDateChange}
+        onCreateEvent={() => {
+          setEventModalDate(currentDate);
+          setSelectedEvent(null);
+          setShowEventCreationModal(true);
+        }}
+      />
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              {familyMembers.map((member) => (
-                <div key={member.id} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${member.color}`} />
-                  <span className="text-sm text-gray-600">{member.name}</span>
-                </div>
-              ))}
-            </div>
+      {/* Filters */}
+      <CalendarFilters />
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onEventCreate(new Date())}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-            >
-              <Plus size={16} />
-              Add Event
-            </motion.button>
-          </div>
-        </div>
+      {/* Calendar View */}
+      {calendarView === "month" && calendarMonth && (
+        <CalendarMonthView
+          calendarMonth={calendarMonth}
+          onDateClick={handleDateClick}
+          onEventClick={handleEventClick}
+        />
+      )}
 
-        {/* View Mode Selector */}
-        <div className="flex items-center gap-2">
-          {(["month", "week", "day"] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors capitalize ${
-                viewMode === mode
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
-              }`}
-            >
-              {mode}
-            </button>
-          ))}
-        </div>
-      </div>
+      {calendarView === "week" && (
+        <CalendarWeekView
+          startDate={getWeekStartDate()}
+          items={weekItems}
+          onDateClick={handleDateClick}
+          onEventClick={handleEventClick}
+          onEventEdit={handleEventEdit}
+          onTimeSlotClick={handleTimeSlotClick}
+        />
+      )}
 
-      {/* Calendar Grid */}
-      <div className="p-6">
-        {/* Days of Week Header */}
-        <div className="grid grid-cols-7 gap-4 mb-4">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div
-              key={day}
-              className="text-center text-sm font-medium text-gray-500 py-2"
-            >
-              {day}
-            </div>
-          ))}
-        </div>
+      {calendarView === "day" && (
+        <CalendarDayView
+          date={selectedDate}
+          items={selectedDateItems}
+          onEventClick={handleEventClick}
+          onEventEdit={handleEventEdit}
+          onTimeSlotClick={handleTimeSlotClick}
+        />
+      )}
 
-        {/* Calendar Days */}
-        <div className="grid grid-cols-7 gap-4">
-          {calendarDays.map((day, index) => {
-            const dayEvents = getEventsForDate(day);
-            const isCurrentMonth = isSameMonth(day, currentDate);
-            const isDayToday = isToday(day);
+      {/* Event Preview Modal */}
+      {selectedEvent && (
+        <EventPreviewModal
+          event={selectedEvent}
+          isOpen={showEventPreview}
+          onClose={handleCloseEventPreview}
+          onEdit={handleEventEdit}
+          onDelete={async (eventId) => {
+            handleCloseEventPreview();
+            if (selectedEvent.type === "event") {
+              await deleteEvent(eventId);
+            }
+          }}
+        />
+      )}
 
-            return (
-              <motion.div
-                key={day.toISOString()}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.01 }}
-                onClick={() => onEventCreate(day)}
-                className={`min-h-[120px] p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-indigo-300 transition-colors ${
-                  !isCurrentMonth ? "opacity-50" : ""
-                } ${
-                  isDayToday
-                    ? "bg-indigo-50 border-indigo-200"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                <div
-                  className={`text-sm font-medium mb-2 ${
-                    isDayToday ? "text-indigo-700" : "text-gray-900"
-                  }`}
-                >
-                  {format(day, "d")}
-                </div>
-
-                <div className="space-y-1">
-                  {dayEvents.slice(0, 3).map((event) => (
-                    <div
-                      key={event.id}
-                      className={`text-xs p-1 rounded text-white truncate ${getMemberColor(
-                        event.assignedTo[0]
-                      )}`}
-                    >
-                      {event.title}
-                    </div>
-                  ))}
-
-                  {dayEvents.length > 3 && (
-                    <div className="text-xs text-gray-500">
-                      +{dayEvents.length - 3} more
-                    </div>
-                  )}
-                </div>
-              </motion.div>
+      {/* Event Creation/Edit Modal */}
+      <EventCreationModal
+        isOpen={showEventCreationModal}
+        defaultDate={eventModalDate}
+        existingEvent={selectedEvent}
+        onEventSave={async (eventData) => {
+          // Validate date and time formats
+          const isValidDate = (dateStr: string) =>
+            /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+          const isValidTime = (timeStr: string) =>
+            /^\d{2}:\d{2}$/.test(timeStr);
+          if (
+            !isValidDate(eventData.date) ||
+            !isValidTime(eventData.startTime) ||
+            !isValidTime(eventData.endTime)
+          ) {
+            alert(
+              "Invalid date or time format. Please use YYYY-MM-DD for date and HH:MM for time."
             );
-          })}
-        </div>
-      </div>
+            return;
+          }
+          // If we have a selected event, we're editing
+          if (selectedEvent && selectedEvent.type === "event") {
+            await updateEvent(selectedEvent.id, {
+              title: eventData.title,
+              description: eventData.notes,
+              start_date: dayjs(
+                `${eventData.date}T${eventData.startTime}`
+              ).toISOString(),
+              end_date: dayjs(
+                `${eventData.date}T${eventData.endTime}`
+              ).toISOString(),
+              location: eventData.location,
+              attendees: eventData.assignedTo || [],
+              all_day: false,
+              event_type: eventData.type,
+            });
+          } else {
+            // Otherwise we're creating a new event
+            if (!currentHub) {
+              alert(
+                "No hub selected. Please select a hub before creating an event."
+              );
+              return;
+            }
+            if (currentDate) {
+              await createEvent(currentHub, {
+                title: eventData.title,
+                description: eventData.notes,
+                start_date: new Date(
+                  eventData.date + "T" + eventData.startTime
+                ).toISOString(),
+                end_date: new Date(
+                  eventData.date + "T" + eventData.endTime
+                ).toISOString(),
+                location: eventData.location,
+                attendees: eventData.assignedTo || [],
+                all_day: false,
+                event_type: eventData.type,
+              });
+            }
+          }
+          setShowEventCreationModal(false);
+          setSelectedEvent(null);
+        }}
+        onClose={() => {
+          setShowEventCreationModal(false);
+          setSelectedEvent(null);
+        }}
+      />
     </div>
   );
 };

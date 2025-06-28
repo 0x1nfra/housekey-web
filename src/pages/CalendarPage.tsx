@@ -2,25 +2,66 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import SharedCalendarView from "../components/calendar/SharedCalendarView";
 import EventCreationModal from "../components/calendar/EventCreationModal";
-
-/*
-FIXME:
-1. change to dayjs
-2. move types to type folders
-*/
+import { useCalendarData } from "../components/calendar/hooks/useCalendarData";
+import { useEventsStore } from "../store/events";
+import { useHubStore } from "../store/hubStore";
+import { X } from "lucide-react";
+import dayjs from "dayjs";
+import { useAuthStore } from "../store/authStore";
 
 const CalendarPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const { currentHub } = useHubStore();
+  const { createEvent } = useEventsStore();
+  const { error, clearError } = useCalendarData();
+  const { user } = useAuthStore();
 
   const handleEventCreate = (date: Date) => {
     setSelectedDate(date);
     setIsModalOpen(true);
   };
 
-  const handleEventSave = (eventData: any) => {
-    console.log("Saving event:", eventData);
-    setIsModalOpen(false);
+  const handleEventSave = async (eventData: any) => {
+    if (!currentHub) {
+      console.error("No current hub selected");
+      return;
+    }
+    if (!user) {
+      console.error("No user found");
+      return;
+    }
+
+    try {
+      await createEvent(currentHub.id, {
+        title: eventData.title,
+        description: eventData.notes,
+        start_date: dayjs(
+          `${eventData.date}T${eventData.startTime}`
+        ).toISOString(),
+        end_date: dayjs(`${eventData.date}T${eventData.endTime}`).toISOString(),
+        location: eventData.location,
+        attendees: eventData.assignedTo || [],
+        all_day: false,
+        event_type: eventData.type,
+        reminders: eventData.recurring
+          ? [
+              {
+                user_id: user.id, // Use current user for reminder
+                reminder_time: dayjs(`${eventData.date}T${eventData.startTime}`)
+                  .subtract(15, "minutes")
+                  .toISOString(), // 15 minutes before
+                reminder_type: "in_app" as const,
+              },
+            ]
+          : undefined,
+      });
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error creating event:", error);
+    }
   };
 
   return (
@@ -40,6 +81,25 @@ const CalendarPage: React.FC = () => {
             </p>
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-red-700">{error}</p>
+              <button
+                onClick={clearError}
+                className="text-red-500 hover:text-red-700"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         <SharedCalendarView onEventCreate={handleEventCreate} />
 

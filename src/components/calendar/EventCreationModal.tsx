@@ -1,73 +1,106 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
-import { format } from "date-fns";
+import { X } from "lucide-react";
+import dayjs from "dayjs";
+import { useHubStore } from "../../store/hubStore";
+import { EventType, EVENT_TYPES, CalendarItem } from "../../store/events/types";
+import { getInitials } from "../../utils/userUtils";
 
 interface EventCreationModalProps {
   isOpen: boolean;
   defaultDate: Date;
+  existingEvent?: CalendarItem | null;
   onEventSave: (eventData: any) => void;
   onClose: () => void;
 }
 
-/*
-FIXME:
-1. change to dayjs
-2. move types to type folders
-*/
-
 const EventCreationModal: React.FC<EventCreationModalProps> = ({
   isOpen,
   defaultDate,
+  existingEvent,
   onEventSave,
   onClose,
 }) => {
+  const { hubMembers } = useHubStore();
+
   const [eventData, setEventData] = useState({
     title: "",
-    date: format(defaultDate, "yyyy-MM-dd"),
+    date: dayjs(defaultDate).format("YYYY-MM-DD"),
     startTime: "09:00",
     endTime: "10:00",
     assignedTo: [] as string[],
     location: "",
-    type: "activity" as "appointment" | "chore" | "activity",
+    type: "FAMILY" as EventType,
     recurring: false,
-    recurrencePattern: "weekly" as "daily" | "weekly" | "monthly",
+    recurrencePattern: "weekly" as "daily" | "weekly" | "monthly" | "yearly",
     notes: "",
   });
 
-  const familyMembers = [
-    { id: "1", name: "Sarah", avatar: "👩‍💼" },
-    { id: "2", name: "Mike", avatar: "👨‍💻" },
-    { id: "3", name: "Emma", avatar: "👧" },
-  ];
-
-  const eventTypes = [
-    {
-      value: "appointment",
-      label: "Appointment",
-      icon: Calendar,
-      color: "bg-indigo-100 text-indigo-700",
-    },
-    {
-      value: "activity",
-      label: "Activity",
-      icon: Users,
-      color: "bg-emerald-100 text-emerald-700",
-    },
-    {
-      value: "chore",
-      label: "Chore",
-      icon: Clock,
-      color: "bg-amber-100 text-amber-700",
-    },
-  ];
-
+  // Initialize form with existing event data if editing
   useEffect(() => {
-    setEventData((prev) => ({
-      ...prev,
-      date: format(defaultDate, "yyyy-MM-dd"),
-    }));
-  }, [defaultDate]);
+    if (existingEvent) {
+      const startDate = dayjs(existingEvent.date);
+
+      setEventData({
+        title: existingEvent.title,
+        date: startDate.format("YYYY-MM-DD"),
+        startTime: existingEvent.start_time || "09:00",
+        endTime: existingEvent.end_time || "10:00",
+        assignedTo: existingEvent.assigned_to
+          ? [existingEvent.assigned_to]
+          : [],
+        location: existingEvent.location || "",
+        type: (existingEvent.event_type as EventType) || "FAMILY",
+        recurring: false, // Set based on your data model
+        recurrencePattern: "weekly",
+        notes: existingEvent.description || "",
+      });
+    } else {
+      // Reset form for new event
+      const formattedDate = dayjs(defaultDate).format("YYYY-MM-DD");
+      let startTime = "09:00";
+      let endTime = "10:00";
+
+      // If defaultDate includes time information, use it
+      if (defaultDate instanceof Date && !isNaN(defaultDate.getTime())) {
+        const dateObj = dayjs(defaultDate);
+        if (dateObj.hour() !== 0 || dateObj.minute() !== 0) {
+          startTime = dateObj.format("HH:mm");
+          endTime = dateObj.add(1, "hour").format("HH:mm");
+        }
+      }
+
+      setEventData({
+        title: "",
+        date: formattedDate,
+        startTime: startTime,
+        endTime: endTime,
+        assignedTo: [] as string[],
+        location: "",
+        type: "FAMILY" as EventType,
+        recurring: false,
+        recurrencePattern: "weekly" as
+          | "daily"
+          | "weekly"
+          | "monthly"
+          | "yearly",
+        notes: "",
+      });
+    }
+  }, [existingEvent, defaultDate, isOpen]);
+
+  // Get available assignees (hub members)
+  const availableAssignees = hubMembers.map((member) => ({
+    id: member.user_id,
+    name: member.user_profile?.name || "Unknown User",
+    avatar: getInitials(member.user_profile?.name || "U"),
+  }));
+
+  const eventTypeOptions = Object.entries(EVENT_TYPES).map(([key, value]) => ({
+    value: key as EventType,
+    label: value.label,
+    color: value.color,
+  }));
 
   const handleInputChange = (field: string, value: any) => {
     setEventData((prev) => ({
@@ -76,12 +109,12 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     }));
   };
 
-  const handleMemberToggle = (memberName: string) => {
+  const handleMemberToggle = (memberId: string) => {
     setEventData((prev) => ({
       ...prev,
-      assignedTo: prev.assignedTo.includes(memberName)
-        ? prev.assignedTo.filter((name) => name !== memberName)
-        : [...prev.assignedTo, memberName],
+      assignedTo: prev.assignedTo.includes(memberId)
+        ? prev.assignedTo.filter((id) => id !== memberId)
+        : [...prev.assignedTo, memberId],
     }));
   };
 
@@ -90,12 +123,12 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     // Reset form
     setEventData({
       title: "",
-      date: format(new Date(), "yyyy-MM-dd"),
+      date: dayjs(new Date()).format("YYYY-MM-DD"),
       startTime: "09:00",
       endTime: "10:00",
       assignedTo: [],
       location: "",
-      type: "activity",
+      type: "FAMILY",
       recurring: false,
       recurrencePattern: "weekly",
       notes: "",
@@ -122,7 +155,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-gray-900">
-                Create New Event
+                {existingEvent ? "Edit Event" : "Create New Event"}
               </h2>
               <button
                 onClick={onClose}
@@ -153,7 +186,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Event Type
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                  {eventTypes.map((type) => (
+                  {eventTypeOptions.map((type) => (
                     <button
                       key={type.value}
                       onClick={() => handleInputChange("type", type.value)}
@@ -162,11 +195,22 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                           ? "border-indigo-300 bg-indigo-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
+                      style={{
+                        borderColor:
+                          eventData.type === type.value
+                            ? type.color
+                            : undefined,
+                        backgroundColor:
+                          eventData.type === type.value
+                            ? `${type.color}15`
+                            : undefined,
+                      }}
                     >
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 ${type.color}`}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 text-white"
+                        style={{ backgroundColor: type.color }}
                       >
-                        <type.icon size={16} />
+                        {type.value.charAt(0)}
                       </div>
                       <span className="text-sm font-medium">{type.label}</span>
                     </button>
@@ -221,17 +265,19 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Assign to Family Members
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {familyMembers.map((member) => (
+                  {availableAssignees.map((member) => (
                     <button
                       key={member.id}
-                      onClick={() => handleMemberToggle(member.name)}
+                      onClick={() => handleMemberToggle(member.id)}
                       className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
-                        eventData.assignedTo.includes(member.name)
+                        eventData.assignedTo.includes(member.id)
                           ? "border-indigo-300 bg-indigo-50 text-indigo-700"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
-                      <span className="text-lg">{member.avatar}</span>
+                      <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
+                        {member.avatar}
+                      </div>
                       <span className="font-medium">{member.name}</span>
                     </button>
                   ))}
@@ -244,10 +290,6 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Location
                 </label>
                 <div className="relative">
-                  <MapPin
-                    size={20}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
                   <input
                     type="text"
                     value={eventData.location}
@@ -291,6 +333,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
                   </select>
                 )}
               </div>
@@ -325,7 +368,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                 disabled={!eventData.title}
                 className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Event
+                {existingEvent ? "Save Changes" : "Create Event"}
               </motion.button>
             </div>
           </motion.div>

@@ -1,17 +1,15 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-// import { Home, Calendar, CheckSquare, ShoppingCart, Settings } from 'lucide-react';
-import { Home, CheckSquare, ShoppingCart, Bell } from "lucide-react";
+import { Home, Calendar, CheckSquare, ShoppingCart, Bell } from "lucide-react";
 import { motion } from "framer-motion";
 
 const BottomNavigation: React.FC = () => {
   const navItems = [
     { path: "/dashboard", icon: Home, label: "Home" },
-    // { path: '/calendar', icon: Calendar, label: 'Calendar' },
+    { path: '/calendar', icon: Calendar, label: 'Calendar' },
     { path: "/tasks", icon: CheckSquare, label: "Tasks" },
     { path: "/shopping", icon: ShoppingCart, label: "Shopping" },
     { path: "/notifications", icon: Bell, label: "Notifications" },
-    // { path: "/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
