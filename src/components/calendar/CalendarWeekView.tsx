@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { format, addDays, isSameDay, parseISO } from 'date-fns';
+import dayjs from 'dayjs';
 import { CalendarItem } from '../../store/events/types';
 import { useEventsStore } from '../../store/events';
 
@@ -24,13 +24,13 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   
   // Generate array of 7 days starting from startDate
   const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const date = addDays(new Date(startDate), i);
-    return format(date, 'yyyy-MM-dd');
+    const date = dayjs(startDate).add(i, 'day');
+    return date.format('YYYY-MM-DD');
   });
 
   // Format time for display
   const formatTimeLabel = (hour: number) => {
-    return format(new Date().setHours(hour, 0, 0, 0), 'h a');
+    return dayjs().hour(hour).minute(0).format('h A');
   };
 
   // Calculate position and height for an event
@@ -63,8 +63,8 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
         
         {/* Day headers */}
         {weekDays.map((day) => {
-          const date = new Date(day);
-          const isToday = isSameDay(date, new Date());
+          const date = dayjs(day);
+          const isToday = date.format('YYYY-MM-DD') === dayjs().format('YYYY-MM-DD');
           const isSelected = day === selectedDate;
           
           return (
@@ -80,12 +80,12 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
               }`}
             >
               <div className="text-sm font-medium text-gray-500">
-                {format(date, 'EEE')}
+                {date.format('ddd')}
               </div>
               <div className={`text-lg font-semibold ${
                 isToday ? 'text-indigo-600' : 'text-gray-900'
               }`}>
-                {format(date, 'd')}
+                {date.format('D')}
               </div>
             </div>
           );
@@ -118,9 +118,9 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                   key={hour} 
                   className="h-[60px] border-b border-gray-100"
                   onClick={() => {
-                    const date = new Date(day);
-                    date.setHours(hour, 0, 0, 0);
-                    onDateClick(format(date, 'yyyy-MM-dd'));
+                    const date = dayjs(day);
+                    date.hour(hour).minute(0).second(0);
+                    onDateClick(date.format('YYYY-MM-DD'));
                   }}
                 ></div>
               ))}
