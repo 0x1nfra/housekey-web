@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
 import { format } from "date-fns";
 import { useHubStore } from "../../store/hubStore";
+import { EventType, EVENT_TYPES } from "../../store/events/types";
 
 interface EventCreationModalProps {
   isOpen: boolean;
@@ -26,32 +27,11 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     endTime: "10:00",
     assignedTo: [] as string[],
     location: "",
-    type: "activity" as "appointment" | "chore" | "activity",
+    type: "FAMILY" as EventType,
     recurring: false,
-    recurrencePattern: "weekly" as "daily" | "weekly" | "monthly",
+    recurrencePattern: "weekly" as "daily" | "weekly" | "monthly" | "yearly",
     notes: "",
   });
-
-  const eventTypes = [
-    {
-      value: "appointment",
-      label: "Appointment",
-      icon: Calendar,
-      color: "bg-indigo-100 text-indigo-700",
-    },
-    {
-      value: "activity",
-      label: "Activity",
-      icon: Users,
-      color: "bg-emerald-100 text-emerald-700",
-    },
-    {
-      value: "chore",
-      label: "Chore",
-      icon: Clock,
-      color: "bg-amber-100 text-amber-700",
-    },
-  ];
 
   // Get available assignees (hub members)
   const availableAssignees = hubMembers.map((member) => ({
@@ -68,6 +48,12 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
       .toUpperCase()
       .slice(0, 2);
   }
+
+  const eventTypeOptions = Object.entries(EVENT_TYPES).map(([key, value]) => ({
+    value: key as EventType,
+    label: value.label,
+    color: value.color,
+  }));
 
   useEffect(() => {
     setEventData((prev) => ({
@@ -102,7 +88,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
       endTime: "10:00",
       assignedTo: [],
       location: "",
-      type: "activity",
+      type: "FAMILY",
       recurring: false,
       recurrencePattern: "weekly",
       notes: "",
@@ -160,7 +146,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Event Type
                 </label>
                 <div className="grid grid-cols-3 gap-3">
-                  {eventTypes.map((type) => (
+                  {eventTypeOptions.map((type) => (
                     <button
                       key={type.value}
                       onClick={() => handleInputChange("type", type.value)}
@@ -169,11 +155,16 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                           ? "border-indigo-300 bg-indigo-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
+                      style={{
+                        borderColor: eventData.type === type.value ? type.color : undefined,
+                        backgroundColor: eventData.type === type.value ? `${type.color}15` : undefined
+                      }}
                     >
                       <div
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 ${type.color}`}
+                        className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-2 text-white"
+                        style={{ backgroundColor: type.color }}
                       >
-                        <type.icon size={16} />
+                        {type.value.charAt(0)}
                       </div>
                       <span className="text-sm font-medium">{type.label}</span>
                     </button>
@@ -300,6 +291,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
                   </select>
                 )}
               </div>

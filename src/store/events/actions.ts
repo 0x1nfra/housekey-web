@@ -7,6 +7,8 @@ import {
   UpdateEventPayload,
   SetStateFunction,
   GetStateFunction,
+  CalendarFilters,
+  CalendarTask,
 } from './types';
 
 export const createEventsActions = (
@@ -39,6 +41,7 @@ export const createEventsActions = (
         end_date: event.end_date,
         location: event.location,
         attendees: event.attendees ? event.attendees.map((a: any) => a.id) : [],
+        event_type: event.event_type || 'OTHER',
         created_by: event.created_by,
         created_at: event.created_at,
         updated_at: event.updated_at,
@@ -62,6 +65,90 @@ export const createEventsActions = (
     }
   },
 
+  fetchCalendarData: async (hubId: string, startDate: string, endDate: string, filters?: Partial<CalendarFilters>) => {
+    set((state) => {
+      state.loading.fetch = true;
+      state.error = null;
+    });
+
+    try {
+      // Apply filters from state and override with any provided filters
+      const currentFilters = get().filters;
+      const appliedFilters = {
+        dataType: filters?.dataType || currentFilters.dataType,
+        assignedTo: filters?.assignedTo !== undefined ? filters.assignedTo : currentFilters.assignedTo,
+        eventType: filters?.eventType !== undefined ? filters.eventType : currentFilters.eventType,
+      };
+
+      // Update filters in state if new ones were provided
+      if (filters) {
+        set((state) => {
+          state.filters = { ...state.filters, ...filters };
+        });
+      }
+
+      const { data, error } = await supabase.rpc('get_calendar_data', {
+        p_hub_id: hubId,
+        p_start_date: startDate,
+        p_end_date: endDate,
+        p_data_type: appliedFilters.dataType,
+        p_assigned_to: appliedFilters.assignedTo,
+        p_event_type: appliedFilters.eventType,
+      });
+
+      if (error) throw error;
+
+      // Process and separate events and tasks
+      const events: Event[] = [];
+      const tasks: CalendarTask[] = [];
+
+      (data || []).forEach((item: any) => {
+        if (item.item_type === 'event') {
+          events.push({
+            id: item.id,
+            hub_id: hubId,
+            title: item.title,
+            description: item.description,
+            start_date: item.date_time,
+            end_date: item.end_date,
+            location: item.location,
+            attendees: [], // We don't have this in the combined query
+            event_type: item.event_type || 'OTHER',
+            created_by: item.assigned_to,
+            created_at: '', // Not available in this query
+            updated_at: '', // Not available in this query
+            all_day: item.all_day,
+            creator_name: item.assigned_to_name,
+          });
+        } else if (item.item_type === 'task') {
+          tasks.push({
+            id: item.id,
+            title: item.title,
+            description: item.description,
+            due_date: item.date_time,
+            assigned_to: item.assigned_to,
+            assigned_to_name: item.assigned_to_name,
+            priority: item.priority,
+            color: item.color,
+          });
+        }
+      });
+
+      set((state) => {
+        state.events = events;
+        state.calendarTasks = tasks;
+        state.currentHub = hubId;
+        state.loading.fetch = false;
+      });
+    } catch (error) {
+      console.error('Error fetching calendar data:', error);
+      set((state) => {
+        state.error = error instanceof Error ? error.message : 'Failed to fetch calendar data';
+        state.loading.fetch = false;
+      });
+    }
+  },
+
   fetchUpcomingEvents: async (hubId: string, limit: number = 5): Promise<Event[]> => {
     try {
       const { data, error } = await supabase.rpc('get_upcoming_events', {
@@ -80,6 +167,7 @@ export const createEventsActions = (
         end_date: event.end_date,
         location: event.location,
         attendees: [],
+        event_type: event.event_type || 'OTHER',
         created_by: '',
         created_at: '',
         updated_at: '',
@@ -114,12 +202,13 @@ export const createEventsActions = (
       const { data: eventId, error } = await supabase.rpc('create_event_with_reminders', {
         p_hub_id: hubId,
         p_title: eventData.title,
-        p_description: eventData.description || null,
         p_start_date: eventData.start_date,
+        p_description: eventData.description || null,
         p_end_date: eventData.end_date || null,
         p_location: eventData.location || null,
         p_attendees: eventData.attendees || [],
         p_all_day: eventData.all_day || false,
+        p_event_type: eventData.event_type || 'OTHER',
         p_reminders: reminders ? JSON.stringify(reminders) : null,
       });
 
@@ -135,6 +224,7 @@ export const createEventsActions = (
         end_date: eventData.end_date,
         location: eventData.location,
         attendees: eventData.attendees || [],
+        event_type: eventData.event_type || 'OTHER',
         created_by: user.user.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -183,7 +273,8 @@ export const createEventsActions = (
         p_end_date: updates.end_date || null,
         p_location: updates.location || null,
         p_attendees: updates.attendees || null,
-        p_all_day: updates.all_day || null,
+        p_all_day: updates.all_day !== undefined ? updates.all_day : null,
+        p_event_type: updates.event_type || null,
         p_reminders: reminders ? JSON.stringify(reminders) : null,
       });
 
@@ -258,6 +349,95 @@ export const createEventsActions = (
     });
   },
 
+  // Filter management
+  setFilters: (filters: Partial<CalendarFilters>) => {
+    set((state) => {
+      state.filters = { ...state.filters, ...filters };
+    });
+
+    // Refetch data with new filters if we have a current hub
+    const { currentHub, selectedDate, calendarView } = get();
+    if (currentHub) {
+      const date = new Date(selectedDate);
+      let startDate: string;
+      let endDate: string;
+
+      if (calendarView === 'month') {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        startDate = new Date(year, month, 1).toISOString();
+        endDate = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
+      } else if (calendarView === 'week') {
+        const startOfWeek = new Date(date);
+        startOfWeek.setDate(date.getDate() - date.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        startDate = startOfWeek.toISOString();
+        endDate = endOfWeek.toISOString();
+      } else {
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        startDate = startOfDay.toISOString();
+        endDate = endOfDay.toISOString();
+      }
+
+      get().fetchCalendarData(currentHub, startDate, endDate);
+    }
+  },
+
+  clearFilters: () => {
+    set((state) => {
+      state.filters = {
+        dataType: 'all',
+        assignedTo: null,
+        eventType: null,
+      };
+    });
+
+    // Refetch data with cleared filters
+    const { currentHub, selectedDate, calendarView } = get();
+    if (currentHub) {
+      const date = new Date(selectedDate);
+      let startDate: string;
+      let endDate: string;
+
+      if (calendarView === 'month') {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        startDate = new Date(year, month, 1).toISOString();
+        endDate = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
+      } else if (calendarView === 'week') {
+        const startOfWeek = new Date(date);
+        startOfWeek.setDate(date.getDate() - date.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        startDate = startOfWeek.toISOString();
+        endDate = endOfWeek.toISOString();
+      } else {
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        startDate = startOfDay.toISOString();
+        endDate = endOfDay.toISOString();
+      }
+
+      get().fetchCalendarData(currentHub, startDate, endDate);
+    }
+  },
+
   // Utility
   clearError: () => {
     set((state) => {
@@ -282,6 +462,7 @@ export const createEventsActions = (
     set((state) => {
       state.events = [];
       state.reminders = [];
+      state.calendarTasks = [];
       state.loading = {
         fetch: false,
         create: false,
@@ -291,6 +472,11 @@ export const createEventsActions = (
       state.error = null;
       state.selectedDate = new Date().toISOString().split('T')[0];
       state.calendarView = 'month';
+      state.filters = {
+        dataType: 'all',
+        assignedTo: null,
+        eventType: null,
+      };
       state.currentHub = null;
       state.subscriptions = {};
     });

@@ -1,8 +1,22 @@
-import { EventsState, Event, CalendarDay, CalendarWeek, CalendarMonth, EventFilters, EventSortOptions } from './types';
+import { 
+  EventsState, 
+  Event, 
+  CalendarDay, 
+  CalendarWeek, 
+  CalendarMonth, 
+  EventFilters, 
+  EventSortOptions,
+  CalendarTask,
+  CalendarItem,
+  EVENT_TYPES
+} from './types';
+import { format, startOfMonth, endOfMonth, addDays, isSameMonth, isToday, isSameDay, parseISO } from 'date-fns';
 
 export const createEventsSelectors = (state: EventsState) => ({
   // Basic selectors
   getAllEvents: (): Event[] => state.events,
+  
+  getAllCalendarTasks: (): CalendarTask[] => state.calendarTasks,
   
   getEventById: (eventId: string): Event | undefined =>
     state.events.find(event => event.id === eventId),
@@ -24,6 +38,74 @@ export const createEventsSelectors = (state: EventsState) => ({
     });
   },
 
+  getTasksByDate: (date: string): CalendarTask[] => {
+    const targetDate = new Date(date);
+    const dateStr = targetDate.toISOString().split('T')[0];
+
+    return state.calendarTasks.filter(task => {
+      const taskDate = new Date(task.due_date).toISOString().split('T')[0];
+      return taskDate === dateStr;
+    });
+  },
+
+  getCalendarItemsByDate: (date: string): CalendarItem[] => {
+    const events = createEventsSelectors(state).getEventsByDate(date);
+    const tasks = createEventsSelectors(state).getTasksByDate(date);
+    
+    const eventItems: CalendarItem[] = events.map(event => {
+      const startDate = new Date(event.start_date);
+      const endDate = event.end_date ? new Date(event.end_date) : null;
+      
+      return {
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        date: date,
+        type: 'event',
+        event_type: event.event_type,
+        assigned_to: event.created_by,
+        assigned_to_name: event.creator_name,
+        color: EVENT_TYPES[event.event_type]?.color || EVENT_TYPES.OTHER.color,
+        all_day: event.all_day,
+        start_time: event.all_day ? undefined : format(startDate, 'HH:mm'),
+        end_time: event.all_day || !endDate ? undefined : format(endDate, 'HH:mm'),
+        location: event.location
+      };
+    });
+    
+    const taskItems: CalendarItem[] = tasks.map(task => {
+      return {
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        date: date,
+        type: 'task',
+        assigned_to: task.assigned_to,
+        assigned_to_name: task.assigned_to_name,
+        priority: task.priority,
+        color: task.color,
+      };
+    });
+    
+    return [...eventItems, ...taskItems].sort((a, b) => {
+      // Sort by all_day first (all-day events at the top)
+      if (a.all_day && !b.all_day) return -1;
+      if (!a.all_day && b.all_day) return 1;
+      
+      // Then sort by start_time if available
+      if (a.start_time && b.start_time) {
+        return a.start_time.localeCompare(b.start_time);
+      }
+      
+      // Then sort by type (events before tasks)
+      if (a.type === 'event' && b.type === 'task') return -1;
+      if (a.type === 'task' && b.type === 'event') return 1;
+      
+      // Finally sort by title
+      return a.title.localeCompare(b.title);
+    });
+  },
+
   getEventsForMonth: (year: number, month: number): Event[] => {
     const startOfMonth = new Date(year, month, 1);
     const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
@@ -31,6 +113,16 @@ export const createEventsSelectors = (state: EventsState) => ({
     return state.events.filter(event => {
       const eventDate = new Date(event.start_date);
       return eventDate >= startOfMonth && eventDate <= endOfMonth;
+    });
+  },
+
+  getTasksForMonth: (year: number, month: number): CalendarTask[] => {
+    const startOfMonth = new Date(year, month, 1);
+    const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
+    return state.calendarTasks.filter(task => {
+      const taskDate = new Date(task.due_date);
+      return taskDate >= startOfMonth && taskDate <= endOfMonth;
     });
   },
 
@@ -50,19 +142,117 @@ export const createEventsSelectors = (state: EventsState) => ({
     });
   },
 
+  getTasksForWeek: (date: string): CalendarTask[] => {
+    const targetDate = new Date(date);
+    const startOfWeek = new Date(targetDate);
+    startOfWeek.setDate(targetDate.getDate() - targetDate.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return state.calendarTasks.filter(task => {
+      const taskDate = new Date(task.due_date);
+      return taskDate >= startOfWeek && taskDate <= endOfWeek;
+    });
+  },
+
+  getCalendarItemsForWeek: (date: string): Record<string, CalendarItem[]> => {
+    const targetDate = new Date(date);
+    const startOfWeek = new Date(targetDate);
+    startOfWeek.setDate(targetDate.getDate() - targetDate.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const result: Record<string, CalendarItem[]> = {};
+    
+    // Initialize all days of the week
+    for (let i = 0; i < 7; i++) {
+      const currentDate = addDays(startOfWeek, i);
+      const dateStr = format(currentDate, 'yyyy-MM-dd');
+      result[dateStr] = [];
+    }
+    
+    // Get all events and tasks for the week
+    const events = createEventsSelectors(state).getEventsForWeek(date);
+    const tasks = createEventsSelectors(state).getTasksForWeek(date);
+    
+    // Process events
+    events.forEach(event => {
+      const eventDate = new Date(event.start_date);
+      const dateStr = format(eventDate, 'yyyy-MM-dd');
+      
+      if (result[dateStr]) {
+        const startDate = new Date(event.start_date);
+        const endDate = event.end_date ? new Date(event.end_date) : null;
+        
+        result[dateStr].push({
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          date: dateStr,
+          type: 'event',
+          event_type: event.event_type,
+          assigned_to: event.created_by,
+          assigned_to_name: event.creator_name,
+          color: EVENT_TYPES[event.event_type]?.color || EVENT_TYPES.OTHER.color,
+          all_day: event.all_day,
+          start_time: event.all_day ? undefined : format(startDate, 'HH:mm'),
+          end_time: event.all_day || !endDate ? undefined : format(endDate, 'HH:mm'),
+          location: event.location
+        });
+      }
+    });
+    
+    // Process tasks
+    tasks.forEach(task => {
+      const taskDate = new Date(task.due_date);
+      const dateStr = format(taskDate, 'yyyy-MM-dd');
+      
+      if (result[dateStr]) {
+        result[dateStr].push({
+          id: task.id,
+          title: task.title,
+          description: task.description,
+          date: dateStr,
+          type: 'task',
+          assigned_to: task.assigned_to,
+          assigned_to_name: task.assigned_to_name,
+          priority: task.priority,
+          color: task.color,
+        });
+      }
+    });
+    
+    // Sort items for each day
+    Object.keys(result).forEach(dateStr => {
+      result[dateStr].sort((a, b) => {
+        // Sort by all_day first (all-day events at the top)
+        if (a.all_day && !b.all_day) return -1;
+        if (!a.all_day && b.all_day) return 1;
+        
+        // Then sort by start_time if available
+        if (a.start_time && b.start_time) {
+          return a.start_time.localeCompare(b.start_time);
+        }
+        
+        // Then sort by type (events before tasks)
+        if (a.type === 'event' && b.type === 'task') return -1;
+        if (a.type === 'task' && b.type === 'event') return 1;
+        
+        // Finally sort by title
+        return a.title.localeCompare(b.title);
+      });
+    });
+    
+    return result;
+  },
+
   getUpcomingEvents: (limit: number = 5): Event[] => {
     const now = new Date();
     return state.events
       .filter(event => new Date(event.start_date) >= now)
       .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
-      .slice(0, limit);
-  },
-
-  getPastEvents: (limit: number = 10): Event[] => {
-    const now = new Date();
-    return state.events
-      .filter(event => new Date(event.start_date) < now)
-      .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
       .slice(0, limit);
   },
 
@@ -81,17 +271,28 @@ export const createEventsSelectors = (state: EventsState) => ({
       const days: CalendarDay[] = [];
       
       for (let i = 0; i < 7; i++) {
-        const dateStr = currentDate.toISOString().split('T')[0];
-        const isCurrentMonth = currentDate.getMonth() === month;
-        const isToday = dateStr === new Date().toISOString().split('T')[0];
+        const dateStr = format(currentDate, 'yyyy-MM-dd');
+        const isCurrentMonth = isSameMonth(currentDate, firstDay);
+        const isTodayDate = isToday(currentDate);
         const isSelected = dateStr === state.selectedDate;
-        const events = createEventsSelectors(state).getEventsByDate(dateStr);
+        
+        // Get events and tasks for this day
+        const events = state.events.filter(event => {
+          const eventDate = format(new Date(event.start_date), 'yyyy-MM-dd');
+          return eventDate === dateStr;
+        });
+        
+        const tasks = state.calendarTasks.filter(task => {
+          const taskDate = format(new Date(task.due_date), 'yyyy-MM-dd');
+          return taskDate === dateStr;
+        });
 
         days.push({
           date: dateStr,
           events,
+          tasks,
           isCurrentMonth,
-          isToday,
+          isToday: isTodayDate,
           isSelected,
         });
 
@@ -106,12 +307,14 @@ export const createEventsSelectors = (state: EventsState) => ({
     }
 
     const monthEvents = createEventsSelectors(state).getEventsForMonth(year, month);
+    const monthTasks = createEventsSelectors(state).getTasksForMonth(year, month);
 
     return {
       year,
       month,
       weeks,
       events: monthEvents,
+      tasks: monthTasks,
     };
   },
 
@@ -137,6 +340,10 @@ export const createEventsSelectors = (state: EventsState) => ({
         return false;
       }
       
+      if (filters.eventType && event.event_type !== filters.eventType) {
+        return false;
+      }
+      
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
         const searchableText = [
@@ -155,95 +362,9 @@ export const createEventsSelectors = (state: EventsState) => ({
     });
   },
 
-  getSortedEvents: (events: Event[], sortOptions: EventSortOptions): Event[] => {
-    return [...events].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (sortOptions.field) {
-        case 'start_date':
-          aValue = new Date(a.start_date).getTime();
-          bValue = new Date(b.start_date).getTime();
-          break;
-        case 'title':
-          aValue = a.title.toLowerCase();
-          bValue = b.title.toLowerCase();
-          break;
-        case 'created_at':
-          aValue = new Date(a.created_at).getTime();
-          bValue = new Date(b.created_at).getTime();
-          break;
-        default:
-          return 0;
-      }
-
-      if (sortOptions.direction === 'desc') {
-        return bValue > aValue ? 1 : bValue < aValue ? -1 : 0;
-      } else {
-        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-      }
-    });
-  },
-
-  // Attendee-based selectors
-  getEventsByAttendee: (userId: string): Event[] => {
-    return state.events.filter(event => 
-      event.attendees.includes(userId) || event.created_by === userId
-    );
-  },
-
-  getUserEventCount: (userId: string): number => {
-    return createEventsSelectors(state).getEventsByAttendee(userId).length;
-  },
-
-  // Time-based helpers
-  getEventsToday: (): Event[] => {
-    const today = new Date().toISOString().split('T')[0];
-    return createEventsSelectors(state).getEventsByDate(today);
-  },
-
-  getEventsTomorrow: (): Event[] => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    return createEventsSelectors(state).getEventsByDate(tomorrowStr);
-  },
-
-  getEventsThisWeek: (): Event[] => {
-    const today = new Date().toISOString().split('T')[0];
-    return createEventsSelectors(state).getEventsForWeek(today);
-  },
-
-  // Statistics
-  getEventStats: () => {
-    const now = new Date();
-    const thisMonth = createEventsSelectors(state).getEventsForMonth(now.getFullYear(), now.getMonth());
-    const upcoming = createEventsSelectors(state).getUpcomingEvents(100); // Get more for stats
-    const past = createEventsSelectors(state).getPastEvents(100);
-
-    return {
-      total: state.events.length,
-      thisMonth: thisMonth.length,
-      upcoming: upcoming.length,
-      past: past.length,
-      withLocation: state.events.filter(e => e.location).length,
-      allDay: state.events.filter(e => e.all_day).length,
-    };
-  },
-
-  // Loading and error states
-  isLoading: (type?: keyof EventsState['loading']): boolean => {
-    if (type) {
-      return state.loading[type];
-    }
-    return Object.values(state.loading).some(loading => loading);
-  },
-
-  hasError: (): boolean => Boolean(state.error),
-  getError: (): string | null => state.error,
-
   // UI state
   getSelectedDate: (): string => state.selectedDate,
   getCalendarView: (): 'month' | 'week' | 'day' => state.calendarView,
   getCurrentHub: (): string | null => state.currentHub,
+  getFilters: () => state.filters,
 });

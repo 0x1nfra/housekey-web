@@ -5,6 +5,7 @@ import EventCreationModal from "../components/calendar/EventCreationModal";
 import { useCalendarData } from "../components/calendar/hooks/useCalendarData";
 import { useEventsStore } from "../store/events";
 import { useHubStore } from "../store/hubStore";
+import { X } from "lucide-react";
 
 const CalendarPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,6 +35,7 @@ const CalendarPage: React.FC = () => {
         location: eventData.location,
         attendees: eventData.assignedTo || [],
         all_day: false,
+        event_type: eventData.type,
         reminders: eventData.recurring ? [{
           user_id: currentHub.created_by, // Default to hub creator for now
           reminder_time: new Date(new Date(eventData.date + 'T' + eventData.startTime).getTime() - 15 * 60 * 1000).toISOString(), // 15 minutes before
@@ -78,7 +80,7 @@ const CalendarPage: React.FC = () => {
                 onClick={clearError}
                 className="text-red-500 hover:text-red-700"
               >
-                ×
+                <X size={16} />
               </button>
             </div>
           </motion.div>

@@ -1,5 +1,17 @@
 import { RealtimeChannel } from "@supabase/supabase-js";
 
+export type EventType = 'PERSONAL' | 'FAMILY' | 'WORK' | 'APPOINTMENT' | 'SOCIAL' | 'OTHER';
+export type CalendarDataType = 'all' | 'events' | 'tasks';
+
+export const EVENT_TYPES = {
+  PERSONAL: { label: 'Personal', color: '#3B82F6' },      // Blue
+  FAMILY: { label: 'Family', color: '#10B981' },         // Green
+  WORK: { label: 'Work', color: '#F59E0B' },             // Amber
+  APPOINTMENT: { label: 'Appointment', color: '#EF4444' }, // Red
+  SOCIAL: { label: 'Social', color: '#8B5CF6' },         // Purple
+  OTHER: { label: 'Other', color: '#6B7280' }            // Gray
+} as const;
+
 export interface Event {
   id: string;
   hub_id: string;
@@ -9,6 +21,7 @@ export interface Event {
   end_date?: string; // ISO timestamp
   location?: string;
   attendees: string[]; // Array of user_profile IDs
+  event_type: EventType;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -41,6 +54,7 @@ export interface CreateEventPayload {
   location?: string;
   attendees?: string[];
   all_day?: boolean;
+  event_type?: EventType;
   reminders?: Array<{
     user_id: string;
     reminder_time: string;
@@ -56,6 +70,7 @@ export interface UpdateEventPayload {
   location?: string;
   attendees?: string[];
   all_day?: boolean;
+  event_type?: EventType;
   reminders?: Array<{
     user_id: string;
     reminder_time: string;
@@ -63,10 +78,45 @@ export interface UpdateEventPayload {
   }>;
 }
 
+export interface CalendarTask {
+  id: string;
+  title: string;
+  description?: string;
+  due_date: string;
+  assigned_to?: string;
+  assigned_to_name?: string;
+  priority: number; // 1-4 from existing schema
+  color: string;
+}
+
+export interface CalendarItem {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
+  type: 'event' | 'task';
+  event_type?: EventType;
+  assigned_to?: string;
+  assigned_to_name?: string;
+  priority?: number;
+  color: string;
+  all_day?: boolean;
+  start_time?: string;
+  end_time?: string;
+  location?: string;
+}
+
+export interface CalendarFilters {
+  dataType: CalendarDataType;
+  assignedTo: string | null; // null = all, user_id = specific user
+  eventType: EventType | null; // null = all types
+}
+
 export interface EventsState {
   // Events data
   events: Event[];
   reminders: EventReminder[];
+  calendarTasks: CalendarTask[];
   
   // UI State
   loading: {
@@ -78,6 +128,9 @@ export interface EventsState {
   error: string | null;
   selectedDate: string; // ISO date string (YYYY-MM-DD)
   calendarView: 'month' | 'week' | 'day';
+  
+  // Filters
+  filters: CalendarFilters;
   
   // Current context
   currentHub: string | null;
@@ -96,6 +149,7 @@ export interface EventsActions {
   // Data fetching
   fetchEvents: (hubId: string, startDate: string, endDate: string) => Promise<void>;
   fetchUpcomingEvents: (hubId: string, limit?: number) => Promise<Event[]>;
+  fetchCalendarData: (hubId: string, startDate: string, endDate: string, filters?: Partial<CalendarFilters>) => Promise<void>;
   
   // CRUD operations
   createEvent: (hubId: string, eventData: CreateEventPayload) => Promise<Event>;
@@ -106,6 +160,10 @@ export interface EventsActions {
   setSelectedDate: (date: string) => void;
   setCalendarView: (view: 'month' | 'week' | 'day') => void;
   setCurrentHub: (hubId: string | null) => void;
+  
+  // Filter management
+  setFilters: (filters: Partial<CalendarFilters>) => void;
+  clearFilters: () => void;
   
   // Subscription management
   subscribeToHub: (hubId: string) => void;
@@ -133,6 +191,7 @@ export interface Result<T = any> {
 export interface CalendarDay {
   date: string; // YYYY-MM-DD
   events: Event[];
+  tasks: CalendarTask[];
   isCurrentMonth: boolean;
   isToday: boolean;
   isSelected: boolean;
@@ -148,6 +207,7 @@ export interface CalendarMonth {
   month: number; // 0-11
   weeks: CalendarWeek[];
   events: Event[];
+  tasks: CalendarTask[];
 }
 
 // Event filtering and sorting
@@ -156,6 +216,7 @@ export interface EventFilters {
   createdBy?: string;
   hasLocation?: boolean;
   allDay?: boolean;
+  eventType?: EventType;
   search?: string;
 }
 
