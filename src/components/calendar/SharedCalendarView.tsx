@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { useCalendarData } from "./hooks/useCalendarData";
 import { useEventsStore } from "../../store/events";
-import { format, isToday, isSameDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from "date-fns";
 import CalendarFilters from "./CalendarFilters";
 import CalendarDayView from "./CalendarDayView";
 import CalendarWeekView from "./CalendarWeekView";
@@ -20,17 +18,17 @@ interface SharedCalendarViewProps {
 const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   onEventCreate,
 }) => {
-  const { 
-    calendarMonth, 
-    selectedDateItems, 
+  const {
+    calendarMonth,
+    selectedDateItems,
     weekItems,
-    loading, 
-    selectedDate, 
-    calendarView 
+    loading,
+    selectedDate,
+    calendarView,
   } = useCalendarData();
-  
+
   const { setSelectedDate, setCalendarView } = useEventsStore();
-  
+
   const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
   const [selectedEvent, setSelectedEvent] = useState<CalendarItem | null>(null);
   const [showEventPreview, setShowEventPreview] = useState(false);
@@ -42,10 +40,10 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
 
   const handleDateChange = (date: Date) => {
     setCurrentDate(date);
-    setSelectedDate(date.toISOString().split('T')[0]);
+    setSelectedDate(date.toISOString().split("T")[0]);
   };
 
-  const handleViewChange = (view: 'month' | 'week' | 'day') => {
+  const handleViewChange = (view: "month" | "week" | "day") => {
     setCalendarView(view);
   };
 
@@ -74,7 +72,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   const getWeekStartDate = () => {
     // Use the current date to get the start of the week (Sunday)
     const date = dayjs(currentDate);
-    return date.startOf('week').format('YYYY-MM-DD');
+    return date.startOf("week").format("YYYY-MM-DD");
   };
 
   if (loading.fetch) {
@@ -100,45 +98,45 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   return (
     <div className="space-y-4">
       {/* Calendar Header */}
-      <CalendarHeader 
+      <CalendarHeader
         currentView={calendarView}
         currentDate={currentDate}
         onViewChange={handleViewChange}
         onDateChange={handleDateChange}
         onCreateEvent={() => onEventCreate(currentDate)}
       />
-      
+
       {/* Filters */}
       <CalendarFilters />
-      
+
       {/* Calendar View */}
-      {calendarView === 'month' && calendarMonth && (
-        <CalendarMonthView 
-          calendarMonth={calendarMonth} 
+      {calendarView === "month" && calendarMonth && (
+        <CalendarMonthView
+          calendarMonth={calendarMonth}
           onDateClick={handleDateClick}
           onEventClick={handleEventClick}
         />
       )}
-      
-      {calendarView === 'week' && (
-        <CalendarWeekView 
+
+      {calendarView === "week" && (
+        <CalendarWeekView
           startDate={getWeekStartDate()}
-          items={weekItems} 
+          items={weekItems}
           onDateClick={handleDateClick}
           onEventClick={handleEventClick}
           onEventEdit={handleEventEdit}
         />
       )}
-      
-      {calendarView === 'day' && (
-        <CalendarDayView 
-          date={selectedDate} 
+
+      {calendarView === "day" && (
+        <CalendarDayView
+          date={selectedDate}
           items={selectedDateItems}
           onEventClick={handleEventClick}
           onEventEdit={handleEventEdit}
         />
       )}
-      
+
       {/* Event Preview Modal */}
       {selectedEvent && (
         <EventPreviewModal
@@ -148,7 +146,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           onEdit={handleEventEdit}
           onDelete={(eventId) => {
             handleCloseEventPreview();
-            if (selectedEvent.type === 'event') {
+            if (selectedEvent.type === "event") {
               useEventsStore.getState().deleteEvent(eventId);
             }
           }}
@@ -162,12 +160,16 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
         existingEvent={selectedEvent}
         onEventSave={(eventData) => {
           // If we have a selected event, we're editing
-          if (selectedEvent && selectedEvent.type === 'event') {
+          if (selectedEvent && selectedEvent.type === "event") {
             useEventsStore.getState().updateEvent(selectedEvent.id, {
               title: eventData.title,
               description: eventData.notes,
-              start_date: new Date(eventData.date + 'T' + eventData.startTime).toISOString(),
-              end_date: new Date(eventData.date + 'T' + eventData.endTime).toISOString(),
+              start_date: new Date(
+                eventData.date + "T" + eventData.startTime
+              ).toISOString(),
+              end_date: new Date(
+                eventData.date + "T" + eventData.endTime
+              ).toISOString(),
               location: eventData.location,
               attendees: eventData.assignedTo || [],
               all_day: false,
@@ -176,19 +178,22 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           } else {
             // Otherwise we're creating a new event
             if (currentDate) {
-              useEventsStore.getState().createEvent(
-                useEventsStore.getState().currentHub || '',
-                {
+              useEventsStore
+                .getState()
+                .createEvent(useEventsStore.getState().currentHub || "", {
                   title: eventData.title,
                   description: eventData.notes,
-                  start_date: new Date(eventData.date + 'T' + eventData.startTime).toISOString(),
-                  end_date: new Date(eventData.date + 'T' + eventData.endTime).toISOString(),
+                  start_date: new Date(
+                    eventData.date + "T" + eventData.startTime
+                  ).toISOString(),
+                  end_date: new Date(
+                    eventData.date + "T" + eventData.endTime
+                  ).toISOString(),
                   location: eventData.location,
                   attendees: eventData.assignedTo || [],
                   all_day: false,
                   event_type: eventData.type,
-                }
-              );
+                });
             }
           }
           setShowEventCreationModal(false);

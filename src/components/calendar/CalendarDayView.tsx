@@ -13,7 +13,7 @@ interface CalendarDayViewProps {
 }
 
 const HOUR_HEIGHT = 60; // Height in pixels for each hour
-const HOURS = Array.from({ length: 18 }, (_, i) => i + 6); // 6 AM to 11 PM
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // 12 AM (0) to 11 PM (23)
 
 const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   date,
@@ -49,7 +49,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
     const [hours, minutes] = item.start_time.split(":").map(Number);
     const startMinutes = hours * 60 + minutes;
-    const startHour = 6; // 6 AM is our first hour
+    const startHour = 0; // 12 AM (0) is our first hour
 
     const topPosition = ((startMinutes - startHour * 60) / 60) * HOUR_HEIGHT;
 
@@ -148,9 +148,9 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
           {HOURS.map((hour) => (
             <div
               key={hour}
-              className="h-[60px] border-b border-gray-100 px-2 text-right"
+              className="h-[60px] border-b border-gray-100 px-2 flex items-start justify-end pt-1"
             >
-              <span className="text-xs text-gray-500 relative -top-2">
+              <span className="text-xs text-gray-500 bg-white pl-2">
                 {formatTimeLabel(hour)}
               </span>
             </div>
@@ -161,7 +161,10 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
         <div className="relative">
           {/* Hour grid lines */}
           {HOURS.map((hour) => (
-            <div key={hour} className="h-[60px] border-b border-gray-100"></div>
+            <div
+              key={hour}
+              className="h-[60px] border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+            ></div>
           ))}
 
           {/* Events */}

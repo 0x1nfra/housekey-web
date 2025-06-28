@@ -1,9 +1,9 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import dayjs from 'dayjs';
-import { CalendarItem } from '../../store/events/types';
-import { useEventsStore } from '../../store/events';
-import { Clock, MapPin, User, Edit, Trash2 } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import dayjs from "dayjs";
+import { CalendarItem } from "../../store/events/types";
+import { useEventsStore } from "../../store/events";
+import { Clock, MapPin, User, Edit, Trash2 } from "lucide-react";
 
 interface CalendarWeekViewProps {
   startDate: string;
@@ -14,26 +14,26 @@ interface CalendarWeekViewProps {
 }
 
 const HOUR_HEIGHT = 60; // Height in pixels for each hour
-const HOURS = Array.from({ length: 18 }, (_, i) => i + 6); // 6 AM to 11 PM
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // 12 AM (0) to 11 PM (23)
 
-const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({ 
-  startDate, 
+const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
+  startDate,
   items,
   onDateClick,
   onEventClick,
-  onEventEdit
+  onEventEdit,
 }) => {
   const { selectedDate, deleteEvent } = useEventsStore();
-  
+
   // Generate array of 7 days starting from startDate (Sunday)
   const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const date = dayjs(startDate).add(i, 'day');
-    return date.format('YYYY-MM-DD');
+    const date = dayjs(startDate).add(i, "day");
+    return date.format("YYYY-MM-DD");
   });
 
   // Format time for display
   const formatTimeLabel = (hour: number) => {
-    return dayjs().hour(hour).minute(0).format('h A');
+    return dayjs().hour(hour).minute(0).format("h A");
   };
 
   const handleDeleteEvent = async (e: React.MouseEvent, eventId: string) => {
@@ -55,21 +55,21 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   // Calculate position and height for an event
   const calculateEventPosition = (item: CalendarItem) => {
     if (!item.start_time) return { top: 0, height: HOUR_HEIGHT };
-    
-    const [hours, minutes] = item.start_time.split(':').map(Number);
+
+    const [hours, minutes] = item.start_time.split(":").map(Number);
     const startMinutes = hours * 60 + minutes;
-    const startHour = 6; // 6 AM is our first hour
-    
+    const startHour = 0; // 12 AM (0) is our first hour
+
     const topPosition = ((startMinutes - startHour * 60) / 60) * HOUR_HEIGHT;
-    
+
     let height = HOUR_HEIGHT;
     if (item.end_time) {
-      const [endHours, endMinutes] = item.end_time.split(':').map(Number);
+      const [endHours, endMinutes] = item.end_time.split(":").map(Number);
       const totalEndMinutes = endHours * 60 + endMinutes;
       const durationMinutes = totalEndMinutes - startMinutes;
       height = (durationMinutes / 60) * HOUR_HEIGHT;
     }
-    
+
     return { top: topPosition, height: Math.max(height, 30) }; // Minimum height of 30px
   };
 
@@ -79,82 +79,36 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
       <div className="grid grid-cols-8 border-b border-gray-100">
         {/* Empty cell for time column */}
         <div className="p-4 text-center border-r border-gray-100"></div>
-        
+
         {/* Day headers */}
         {weekDays.map((day) => {
           const date = dayjs(day);
-          const isToday = date.format('YYYY-MM-DD') === dayjs().format('YYYY-MM-DD');
+          const isToday =
+            date.format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD");
           const isSelected = day === selectedDate;
-          
+
           return (
-            <div 
+            <div
               key={day}
               onClick={() => onDateClick(day)}
               className={`p-4 text-center cursor-pointer transition-colors ${
-                isToday 
-                  ? 'bg-indigo-50' 
-                  : isSelected 
-                  ? 'bg-blue-50' 
-                  : 'hover:bg-gray-50'
+                isToday
+                  ? "bg-indigo-50"
+                  : isSelected
+                  ? "bg-blue-50"
+                  : "hover:bg-gray-50"
               }`}
             >
               <div className="text-sm font-medium text-gray-500">
-                {date.format('ddd')}
+                {date.format("ddd")}
               </div>
-              <div className={`text-lg font-semibold ${
-                isToday ? 'text-indigo-600' : 'text-gray-900'
-              }`}>
-                {date.format('D')}
+              <div
+                className={`text-lg font-semibold ${
+                  isToday ? "text-indigo-600" : "text-gray-900"
+                }`}
+              >
+                {date.format("D")}
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* All-day events row */}
-      <div className="grid grid-cols-8 border-b border-gray-100 bg-gray-50">
-        <div className="p-2 text-xs font-medium text-gray-500 border-r border-gray-100">
-          All day
-        </div>
-        
-        {weekDays.map((day, index) => {
-          const allDayItems = items[day]?.filter(item => item.all_day) || [];
-          
-          return (
-            <div key={`allday-${day}`} className="p-1 border-r border-gray-100">
-              {allDayItems.map((item) => (
-                <div
-                  key={`allday-${item.type}-${item.id}`}
-                  className="text-xs p-1 mb-1 rounded text-white truncate relative group"
-                  style={{ backgroundColor: item.color }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEventClick(item);
-                  }}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="truncate">{item.title}</span>
-                    {item.type === 'event' && (
-                      <div className="hidden group-hover:flex items-center gap-1 absolute right-1 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded px-1">
-                        <button
-                          onClick={(e) => handleEditEvent(e, item)}
-                          className="text-white hover:text-gray-200"
-                          title="Edit event"
-                        >
-                          <Edit size={10} />
-                        </button>
-                        <button
-                          onClick={(e) => handleDeleteEvent(e, item.id)}
-                          className="text-white hover:text-gray-200"
-                          title="Delete event"
-                        >
-                          <Trash2 size={10} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
             </div>
           );
         })}
@@ -166,49 +120,47 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
           {/* Time labels column */}
           <div className="border-r border-gray-100">
             {HOURS.map((hour) => (
-              <div 
-                key={hour} 
-                className="h-[60px] border-b border-gray-100 px-2 text-right"
+              <div
+                key={hour}
+                className="h-[60px] border-b border-gray-100 px-2 flex items-start justify-end pt-1"
               >
-                <span className="text-xs text-gray-500 relative -top-2">
+                <span className="text-xs text-gray-500 bg-white pl-2">
                   {formatTimeLabel(hour)}
                 </span>
               </div>
             ))}
           </div>
-          
+
           {/* Day columns */}
           {weekDays.map((day, dayIndex) => (
             <div key={day} className="relative border-r border-gray-100">
               {/* Hour grid lines */}
               {HOURS.map((hour) => (
-                <div 
-                  key={hour} 
-                  className="h-[60px] border-b border-gray-100"
+                <div
+                  key={hour}
+                  className="h-[60px] border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
                   onClick={() => {
                     const date = dayjs(day);
                     date.hour(hour).minute(0).second(0);
-                    onDateClick(date.format('YYYY-MM-DD'));
+                    onDateClick(date.format("YYYY-MM-DD"));
                   }}
                 ></div>
               ))}
-              
+
               {/* Events for this day */}
               {items[day]?.map((item) => {
-                if (item.all_day) return null; // Skip all-day events
-                
                 const { top, height } = calculateEventPosition(item);
-                
+
                 return (
                   <motion.div
                     key={`${item.type}-${item.id}`}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="absolute left-0 right-0 mx-1 rounded overflow-hidden shadow-sm border-l-4 z-10 bg-white group"
-                    style={{ 
-                      top: `${top}px`, 
+                    style={{
+                      top: `${top}px`,
                       height: `${height}px`,
-                      borderLeftColor: item.color
+                      borderLeftColor: item.color,
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -218,7 +170,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                     <div className="p-1 text-xs overflow-hidden h-full">
                       <div className="flex justify-between items-center">
                         <div className="font-medium truncate">{item.title}</div>
-                        {item.type === 'event' && (
+                        {item.type === "event" && (
                           <div className="hidden group-hover:flex items-center gap-1">
                             <button
                               onClick={(e) => handleEditEvent(e, item)}
@@ -239,7 +191,8 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                       </div>
                       {item.start_time && (
                         <div className="text-gray-500 truncate">
-                          {item.start_time}{item.end_time ? ` - ${item.end_time}` : ''}
+                          {item.start_time}
+                          {item.end_time ? ` - ${item.end_time}` : ""}
                         </div>
                       )}
                       {height > 60 && item.location && (
@@ -251,7 +204,9 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                       {height > 80 && item.assigned_to_name && (
                         <div className="flex items-center gap-1 text-gray-500 mt-1">
                           <User size={8} />
-                          <span className="truncate">{item.assigned_to_name}</span>
+                          <span className="truncate">
+                            {item.assigned_to_name}
+                          </span>
                         </div>
                       )}
                     </div>
