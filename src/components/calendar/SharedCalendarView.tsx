@@ -1,76 +1,21 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameMonth,
-  isToday,
-  isSameDay,
-} from "date-fns";
-
-interface Event {
-  id: string;
-  title: string;
-  startTime: string;
-  endTime: string;
-  assignedTo: string[];
-  type: "appointment" | "chore" | "activity";
-  recurring: boolean;
-  location?: string;
-}
+import { useCalendarData } from "./hooks/useCalendarData";
+import { useEventsStore } from "../../store/events";
+import { format, isToday, isSameDay } from "date-fns";
 
 interface SharedCalendarViewProps {
   onEventCreate: (date: Date) => void;
 }
 
-/*
-FIXME:
-1. change to dayjs
-2. move types to type folders
-*/
-
 const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   onEventCreate,
 }) => {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
-
-  // Mock events data
-  const events: Event[] = [
-    {
-      id: "1",
-      title: "Soccer Practice",
-      startTime: "2024-01-15T16:00:00Z",
-      endTime: "2024-01-15T17:30:00Z",
-      assignedTo: ["Emma"],
-      type: "activity",
-      recurring: true,
-      location: "Community Center",
-    },
-    {
-      id: "2",
-      title: "Dentist Appointment",
-      startTime: "2024-01-16T14:30:00Z",
-      endTime: "2024-01-16T15:30:00Z",
-      assignedTo: ["Sarah"],
-      type: "appointment",
-      recurring: false,
-      location: "Downtown Dental",
-    },
-  ];
-
-  const familyMembers = [
-    { id: "1", name: "Sarah", color: "bg-indigo-500" },
-    { id: "2", name: "Mike", color: "bg-emerald-500" },
-    { id: "3", name: "Emma", color: "bg-amber-500" },
-  ];
-
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  const calendarDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  const { calendarMonth, loading, selectedDate } = useCalendarData();
+  const { setSelectedDate, setCalendarView, calendarView } = useEventsStore();
+  
+  const [currentDate, setCurrentDate] = useState(new Date(selectedDate));
 
   const navigateMonth = (direction: "prev" | "next") => {
     const newDate = new Date(currentDate);
@@ -80,16 +25,61 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
       newDate.setMonth(newDate.getMonth() + 1);
     }
     setCurrentDate(newDate);
+    setSelectedDate(newDate.toISOString().split('T')[0]);
   };
 
-  const getEventsForDate = (date: Date) => {
-    return events.filter((event) => isSameDay(new Date(event.startTime), date));
+  const handleDateClick = (date: string) => {
+    setSelectedDate(date);
+    onEventCreate(new Date(date));
   };
 
   const getMemberColor = (memberName: string) => {
-    const member = familyMembers.find((m) => m.name === memberName);
-    return member?.color || "bg-gray-500";
+    const colors = [
+      "bg-indigo-500",
+      "bg-emerald-500", 
+      "bg-amber-500",
+      "bg-purple-500",
+      "bg-pink-500",
+      "bg-blue-500"
+    ];
+    
+    // Simple hash function to assign consistent colors
+    let hash = 0;
+    for (let i = 0; i < memberName.length; i++) {
+      hash = memberName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
   };
+
+  if (loading.fetch) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="animate-pulse">
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+          <div className="grid grid-cols-7 gap-4 mb-4">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="h-6 bg-gray-200 rounded"></div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-4">
+            {Array.from({ length: 35 }).map((_, i) => (
+              <div key={i} className="h-24 bg-gray-100 rounded"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!calendarMonth) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="text-center text-gray-500">
+          Unable to load calendar data
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -121,15 +111,6 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              {familyMembers.map((member) => (
-                <div key={member.id} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${member.color}`} />
-                  <span className="text-sm text-gray-600">{member.name}</span>
-                </div>
-              ))}
-            </div>
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -147,9 +128,9 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           {(["month", "week", "day"] as const).map((mode) => (
             <button
               key={mode}
-              onClick={() => setViewMode(mode)}
+              onClick={() => setCalendarView(mode)}
               className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors capitalize ${
-                viewMode === mode
+                calendarView === mode
                   ? "bg-indigo-100 text-indigo-700"
                   : "text-gray-600 hover:text-gray-800 hover:bg-gray-100"
               }`}
@@ -176,55 +157,63 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
 
         {/* Calendar Days */}
         <div className="grid grid-cols-7 gap-4">
-          {calendarDays.map((day, index) => {
-            const dayEvents = getEventsForDate(day);
-            const isCurrentMonth = isSameMonth(day, currentDate);
-            const isDayToday = isToday(day);
+          {calendarMonth.weeks.flatMap(week => 
+            week.days.map((day, index) => {
+              const isDayToday = day.isToday;
+              const isSelected = day.isSelected;
 
-            return (
-              <motion.div
-                key={day.toISOString()}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.01 }}
-                onClick={() => onEventCreate(day)}
-                className={`min-h-[120px] p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-indigo-300 transition-colors ${
-                  !isCurrentMonth ? "opacity-50" : ""
-                } ${
-                  isDayToday
-                    ? "bg-indigo-50 border-indigo-200"
-                    : "hover:bg-gray-50"
-                }`}
-              >
-                <div
-                  className={`text-sm font-medium mb-2 ${
-                    isDayToday ? "text-indigo-700" : "text-gray-900"
+              return (
+                <motion.div
+                  key={day.date}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.01 }}
+                  onClick={() => handleDateClick(day.date)}
+                  className={`min-h-[120px] p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-indigo-300 transition-colors ${
+                    !day.isCurrentMonth ? "opacity-50" : ""
+                  } ${
+                    isDayToday
+                      ? "bg-indigo-50 border-indigo-200"
+                      : isSelected
+                      ? "bg-blue-50 border-blue-200"
+                      : "hover:bg-gray-50"
                   }`}
                 >
-                  {format(day, "d")}
-                </div>
+                  <div
+                    className={`text-sm font-medium mb-2 ${
+                      isDayToday ? "text-indigo-700" : "text-gray-900"
+                    }`}
+                  >
+                    {format(new Date(day.date), "d")}
+                  </div>
 
-                <div className="space-y-1">
-                  {dayEvents.slice(0, 3).map((event) => (
-                    <div
-                      key={event.id}
-                      className={`text-xs p-1 rounded text-white truncate ${getMemberColor(
-                        event.assignedTo[0]
-                      )}`}
-                    >
-                      {event.title}
-                    </div>
-                  ))}
+                  <div className="space-y-1">
+                    {day.events.slice(0, 3).map((event) => (
+                      <div
+                        key={event.id}
+                        className={`text-xs p-1 rounded text-white truncate ${getMemberColor(
+                          event.creator_name || "Unknown"
+                        )}`}
+                        title={`${event.title} - ${event.creator_name || "Unknown"}`}
+                      >
+                        {event.all_day ? (
+                          event.title
+                        ) : (
+                          `${format(new Date(event.start_date), "HH:mm")} ${event.title}`
+                        )}
+                      </div>
+                    ))}
 
-                  {dayEvents.length > 3 && (
-                    <div className="text-xs text-gray-500">
-                      +{dayEvents.length - 3} more
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
+                    {day.events.length > 3 && (
+                      <div className="text-xs text-gray-500">
+                        +{day.events.length - 3} more
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>

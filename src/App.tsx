@@ -7,8 +7,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import DashboardPage from "./pages/DashboardPage";
-// TODO: add calendar page
-// import CalendarPage from "./pages/CalendarPage";
+import CalendarPage from "./pages/CalendarPage";
 import TasksPage from "./pages/TasksPage";
 import ShoppingPage from "./pages/ShoppingPage";
 import SettingsPage from "./pages/SettingsPage";
@@ -55,15 +54,14 @@ function App() {
               </Layout>
             }
           />
-          {/* TODO: add calendar page */}
-          {/* <Route
+          <Route
             path="/calendar"
             element={
               <Layout>
                 <CalendarPage />
               </Layout>
             }
-          /> */}
+          />
           <Route
             path="/tasks"
             element={

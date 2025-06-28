@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
 import { format } from "date-fns";
+import { useHubStore } from "../../store/hubStore";
 
 interface EventCreationModalProps {
   isOpen: boolean;
@@ -10,18 +11,14 @@ interface EventCreationModalProps {
   onClose: () => void;
 }
 
-/*
-FIXME:
-1. change to dayjs
-2. move types to type folders
-*/
-
 const EventCreationModal: React.FC<EventCreationModalProps> = ({
   isOpen,
   defaultDate,
   onEventSave,
   onClose,
 }) => {
+  const { hubMembers } = useHubStore();
+  
   const [eventData, setEventData] = useState({
     title: "",
     date: format(defaultDate, "yyyy-MM-dd"),
@@ -34,12 +31,6 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     recurrencePattern: "weekly" as "daily" | "weekly" | "monthly",
     notes: "",
   });
-
-  const familyMembers = [
-    { id: "1", name: "Sarah", avatar: "👩‍💼" },
-    { id: "2", name: "Mike", avatar: "👨‍💻" },
-    { id: "3", name: "Emma", avatar: "👧" },
-  ];
 
   const eventTypes = [
     {
@@ -62,6 +53,22 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     },
   ];
 
+  // Get available assignees (hub members)
+  const availableAssignees = hubMembers.map((member) => ({
+    id: member.user_id,
+    name: member.user_profile?.name || "Unknown User",
+    avatar: getInitials(member.user_profile?.name || "U"),
+  }));
+
+  function getInitials(name: string): string {
+    return name
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  }
+
   useEffect(() => {
     setEventData((prev) => ({
       ...prev,
@@ -76,12 +83,12 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     }));
   };
 
-  const handleMemberToggle = (memberName: string) => {
+  const handleMemberToggle = (memberId: string) => {
     setEventData((prev) => ({
       ...prev,
-      assignedTo: prev.assignedTo.includes(memberName)
-        ? prev.assignedTo.filter((name) => name !== memberName)
-        : [...prev.assignedTo, memberName],
+      assignedTo: prev.assignedTo.includes(memberId)
+        ? prev.assignedTo.filter((id) => id !== memberId)
+        : [...prev.assignedTo, memberId],
     }));
   };
 
@@ -221,17 +228,19 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   Assign to Family Members
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {familyMembers.map((member) => (
+                  {availableAssignees.map((member) => (
                     <button
                       key={member.id}
-                      onClick={() => handleMemberToggle(member.name)}
+                      onClick={() => handleMemberToggle(member.id)}
                       className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
-                        eventData.assignedTo.includes(member.name)
+                        eventData.assignedTo.includes(member.id)
                           ? "border-indigo-300 bg-indigo-50 text-indigo-700"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
-                      <span className="text-lg">{member.avatar}</span>
+                      <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
+                        {member.avatar}
+                      </div>
                       <span className="font-medium">{member.name}</span>
                     </button>
                   ))}
