@@ -96,7 +96,6 @@ export const useCalendarData = () => {
   const selectedDateTasks = selectors.getTasksByDate(selectedDate);
   const selectedDateItems = selectors.getCalendarItemsByDate(selectedDate);
   const upcomingEvents = selectors.getUpcomingEvents(5);
-  const todayEvents = selectors.getEventsToday();
   
   // Get calendar month data if in month view
   const calendarMonth = calendarView === 'month' ? 
@@ -123,7 +122,6 @@ export const useCalendarData = () => {
     selectedDateTasks,
     selectedDateItems,
     upcomingEvents,
-    todayEvents,
     calendarMonth,
     weekEvents,
     weekTasks,
