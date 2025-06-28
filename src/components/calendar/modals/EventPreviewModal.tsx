@@ -11,7 +11,7 @@ import {
   Tag,
 } from "lucide-react";
 import { CalendarItem } from "../../../store/events/types";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { useEventsStore } from "../../../store/events";
 
 interface EventPreviewModalProps {
@@ -105,7 +105,7 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
                 <Calendar size={18} className="text-gray-500" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">
-                    {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
+                    {dayjs(event.date).format("dddd, MMMM D, YYYY")}
                   </p>
                   {event.all_day ? (
                     <p className="text-xs text-gray-500">All day</p>

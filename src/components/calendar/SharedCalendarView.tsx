@@ -33,6 +33,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   const [selectedEvent, setSelectedEvent] = useState<CalendarItem | null>(null);
   const [showEventPreview, setShowEventPreview] = useState(false);
   const [showEventCreationModal, setShowEventCreationModal] = useState(false);
+  const [eventModalDate, setEventModalDate] = useState<Date>(new Date());
 
   useEffect(() => {
     setCurrentDate(new Date(selectedDate));
@@ -49,7 +50,6 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
 
   const handleDateClick = (date: string) => {
     setSelectedDate(date);
-    onEventCreate(new Date(date));
   };
 
   const handleEventClick = (item: CalendarItem) => {
@@ -65,6 +65,20 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
   const handleEventEdit = (event: CalendarItem) => {
     setShowEventPreview(false);
     setSelectedEvent(event);
+    setEventModalDate(new Date(event.date));
+    setShowEventCreationModal(true);
+  };
+
+  const handleTimeSlotClick = (date: string, hour: number, minute: number) => {
+    // Create a date object with the clicked time
+    const clickedDate = dayjs(date)
+      .hour(hour)
+      .minute(minute)
+      .second(0)
+      .toDate();
+    
+    setEventModalDate(clickedDate);
+    setSelectedEvent(null);
     setShowEventCreationModal(true);
   };
 
@@ -103,7 +117,11 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
         currentDate={currentDate}
         onViewChange={handleViewChange}
         onDateChange={handleDateChange}
-        onCreateEvent={() => onEventCreate(currentDate)}
+        onCreateEvent={() => {
+          setEventModalDate(currentDate);
+          setSelectedEvent(null);
+          setShowEventCreationModal(true);
+        }}
       />
 
       {/* Filters */}
@@ -125,6 +143,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           onDateClick={handleDateClick}
           onEventClick={handleEventClick}
           onEventEdit={handleEventEdit}
+          onTimeSlotClick={handleTimeSlotClick}
         />
       )}
 
@@ -134,6 +153,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
           items={selectedDateItems}
           onEventClick={handleEventClick}
           onEventEdit={handleEventEdit}
+          onTimeSlotClick={handleTimeSlotClick}
         />
       )}
 
@@ -156,7 +176,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
       {/* Event Creation/Edit Modal */}
       <EventCreationModal
         isOpen={showEventCreationModal}
-        defaultDate={selectedEvent ? new Date(selectedEvent.date) : currentDate}
+        defaultDate={eventModalDate}
         existingEvent={selectedEvent}
         onEventSave={(eventData) => {
           // If we have a selected event, we're editing

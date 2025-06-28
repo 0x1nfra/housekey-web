@@ -11,6 +11,7 @@ interface CalendarWeekViewProps {
   onDateClick: (date: string) => void;
   onEventClick: (event: CalendarItem) => void;
   onEventEdit?: (event: CalendarItem) => void;
+  onTimeSlotClick?: (date: string, hour: number, minute: number) => void;
 }
 
 const HOUR_HEIGHT = 60; // Height in pixels for each hour
@@ -22,6 +23,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   onDateClick,
   onEventClick,
   onEventEdit,
+  onTimeSlotClick,
 }) => {
   const { selectedDate, deleteEvent } = useEventsStore();
 
@@ -49,6 +51,13 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
     e.stopPropagation();
     if (onEventEdit) {
       onEventEdit(item);
+    }
+  };
+
+  const handleTimeSlotClick = (e: React.MouseEvent, date: string, hour: number) => {
+    // Only trigger if clicking directly on the time slot (not on an event)
+    if (e.currentTarget === e.target && onTimeSlotClick) {
+      onTimeSlotClick(date, hour, 0);
     }
   };
 
@@ -91,7 +100,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
             <div
               key={day}
               onClick={() => onDateClick(day)}
-              className={`p-4 text-center cursor-pointer transition-colors ${
+              className={`p-4 text-center cursor-pointer transition-colors border-r border-gray-100 ${
                 isToday
                   ? "bg-indigo-50"
                   : isSelected
@@ -139,11 +148,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                 <div
                   key={hour}
                   className="h-[60px] border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-                  onClick={() => {
-                    const date = dayjs(day);
-                    date.hour(hour).minute(0).second(0);
-                    onDateClick(date.format("YYYY-MM-DD"));
-                  }}
+                  onClick={(e) => handleTimeSlotClick(e, day, hour)}
                 ></div>
               ))}
 

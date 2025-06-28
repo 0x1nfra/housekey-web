@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { CalendarItem } from "../../store/events/types";
 import { Clock, MapPin, User, Tag, Trash2, Edit } from "lucide-react";
 import { useEventsStore } from "../../store/events";
@@ -10,6 +10,7 @@ interface CalendarDayViewProps {
   items: CalendarItem[];
   onEventClick?: (event: CalendarItem) => void;
   onEventEdit?: (event: CalendarItem) => void;
+  onTimeSlotClick?: (date: string, hour: number, minute: number) => void;
 }
 
 const HOUR_HEIGHT = 60; // Height in pixels for each hour
@@ -20,8 +21,16 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   items,
   onEventClick,
   onEventEdit,
+  onTimeSlotClick,
 }) => {
   const { deleteEvent } = useEventsStore();
+
+  const handleTimeSlotClick = (e: React.MouseEvent, hour: number) => {
+    // Only trigger if clicking directly on the time slot (not on an event)
+    if (e.currentTarget === e.target && onTimeSlotClick) {
+      onTimeSlotClick(date, hour, 0);
+    }
+  };
 
   const handleDeleteEvent = async (eventId: string) => {
     try {
@@ -40,7 +49,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
 
   // Format time for display
   const formatTimeLabel = (hour: number) => {
-    return format(new Date().setHours(hour, 0, 0, 0), "h a");
+    return dayjs().hour(hour).minute(0).format("h a");
   };
 
   // Calculate position and height for an event
@@ -164,6 +173,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
             <div
               key={hour}
               className="h-[60px] border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+              onClick={(e) => handleTimeSlotClick(e, hour)}
             ></div>
           ))}
 

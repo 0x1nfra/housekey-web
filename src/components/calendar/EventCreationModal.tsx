@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, MapPin, Users, Repeat } from "lucide-react";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import { useHubStore } from "../../store/hubStore";
 import { EventType, EVENT_TYPES, CalendarItem } from "../../store/events/types";
 
@@ -24,7 +24,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
   
   const [eventData, setEventData] = useState({
     title: "",
-    date: format(defaultDate, "yyyy-MM-dd"),
+    date: dayjs(defaultDate).format("YYYY-MM-DD"),
     startTime: "09:00",
     endTime: "10:00",
     assignedTo: [] as string[],
@@ -38,11 +38,11 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
   // Initialize form with existing event data if editing
   useEffect(() => {
     if (existingEvent) {
-      const startDate = new Date(existingEvent.date);
+      const startDate = dayjs(existingEvent.date);
       
       setEventData({
         title: existingEvent.title,
-        date: format(startDate, "yyyy-MM-dd"),
+        date: startDate.format("YYYY-MM-DD"),
         startTime: existingEvent.start_time || "09:00",
         endTime: existingEvent.end_time || "10:00",
         assignedTo: existingEvent.assigned_to ? [existingEvent.assigned_to] : [],
@@ -54,11 +54,24 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
       });
     } else {
       // Reset form for new event
+      const formattedDate = dayjs(defaultDate).format("YYYY-MM-DD");
+      let startTime = "09:00";
+      let endTime = "10:00";
+      
+      // If defaultDate includes time information, use it
+      if (defaultDate instanceof Date && !isNaN(defaultDate.getTime())) {
+        const dateObj = dayjs(defaultDate);
+        if (dateObj.hour() !== 0 || dateObj.minute() !== 0) {
+          startTime = dateObj.format("HH:mm");
+          endTime = dateObj.add(1, 'hour').format("HH:mm");
+        }
+      }
+      
       setEventData({
         title: "",
-        date: format(defaultDate, "yyyy-MM-dd"),
-        startTime: "09:00",
-        endTime: "10:00",
+        date: formattedDate,
+        startTime: startTime,
+        endTime: endTime,
         assignedTo: [] as string[],
         location: "",
         type: "FAMILY" as EventType,
@@ -112,7 +125,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
     // Reset form
     setEventData({
       title: "",
-      date: format(new Date(), "yyyy-MM-dd"),
+      date: dayjs(new Date()).format("YYYY-MM-DD"),
       startTime: "09:00",
       endTime: "10:00",
       assignedTo: [],

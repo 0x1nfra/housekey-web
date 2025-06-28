@@ -6,6 +6,7 @@ import { useCalendarData } from "../components/calendar/hooks/useCalendarData";
 import { useEventsStore } from "../store/events";
 import { useHubStore } from "../store/hubStore";
 import { X } from "lucide-react";
+import dayjs from "dayjs";
 
 const CalendarPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,15 +31,15 @@ const CalendarPage: React.FC = () => {
       await createEvent(currentHub.id, {
         title: eventData.title,
         description: eventData.notes,
-        start_date: new Date(eventData.date + 'T' + eventData.startTime).toISOString(),
-        end_date: new Date(eventData.date + 'T' + eventData.endTime).toISOString(),
+        start_date: dayjs(`${eventData.date}T${eventData.startTime}`).toISOString(),
+        end_date: dayjs(`${eventData.date}T${eventData.endTime}`).toISOString(),
         location: eventData.location,
         attendees: eventData.assignedTo || [],
         all_day: false,
         event_type: eventData.type,
         reminders: eventData.recurring ? [{
           user_id: currentHub.created_by, // Default to hub creator for now
-          reminder_time: new Date(new Date(eventData.date + 'T' + eventData.startTime).getTime() - 15 * 60 * 1000).toISOString(), // 15 minutes before
+          reminder_time: dayjs(`${eventData.date}T${eventData.startTime}`).subtract(15, 'minutes').toISOString(), // 15 minutes before
           reminder_type: 'in_app' as const,
         }] : undefined,
       });
