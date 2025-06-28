@@ -201,11 +201,11 @@ const SharedCalendarView: React.FC = () => {
             await updateEvent(selectedEvent.id, {
               title: eventData.title,
               description: eventData.notes,
-              start_date: new Date(
-                eventData.date + "T" + eventData.startTime
+              start_date: dayjs(
+                `${eventData.date}T${eventData.startTime}`
               ).toISOString(),
-              end_date: new Date(
-                eventData.date + "T" + eventData.endTime
+              end_date: dayjs(
+                `${eventData.date}T${eventData.endTime}`
               ).toISOString(),
               location: eventData.location,
               attendees: eventData.assignedTo || [],
