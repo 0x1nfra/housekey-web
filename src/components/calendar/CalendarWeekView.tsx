@@ -22,7 +22,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
 }) => {
   const { selectedDate } = useEventsStore();
   
-  // Generate array of 7 days starting from startDate
+  // Generate array of 7 days starting from startDate (Sunday)
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = dayjs(startDate).add(i, 'day');
     return date.format('YYYY-MM-DD');

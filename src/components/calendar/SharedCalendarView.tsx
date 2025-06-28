@@ -10,6 +10,7 @@ import CalendarMonthView from "./CalendarMonthView";
 import CalendarHeader from "./CalendarHeader";
 import EventPreviewModal from "./modals/EventPreviewModal";
 import { CalendarItem } from "../../store/events/types";
+import dayjs from "dayjs";
 
 interface SharedCalendarViewProps {
   onEventCreate: (date: Date) => void;
@@ -61,6 +62,13 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
     setSelectedEvent(null);
   };
 
+  // Get the start date for the week view (Sunday)
+  const getWeekStartDate = () => {
+    // Use the current date to get the start of the week (Sunday)
+    const date = dayjs(currentDate);
+    return date.startOf('week').format('YYYY-MM-DD');
+  };
+
   if (loading.fetch) {
     return (
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -106,7 +114,7 @@ const SharedCalendarView: React.FC<SharedCalendarViewProps> = ({
       
       {calendarView === 'week' && (
         <CalendarWeekView 
-          startDate={startOfWeek(currentDate).toISOString().split('T')[0]}
+          startDate={getWeekStartDate()}
           items={weekItems} 
           onDateClick={handleDateClick}
           onEventClick={handleEventClick}
