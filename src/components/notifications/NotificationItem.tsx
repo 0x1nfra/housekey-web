@@ -12,7 +12,10 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useNotificationsStore } from "../../store/notifications";
-import { Notification, NOTIFICATION_COLORS } from "../../store/notifications/types";
+import {
+  Notification,
+  NOTIFICATION_COLORS,
+} from "../../store/notifications/types";
 import { formatDistanceToNow } from "date-fns";
 
 interface NotificationItemProps {
@@ -46,8 +49,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   };
 
   const handleClick = () => {
-    console.log('Notification clicked:', notification);
-    
+    console.log("Notification clicked:", notification);
+
     // Mark as read
     if (!notification.read) {
       markAsRead(notification.id);
@@ -79,13 +82,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   const handleMarkAsRead = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Marking notification as read:', notification.id);
+    console.log("Marking notification as read:", notification.id);
     markAsRead(notification.id);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Deleting notification:', notification.id);
+    console.log("Deleting notification:", notification.id);
     deleteNotification(notification.id);
   };
 
@@ -94,6 +97,86 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   const timeAgo = formatDistanceToNow(new Date(notification.created_at), {
     addSuffix: true,
   });
+
+  // Message rendering utility
+  const renderNotificationMessage = (notification: Notification) => {
+    const { message, type, metadata } = notification;
+
+    // Define patterns for different notification types
+    const messagePatterns = {
+      task: {
+        completed: {
+          pattern: /^(.+) completed a task: (.+)$/,
+          render: (matches: RegExpMatchArray) => (
+            <>
+              {matches[1]} completed a task: <strong>{matches[2]}</strong>
+            </>
+          ),
+        },
+        assigned: {
+          pattern: /^(.+) assigned you a task: (.+)$/,
+          render: (matches: RegExpMatchArray) => (
+            <>
+              {matches[1]} assigned you a task: <strong>{matches[2]}</strong>
+            </>
+          ),
+        },
+        dueToday: {
+          pattern: /^Task "(.+)" is due today$/,
+          render: (matches: RegExpMatchArray) => (
+            <>
+              Task <strong>"{matches[1]}"</strong> is due today
+            </>
+          ),
+        },
+      },
+      event: {
+        reminder: {
+          pattern: /^Reminder: (.+) starts in (\d+) minutes?$/,
+          render: (matches: RegExpMatchArray) => (
+            <>
+              Reminder: <strong>{matches[1]}</strong> starts in {matches[2]}{" "}
+              minutes
+            </>
+          ),
+        },
+        invitation: {
+          pattern: /^(.+) invited you to "(.+)"$/,
+          render: (matches: RegExpMatchArray) => (
+            <>
+              {matches[1]} invited you to <strong>"{matches[2]}"</strong>
+            </>
+          ),
+        },
+      },
+      system: {
+        hubInvite: {
+          pattern: /^(.+) invited you to join "(.+)" hub$/,
+          render: (matches: RegExpMatchArray) => (
+            <>
+              {matches[1]} invited you to join <strong>"{matches[2]}"</strong>{" "}
+              hub
+            </>
+          ),
+        },
+      },
+    };
+
+    // Try to match the message against known patterns
+    const typePatterns = messagePatterns[type as keyof typeof messagePatterns];
+
+    if (typePatterns) {
+      for (const [patternKey, patternConfig] of Object.entries(typePatterns)) {
+        const matches = message.match(patternConfig.pattern);
+        if (matches) {
+          return patternConfig.render(matches);
+        }
+      }
+    }
+
+    // Fallback: if no pattern matches, return the original message
+    return message;
+  };
 
   return (
     <motion.div
@@ -132,7 +215,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
               notification.read ? "text-gray-500" : "text-gray-700"
             } line-clamp-2 mt-0.5`}
           >
-            {notification.message}
+            {renderNotificationMessage(notification)}
           </p>
 
           {!compact && notification.actor_name && (
@@ -146,7 +229,9 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             <div className="flex items-center justify-between mt-3">
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <Clock size={12} />
-                <span>{new Date(notification.created_at).toLocaleString()}</span>
+                <span>
+                  {new Date(notification.created_at).toLocaleString()}
+                </span>
               </div>
 
               <div className="flex items-center gap-1">
