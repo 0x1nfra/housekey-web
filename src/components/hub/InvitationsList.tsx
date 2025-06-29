@@ -54,7 +54,6 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
 
   useEffect(() => {
     fetchUserInvitations();
-    console.log(fetchUserInvitations());
   }, [fetchUserInvitations]);
 
   const roleIcons = {

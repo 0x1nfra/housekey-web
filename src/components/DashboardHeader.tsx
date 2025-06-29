@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { getInitials } from "../utils/userUtils";
 import HubSelector from "./hub/HubSelector";
 import { shallow } from "zustand/shallow";
+import NotificationIcon from "./notifications/NotificationIcon";
 
 const DashboardHeader: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -126,17 +127,8 @@ const DashboardHeader: React.FC = () => {
 
         {/* Right: Notifications and Profile */}
         <div className="flex items-center gap-4">
-          {/* Notification Bell */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <Bell size={20} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-              <span className="w-1.5 h-1.5 bg-white rounded-full" />
-            </span>
-          </motion.button>
+          {/* Notification Icon */}
+          <NotificationIcon />
 
           {/* Profile Dropdown */}
           <div className="relative" ref={dropdownRef}>
