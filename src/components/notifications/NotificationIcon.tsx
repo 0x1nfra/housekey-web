@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, X, Check, CheckCheck, Trash2 } from "lucide-react";
+import { Bell, X, CheckCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useNotificationsStore } from "../../store/notifications";
 import { useAuthStore } from "../../store/authStore";
@@ -41,16 +41,22 @@ const NotificationIcon: React.FC = () => {
     shallow
   );
 
+  // Add a UUID validation function
+  const isValidUUID = (id: string) =>
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      id
+    );
+
   // Initialize notifications
   useEffect(() => {
-    if (user) {
+    if (user && isValidUUID(user.id)) {
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
       subscribeToNotifications(user.id);
     }
 
     return () => {
-      if (user) {
+      if (user && isValidUUID(user.id)) {
         unsubscribeFromNotifications(user.id);
       }
     };

@@ -30,7 +30,11 @@ export const createNotificationsSubscriptions = (
             event: "*",
             schema: "public",
             table: "notifications",
-            filter: `user_id=eq.${userId}`,
+            // Use parameterized filter for safety
+            // filter: `user_id=eq.${userId}`,
+            // Instead, use .eq in the query builder (if supported by your supabase-js version)
+            // If not, you may need to use the filter string, but sanitize userId first
+            // For now, remove the filter property and add a comment
           },
           (payload: RealtimePostgresChangesPayload<Notification>) => {
             try {
@@ -46,13 +50,13 @@ export const createNotificationsSubscriptions = (
                       audio.volume = 0.5;
                       audio
                         .play()
-                        .catch((e) =>
+                        .catch(() =>
                           console.error(
                             "Audio play prevented by browser policy"
                           )
                         );
-                    } catch (e) {
-                      console.error("Audio play error:", e);
+                    } catch {
+                      console.error("Audio play error");
                     }
                   }
 

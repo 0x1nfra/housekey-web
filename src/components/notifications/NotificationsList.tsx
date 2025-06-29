@@ -86,12 +86,6 @@ const NotificationsList: React.FC = () => {
     }
   };
 
-  const handleDeleteAllRead = async () => {
-    if (user) {
-      await deleteAllRead(user.id);
-    }
-  };
-
   const handleDeleteAll = async () => {
     if (user) {
       await deleteAllNotifications(user.id);
@@ -266,17 +260,6 @@ const NotificationsList: React.FC = () => {
                 Mark All Read
               </motion.button>
             )}
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleDeleteAllRead}
-              disabled={loading.delete}
-              className="px-3 py-1.5 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-1 disabled:opacity-50"
-            >
-              <Trash2 size={12} />
-              Clear Read
-            </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.02 }}

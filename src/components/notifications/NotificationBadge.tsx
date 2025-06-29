@@ -32,7 +32,9 @@ const NotificationBadge: React.FC<NotificationBadgeProps> = ({
   // Fetch unread count on mount
   useEffect(() => {
     if (user) {
-      fetchUnreadCount(user.id);
+      fetchUnreadCount(user.id).catch((error) => {
+        console.error("Failed to fetch unread count:", error);
+      });
     }
   }, [user, fetchUnreadCount]);
 

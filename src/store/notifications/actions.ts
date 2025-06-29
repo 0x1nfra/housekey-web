@@ -1,10 +1,13 @@
 import { supabase } from "../../lib/supabase";
 import {
   NotificationsState,
-  Notification,
+  // Notification,
   SetStateFunction,
   GetStateFunction,
-  Result,
+  // Result,
+  // NotificationsStore,
+  SubscriptionGroup,
+  NotificationsStore,
 } from "./types";
 
 export const createNotificationsActions = (
@@ -14,7 +17,7 @@ export const createNotificationsActions = (
   // Data fetching
   fetchNotifications: async (userId: string, reset: boolean = false) => {
     const state = get();
-    const { filters, pagination } = state;
+    const { filters } = state;
 
     // Reset pagination if requested
     if (reset) {
@@ -148,12 +151,9 @@ export const createNotificationsActions = (
     });
 
     try {
-      const { data, error } = await supabase.rpc(
-        "mark_all_notifications_read",
-        {
-          p_user_id: userId,
-        }
-      );
+      const { error } = await supabase.rpc("mark_all_notifications_read", {
+        p_user_id: userId,
+      });
 
       if (error) throw error;
 
@@ -226,13 +226,10 @@ export const createNotificationsActions = (
     });
 
     try {
-      const { data, error } = await supabase.rpc(
-        "delete_old_read_notifications",
-        {
-          p_user_id: userId,
-          p_days_old: 0, // Delete all read notifications regardless of age
-        }
-      );
+      const { error } = await supabase.rpc("delete_old_read_notifications", {
+        p_user_id: userId,
+        p_days_old: 0, // Delete all read notifications regardless of age
+      });
 
       if (error) throw error;
 
@@ -260,7 +257,7 @@ export const createNotificationsActions = (
     });
 
     try {
-      const { data, error } = await supabase.rpc("delete_all_notifications", {
+      const { error } = await supabase.rpc("delete_all_notifications", {
         p_user_id: userId,
       });
 
@@ -291,13 +288,10 @@ export const createNotificationsActions = (
     });
 
     try {
-      const { data, error } = await supabase.rpc(
-        "delete_all_notifications_by_type",
-        {
-          p_user_id: userId,
-          p_type: type,
-        }
-      );
+      const { error } = await supabase.rpc("delete_all_notifications_by_type", {
+        p_user_id: userId,
+        p_type: type,
+      });
 
       if (error) throw error;
 
@@ -338,7 +332,7 @@ export const createNotificationsActions = (
 
     // Refetch with new filters
     const { fetchNotifications } = get();
-    const { currentUserId } = get() as any; // Access from auth store via middleware
+    const { currentUserId } = get() as NotificationsStore;
 
     if (currentUserId) {
       fetchNotifications(currentUserId, true);
@@ -358,7 +352,7 @@ export const createNotificationsActions = (
 
     // Refetch with cleared filters
     const { fetchNotifications } = get();
-    const { currentUserId } = get() as any; // Access from auth store via middleware
+    const { currentUserId } = get() as NotificationsStore;
 
     if (currentUserId) {
       fetchNotifications(currentUserId, true);
@@ -368,7 +362,7 @@ export const createNotificationsActions = (
   // Pagination
   loadMore: async () => {
     const { fetchNotifications } = get();
-    const { currentUserId } = get() as any; // Access from auth store via middleware
+    const { currentUserId } = get() as NotificationsStore;
 
     if (currentUserId) {
       await fetchNotifications(currentUserId, false);
@@ -385,11 +379,13 @@ export const createNotificationsActions = (
   reset: () => {
     // Unsubscribe from all subscriptions
     const state = get();
-    Object.values(state.subscriptions).forEach((subscription: any) => {
-      if (subscription && typeof subscription.unsubscribe === "function") {
-        subscription.unsubscribe();
+    Object.values(state.subscriptions).forEach(
+      (subscription: SubscriptionGroup) => {
+        if (subscription && typeof subscription.unsubscribe === "function") {
+          subscription.unsubscribe();
+        }
       }
-    });
+    );
 
     set((state) => {
       state.notifications = [];
