@@ -15,7 +15,7 @@ export const createNotificationsActions = (
   fetchNotifications: async (userId: string, reset: boolean = false) => {
     const state = get();
     const { filters, pagination } = state;
-    
+
     // Reset pagination if requested
     if (reset) {
       set((state) => {
@@ -26,28 +26,22 @@ export const createNotificationsActions = (
         };
       });
     }
-    
+
     // Don't fetch if we know there are no more results
     if (!reset && !state.pagination.hasMore) {
       return;
     }
-    
+
     set((state) => {
       state.loading.fetch = true;
       state.error = null;
     });
 
     try {
-      console.log('Fetching notifications with params:', {
-        userId,
-        limit: state.pagination.limit,
-        offset: reset ? 0 : state.pagination.offset,
-        type: filters.type,
-        read: filters.read
-      });
-      
-      const { limit, offset } = reset ? { ...state.pagination, offset: 0 } : state.pagination;
-      
+      const { limit, offset } = reset
+        ? { ...state.pagination, offset: 0 }
+        : state.pagination;
+
       const { data, error } = await supabase.rpc("get_user_notifications", {
         p_user_id: userId,
         p_limit: limit,
@@ -58,21 +52,19 @@ export const createNotificationsActions = (
 
       if (error) throw error;
 
-      console.log('Fetched notifications:', data?.length || 0);
-      
       set((state) => {
         // If reset, replace notifications, otherwise append
-        state.notifications = reset 
-          ? data || [] 
+        state.notifications = reset
+          ? data || []
           : [...state.notifications, ...(data || [])];
-        
+
         // Update pagination
         state.pagination = {
           ...state.pagination,
           offset: state.pagination.offset + state.pagination.limit,
           hasMore: (data || []).length === state.pagination.limit,
         };
-        
+
         state.loading.fetch = false;
       });
     } catch (error) {
@@ -89,8 +81,6 @@ export const createNotificationsActions = (
 
   fetchUnreadCount: async (userId: string) => {
     try {
-      console.log('Fetching unread count for user:', userId);
-      
       const { data, error } = await supabase.rpc(
         "get_unread_notification_count",
         {
@@ -100,8 +90,6 @@ export const createNotificationsActions = (
 
       if (error) throw error;
 
-      console.log('Unread count:', data);
-      
       set((state) => {
         state.unreadCount = data || 0;
       });
@@ -119,8 +107,6 @@ export const createNotificationsActions = (
     });
 
     try {
-      console.log('Marking notification as read:', notificationId);
-      
       const { error } = await supabase
         .from("notifications")
         .update({ read: true })
@@ -133,14 +119,14 @@ export const createNotificationsActions = (
         const notification = state.notifications.find(
           (n) => n.id === notificationId
         );
-        
+
         if (notification && !notification.read) {
           state.unreadCount = Math.max(0, state.unreadCount - 1);
           state.notifications = state.notifications.map((n) =>
             n.id === notificationId ? { ...n, read: true } : n
           );
         }
-        
+
         state.loading.update = false;
       });
     } catch (error) {
@@ -162,16 +148,15 @@ export const createNotificationsActions = (
     });
 
     try {
-      console.log('Marking all notifications as read for user:', userId);
-      
-      const { data, error } = await supabase.rpc("mark_all_notifications_read", {
-        p_user_id: userId,
-      });
+      const { data, error } = await supabase.rpc(
+        "mark_all_notifications_read",
+        {
+          p_user_id: userId,
+        }
+      );
 
       if (error) throw error;
 
-      console.log('Mark all as read result:', data);
-      
       // Optimistically update state
       set((state) => {
         state.notifications = state.notifications.map((n) => ({
@@ -200,8 +185,6 @@ export const createNotificationsActions = (
     });
 
     try {
-      console.log('Deleting notification:', notificationId);
-      
       const { error } = await supabase
         .from("notifications")
         .delete()
@@ -214,11 +197,11 @@ export const createNotificationsActions = (
         const notification = state.notifications.find(
           (n) => n.id === notificationId
         );
-        
+
         if (notification && !notification.read) {
           state.unreadCount = Math.max(0, state.unreadCount - 1);
         }
-        
+
         state.notifications = state.notifications.filter(
           (n) => n.id !== notificationId
         );
@@ -243,8 +226,6 @@ export const createNotificationsActions = (
     });
 
     try {
-      console.log('Deleting all read notifications for user:', userId);
-      
       const { data, error } = await supabase.rpc(
         "delete_old_read_notifications",
         {
@@ -255,8 +236,6 @@ export const createNotificationsActions = (
 
       if (error) throw error;
 
-      console.log('Delete all read result:', data);
-      
       // Optimistically update state
       set((state) => {
         state.notifications = state.notifications.filter((n) => !n.read);
@@ -281,19 +260,12 @@ export const createNotificationsActions = (
     });
 
     try {
-      console.log('Deleting all notifications for user:', userId);
-      
-      const { data, error } = await supabase.rpc(
-        "delete_all_notifications",
-        {
-          p_user_id: userId
-        }
-      );
+      const { data, error } = await supabase.rpc("delete_all_notifications", {
+        p_user_id: userId,
+      });
 
       if (error) throw error;
 
-      console.log('Delete all notifications result:', data);
-      
       // Update state
       set((state) => {
         state.notifications = [];
@@ -319,27 +291,25 @@ export const createNotificationsActions = (
     });
 
     try {
-      console.log(`Deleting all ${type} notifications for user:`, userId);
-      
       const { data, error } = await supabase.rpc(
         "delete_all_notifications_by_type",
         {
           p_user_id: userId,
-          p_type: type
+          p_type: type,
         }
       );
 
       if (error) throw error;
 
-      console.log(`Delete ${type} notifications result:`, data);
-      
       // Update state
       set((state) => {
         // Remove notifications of the specified type
-        state.notifications = state.notifications.filter(n => n.type !== type);
-        
+        state.notifications = state.notifications.filter(
+          (n) => n.type !== type
+        );
+
         // Recalculate unread count
-        state.unreadCount = state.notifications.filter(n => !n.read).length;
+        state.unreadCount = state.notifications.filter((n) => !n.read).length;
         state.loading.delete = false;
       });
     } catch (error) {
@@ -356,8 +326,6 @@ export const createNotificationsActions = (
 
   // Filter management
   setFilters: (filters: Partial<NotificationsState["filters"]>) => {
-    console.log('Setting notification filters:', filters);
-    
     set((state) => {
       state.filters = { ...state.filters, ...filters };
       // Reset pagination when filters change
@@ -371,15 +339,13 @@ export const createNotificationsActions = (
     // Refetch with new filters
     const { fetchNotifications } = get();
     const { currentUserId } = get() as any; // Access from auth store via middleware
-    
+
     if (currentUserId) {
       fetchNotifications(currentUserId, true);
     }
   },
 
   clearFilters: () => {
-    console.log('Clearing notification filters');
-    
     set((state) => {
       state.filters = {};
       // Reset pagination when filters change
@@ -393,7 +359,7 @@ export const createNotificationsActions = (
     // Refetch with cleared filters
     const { fetchNotifications } = get();
     const { currentUserId } = get() as any; // Access from auth store via middleware
-    
+
     if (currentUserId) {
       fetchNotifications(currentUserId, true);
     }
@@ -403,7 +369,7 @@ export const createNotificationsActions = (
   loadMore: async () => {
     const { fetchNotifications } = get();
     const { currentUserId } = get() as any; // Access from auth store via middleware
-    
+
     if (currentUserId) {
       await fetchNotifications(currentUserId, false);
     }

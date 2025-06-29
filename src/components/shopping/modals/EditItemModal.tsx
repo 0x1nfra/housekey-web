@@ -94,7 +94,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   // TODO: add quick action logic
   // const handleBarcodeScanned = (barcode: string) => {
   //   // Mock barcode scanning - in real app, this would lookup product info
-  //   console.log("Barcode scanned:", barcode);
   //   setItemName("Scanned Product");
   //   setCategory("Unknown");
   // };

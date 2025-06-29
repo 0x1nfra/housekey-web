@@ -67,64 +67,50 @@ const NotificationsList: React.FC = () => {
   // Initialize notifications
   useEffect(() => {
     if (user) {
-      console.log('Fetching notifications for user:', user.id);
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
     }
   }, [user, fetchNotifications, fetchUnreadCount]);
 
   const handleTypeFilter = (type: NotificationType | undefined) => {
-    console.log('Setting type filter:', type);
     setFilters({ type });
   };
 
   const handleReadFilter = (read: boolean | undefined) => {
-    console.log('Setting read filter:', read);
     setFilters({ read });
   };
 
   const handleMarkAllAsRead = async () => {
     if (user) {
-      console.log('Marking all notifications as read for user:', user.id);
       await markAllAsRead(user.id);
     }
   };
 
   const handleDeleteAllRead = async () => {
     if (user) {
-      console.log('Deleting all read notifications for user:', user.id);
       await deleteAllRead(user.id);
     }
   };
 
   const handleDeleteAll = async () => {
     if (user) {
-      console.log('Deleting all notifications for user:', user.id);
       await deleteAllNotifications(user.id);
-    }
-  };
-
-  const handleDeleteByType = async (type: NotificationType) => {
-    if (user) {
-      console.log(`Deleting all ${type} notifications for user:`, user.id);
-      await deleteNotificationsByType(user.id, type);
     }
   };
 
   const handleRefresh = () => {
     if (user) {
-      console.log('Refreshing notifications for user:', user.id);
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
     }
   };
 
   const handleLoadMore = () => {
-    console.log('Loading more notifications');
     loadMore();
   };
 
-  const hasActiveFilters = filters.type !== undefined || filters.read !== undefined;
+  const hasActiveFilters =
+    filters.type !== undefined || filters.read !== undefined;
 
   return (
     <div className="space-y-6">
@@ -261,7 +247,10 @@ const NotificationsList: React.FC = () => {
               disabled={loading.fetch}
               className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-1 disabled:opacity-50"
             >
-              <RefreshCcw size={12} className={loading.fetch ? "animate-spin" : ""} />
+              <RefreshCcw
+                size={12}
+                className={loading.fetch ? "animate-spin" : ""}
+              />
               Refresh
             </motion.button>
 

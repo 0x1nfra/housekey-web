@@ -49,8 +49,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   };
 
   const handleClick = () => {
-    console.log("Notification clicked:", notification);
-
     // Mark as read
     if (!notification.read) {
       markAsRead(notification.id);
@@ -82,13 +80,11 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   const handleMarkAsRead = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("Marking notification as read:", notification.id);
     markAsRead(notification.id);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("Deleting notification:", notification.id);
     deleteNotification(notification.id);
   };
 

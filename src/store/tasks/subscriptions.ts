@@ -1,12 +1,12 @@
-import { supabase } from '../../lib/supabase';
+import { supabase } from "../../lib/supabase";
 import {
   TasksState,
   Task,
   SetStateFunction,
   GetStateFunction,
   SubscriptionGroup,
-} from './types';
-import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+} from "./types";
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
 export const createTasksSubscriptions = (
   set: SetStateFunction,
@@ -25,21 +25,19 @@ export const createTasksSubscriptions = (
       const tasksSubscription = supabase
         .channel(`tasks_${hubId}`)
         .on(
-          'postgres_changes',
+          "postgres_changes",
           {
-            event: '*',
-            schema: 'public',
-            table: 'tasks',
+            event: "*",
+            schema: "public",
+            table: "tasks",
             filter: `hub_id=eq.${hubId}`,
           },
           (payload: RealtimePostgresChangesPayload<Task>) => {
             try {
-              console.log('Task change:', payload);
-
               set((state: TasksState) => {
                 const currentTasks = state.tasks[hubId] || [];
 
-                if (payload.eventType === 'INSERT') {
+                if (payload.eventType === "INSERT") {
                   return {
                     ...state,
                     tasks: {
@@ -47,7 +45,7 @@ export const createTasksSubscriptions = (
                       [hubId]: [payload.new, ...currentTasks],
                     },
                   };
-                } else if (payload.eventType === 'UPDATE') {
+                } else if (payload.eventType === "UPDATE") {
                   return {
                     ...state,
                     tasks: {
@@ -57,7 +55,7 @@ export const createTasksSubscriptions = (
                       ),
                     },
                   };
-                } else if (payload.eventType === 'DELETE') {
+                } else if (payload.eventType === "DELETE") {
                   return {
                     ...state,
                     tasks: {
@@ -75,10 +73,11 @@ export const createTasksSubscriptions = (
                 return state;
               });
             } catch (error) {
-              console.error('Error handling task subscription update:', error);
+              console.error("Error handling task subscription update:", error);
               set((state: TasksState) => ({
                 ...state,
-                error: 'Failed to process task update. Please refresh the page.',
+                error:
+                  "Failed to process task update. Please refresh the page.",
               }));
             }
           }
@@ -92,7 +91,10 @@ export const createTasksSubscriptions = (
           try {
             tasksSubscription.unsubscribe();
           } catch (error) {
-            console.error('Error unsubscribing from task subscriptions:', error);
+            console.error(
+              "Error unsubscribing from task subscriptions:",
+              error
+            );
           }
         },
       };
@@ -105,10 +107,11 @@ export const createTasksSubscriptions = (
         },
       }));
     } catch (error) {
-      console.error('Error setting up subscriptions for hub:', hubId, error);
+      console.error("Error setting up subscriptions for hub:", hubId, error);
       set((state: TasksState) => ({
         ...state,
-        error: 'Failed to set up real-time updates. Some features may not work properly.',
+        error:
+          "Failed to set up real-time updates. Some features may not work properly.",
       }));
     }
   },
@@ -130,10 +133,11 @@ export const createTasksSubscriptions = (
         });
       }
     } catch (error) {
-      console.error('Error unsubscribing from hub:', hubId, error);
+      console.error("Error unsubscribing from hub:", hubId, error);
       set((state: TasksState) => ({
         ...state,
-        error: 'Failed to clean up real-time connections. Please refresh the page.',
+        error:
+          "Failed to clean up real-time connections. Please refresh the page.",
       }));
     }
   },
@@ -146,23 +150,27 @@ export const createTasksSubscriptions = (
         try {
           if (
             subscription &&
-            typeof subscription === 'object' &&
-            'unsubscribe' in subscription &&
-            typeof subscription.unsubscribe === 'function'
+            typeof subscription === "object" &&
+            "unsubscribe" in subscription &&
+            typeof subscription.unsubscribe === "function"
           ) {
             subscription.unsubscribe();
           }
         } catch (error) {
-          console.error('Error unsubscribing from individual subscription:', error);
+          console.error(
+            "Error unsubscribing from individual subscription:",
+            error
+          );
         }
       });
 
       set((state: TasksState) => ({ ...state, subscriptions: {} }));
     } catch (error) {
-      console.error('Error unsubscribing from all subscriptions:', error);
+      console.error("Error unsubscribing from all subscriptions:", error);
       set((state: TasksState) => ({
         ...state,
-        error: 'Failed to clean up all real-time connections. Please refresh the page.',
+        error:
+          "Failed to clean up all real-time connections. Please refresh the page.",
       }));
     }
   },

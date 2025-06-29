@@ -62,7 +62,9 @@ export const createShoppingSubscriptions = (
                     )
                   ),
                   listStats: Object.fromEntries(
-                    Object.entries(state.listStats).filter(([id]) => id !== listId)
+                    Object.entries(state.listStats).filter(
+                      ([id]) => id !== listId
+                    )
                   ),
                 }));
               }
@@ -70,7 +72,8 @@ export const createShoppingSubscriptions = (
               console.error("Error handling list subscription update:", error);
               set((state: ShoppingState) => ({
                 ...state,
-                error: "Failed to process list update. Please refresh the page.",
+                error:
+                  "Failed to process list update. Please refresh the page.",
               }));
             }
           }
@@ -90,8 +93,6 @@ export const createShoppingSubscriptions = (
           },
           (payload: RealtimePostgresChangesPayload<ShoppingListItem>) => {
             try {
-              console.log("Item change:", payload);
-
               set((state: ShoppingState) => {
                 const currentItems = state.items[listId] || [];
 
@@ -131,7 +132,8 @@ export const createShoppingSubscriptions = (
               console.error("Error handling item subscription update:", error);
               set((state: ShoppingState) => ({
                 ...state,
-                error: "Failed to process item update. Please refresh the page.",
+                error:
+                  "Failed to process item update. Please refresh the page.",
               }));
             }
           }
@@ -151,8 +153,6 @@ export const createShoppingSubscriptions = (
           },
           (payload: RealtimePostgresChangesPayload<ListCollaborator>) => {
             try {
-              console.log("Collaborator change:", payload);
-
               // For collaborator changes, we need to refetch to get the joined user profile data
               const actions = get();
               if (
@@ -162,10 +162,14 @@ export const createShoppingSubscriptions = (
                 actions.fetchCollaborators(listId);
               }
             } catch (error) {
-              console.error("Error handling collaborator subscription update:", error);
+              console.error(
+                "Error handling collaborator subscription update:",
+                error
+              );
               set((state: ShoppingState) => ({
                 ...state,
-                error: "Failed to process collaborator update. Please refresh the page.",
+                error:
+                  "Failed to process collaborator update. Please refresh the page.",
               }));
             }
           }
@@ -183,7 +187,10 @@ export const createShoppingSubscriptions = (
             itemsSubscription.unsubscribe();
             collaboratorsSubscription.unsubscribe();
           } catch (error) {
-            console.error("Error unsubscribing from list subscriptions:", error);
+            console.error(
+              "Error unsubscribing from list subscriptions:",
+              error
+            );
           }
         },
       };
@@ -199,7 +206,8 @@ export const createShoppingSubscriptions = (
       console.error("Error setting up subscriptions for list:", listId, error);
       set((state: ShoppingState) => ({
         ...state,
-        error: "Failed to set up real-time updates. Some features may not work properly.",
+        error:
+          "Failed to set up real-time updates. Some features may not work properly.",
       }));
     }
   },
@@ -224,7 +232,8 @@ export const createShoppingSubscriptions = (
       console.error("Error unsubscribing from list:", listId, error);
       set((state: ShoppingState) => ({
         ...state,
-        error: "Failed to clean up real-time connections. Please refresh the page.",
+        error:
+          "Failed to clean up real-time connections. Please refresh the page.",
       }));
     }
   },
@@ -244,7 +253,10 @@ export const createShoppingSubscriptions = (
             subscription.unsubscribe();
           }
         } catch (error) {
-          console.error("Error unsubscribing from individual subscription:", error);
+          console.error(
+            "Error unsubscribing from individual subscription:",
+            error
+          );
         }
       });
 
@@ -253,7 +265,8 @@ export const createShoppingSubscriptions = (
       console.error("Error unsubscribing from all subscriptions:", error);
       set((state: ShoppingState) => ({
         ...state,
-        error: "Failed to clean up all real-time connections. Please refresh the page.",
+        error:
+          "Failed to clean up all real-time connections. Please refresh the page.",
       }));
     }
   },

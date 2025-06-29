@@ -526,9 +526,6 @@ export const useHubStore = create<HubStore>((set, get) => ({
 
       const userId = user.user.id;
 
-      console.log(invitationId);
-      console.log(userId);
-
       // Call the RPC function
       const { data, error } = await supabase.rpc("decline_hub_invitation", {
         invitation_id: invitationId,

@@ -44,7 +44,6 @@ const NotificationIcon: React.FC = () => {
   // Initialize notifications
   useEffect(() => {
     if (user) {
-      console.log('NotificationIcon: Initializing for user:', user.id);
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
       subscribeToNotifications(user.id);
@@ -52,11 +51,16 @@ const NotificationIcon: React.FC = () => {
 
     return () => {
       if (user) {
-        console.log('NotificationIcon: Cleaning up for user:', user.id);
         unsubscribeFromNotifications(user.id);
       }
     };
-  }, [user, fetchNotifications, fetchUnreadCount, subscribeToNotifications, unsubscribeFromNotifications]);
+  }, [
+    user,
+    fetchNotifications,
+    fetchUnreadCount,
+    subscribeToNotifications,
+    unsubscribeFromNotifications,
+  ]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
@@ -75,7 +79,6 @@ const NotificationIcon: React.FC = () => {
 
   const handleMarkAllAsRead = async () => {
     if (user) {
-      console.log('NotificationIcon: Marking all as read for user:', user.id);
       await markAllAsRead(user.id);
     }
   };
@@ -141,7 +144,10 @@ const NotificationIcon: React.FC = () => {
               {loading.fetch && recentNotifications.length === 0 ? (
                 <div className="p-4 space-y-3">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse flex items-start gap-3">
+                    <div
+                      key={i}
+                      className="animate-pulse flex items-start gap-3"
+                    >
                       <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
                       <div className="flex-1">
                         <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
