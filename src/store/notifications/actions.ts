@@ -274,6 +274,86 @@ export const createNotificationsActions = (
     }
   },
 
+  deleteAllNotifications: async (userId: string) => {
+    set((state) => {
+      state.loading.delete = true;
+      state.error = null;
+    });
+
+    try {
+      console.log('Deleting all notifications for user:', userId);
+      
+      const { data, error } = await supabase.rpc(
+        "delete_all_notifications",
+        {
+          p_user_id: userId
+        }
+      );
+
+      if (error) throw error;
+
+      console.log('Delete all notifications result:', data);
+      
+      // Update state
+      set((state) => {
+        state.notifications = [];
+        state.unreadCount = 0;
+        state.loading.delete = false;
+      });
+    } catch (error) {
+      console.error("Error deleting all notifications:", error);
+      set((state) => {
+        state.error =
+          error instanceof Error
+            ? error.message
+            : "Failed to delete all notifications";
+        state.loading.delete = false;
+      });
+    }
+  },
+
+  deleteNotificationsByType: async (userId: string, type: string) => {
+    set((state) => {
+      state.loading.delete = true;
+      state.error = null;
+    });
+
+    try {
+      console.log(`Deleting all ${type} notifications for user:`, userId);
+      
+      const { data, error } = await supabase.rpc(
+        "delete_all_notifications_by_type",
+        {
+          p_user_id: userId,
+          p_type: type
+        }
+      );
+
+      if (error) throw error;
+
+      console.log(`Delete ${type} notifications result:`, data);
+      
+      // Update state
+      set((state) => {
+        // Remove notifications of the specified type
+        state.notifications = state.notifications.filter(n => n.type !== type);
+        
+        // Recalculate unread count
+        state.unreadCount = state.notifications.filter(n => !n.read).length;
+        state.loading.delete = false;
+      });
+    } catch (error) {
+      console.error(`Error deleting ${type} notifications:`, error);
+      set((state) => {
+        state.error =
+          error instanceof Error
+            ? error.message
+            : `Failed to delete ${type} notifications`;
+        state.loading.delete = false;
+      });
+    }
+  },
+
   // Filter management
   setFilters: (filters: Partial<NotificationsState["filters"]>) => {
     console.log('Setting notification filters:', filters);

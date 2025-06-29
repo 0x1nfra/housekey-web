@@ -35,6 +35,8 @@ const NotificationsList: React.FC = () => {
     fetchUnreadCount,
     markAllAsRead,
     deleteAllRead,
+    deleteAllNotifications,
+    deleteNotificationsByType,
     setFilters,
     clearFilters,
     loadMore,
@@ -51,6 +53,8 @@ const NotificationsList: React.FC = () => {
       fetchUnreadCount: state.fetchUnreadCount,
       markAllAsRead: state.markAllAsRead,
       deleteAllRead: state.deleteAllRead,
+      deleteAllNotifications: state.deleteAllNotifications,
+      deleteNotificationsByType: state.deleteNotificationsByType,
       setFilters: state.setFilters,
       clearFilters: state.clearFilters,
       loadMore: state.loadMore,
@@ -90,6 +94,20 @@ const NotificationsList: React.FC = () => {
     if (user) {
       console.log('Deleting all read notifications for user:', user.id);
       await deleteAllRead(user.id);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (user) {
+      console.log('Deleting all notifications for user:', user.id);
+      await deleteAllNotifications(user.id);
+    }
+  };
+
+  const handleDeleteByType = async (type: NotificationType) => {
+    if (user) {
+      console.log(`Deleting all ${type} notifications for user:`, user.id);
+      await deleteNotificationsByType(user.id, type);
     }
   };
 
@@ -269,6 +287,17 @@ const NotificationsList: React.FC = () => {
             >
               <Trash2 size={12} />
               Clear Read
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleDeleteAll}
+              disabled={loading.delete}
+              className="px-3 py-1.5 text-xs bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-1 disabled:opacity-50"
+            >
+              <Trash2 size={12} />
+              Clear All
             </motion.button>
           </div>
         </div>
