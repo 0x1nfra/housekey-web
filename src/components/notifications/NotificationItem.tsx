@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   Calendar,
   CheckSquare,
-  ShoppingCart,
   Bell,
   Check,
   Trash2,
@@ -36,8 +35,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         return Calendar;
       case "task":
         return CheckSquare;
-      case "shopping":
-        return ShoppingCart;
       case "system":
       default:
         return Bell;
@@ -49,6 +46,8 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
   };
 
   const handleClick = () => {
+    console.log('Notification clicked:', notification);
+    
     // Mark as read
     if (!notification.read) {
       markAsRead(notification.id);
@@ -62,10 +61,6 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           break;
         case "task":
           navigate(`/tasks?task=${notification.related_id}`);
-          break;
-        case "shopping_item":
-        case "shopping_list":
-          navigate(`/shopping?item=${notification.related_id}`);
           break;
         case "hub_invitation":
           navigate(`/settings?tab=invitations`);
@@ -84,11 +79,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
   const handleMarkAsRead = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Marking notification as read:', notification.id);
     markAsRead(notification.id);
   };
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Deleting notification:', notification.id);
     deleteNotification(notification.id);
   };
 

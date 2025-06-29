@@ -44,6 +44,7 @@ const NotificationIcon: React.FC = () => {
   // Initialize notifications
   useEffect(() => {
     if (user) {
+      console.log('NotificationIcon: Initializing for user:', user.id);
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
       subscribeToNotifications(user.id);
@@ -51,6 +52,7 @@ const NotificationIcon: React.FC = () => {
 
     return () => {
       if (user) {
+        console.log('NotificationIcon: Cleaning up for user:', user.id);
         unsubscribeFromNotifications(user.id);
       }
     };
@@ -73,6 +75,7 @@ const NotificationIcon: React.FC = () => {
 
   const handleMarkAllAsRead = async () => {
     if (user) {
+      console.log('NotificationIcon: Marking all as read for user:', user.id);
       await markAllAsRead(user.id);
     }
   };

@@ -38,6 +38,14 @@ export const createNotificationsActions = (
     });
 
     try {
+      console.log('Fetching notifications with params:', {
+        userId,
+        limit: state.pagination.limit,
+        offset: reset ? 0 : state.pagination.offset,
+        type: filters.type,
+        read: filters.read
+      });
+      
       const { limit, offset } = reset ? { ...state.pagination, offset: 0 } : state.pagination;
       
       const { data, error } = await supabase.rpc("get_user_notifications", {
@@ -50,6 +58,8 @@ export const createNotificationsActions = (
 
       if (error) throw error;
 
+      console.log('Fetched notifications:', data?.length || 0);
+      
       set((state) => {
         // If reset, replace notifications, otherwise append
         state.notifications = reset 
@@ -79,6 +89,8 @@ export const createNotificationsActions = (
 
   fetchUnreadCount: async (userId: string) => {
     try {
+      console.log('Fetching unread count for user:', userId);
+      
       const { data, error } = await supabase.rpc(
         "get_unread_notification_count",
         {
@@ -88,6 +100,8 @@ export const createNotificationsActions = (
 
       if (error) throw error;
 
+      console.log('Unread count:', data);
+      
       set((state) => {
         state.unreadCount = data || 0;
       });
@@ -105,6 +119,8 @@ export const createNotificationsActions = (
     });
 
     try {
+      console.log('Marking notification as read:', notificationId);
+      
       const { error } = await supabase
         .from("notifications")
         .update({ read: true })
@@ -146,12 +162,16 @@ export const createNotificationsActions = (
     });
 
     try {
+      console.log('Marking all notifications as read for user:', userId);
+      
       const { data, error } = await supabase.rpc("mark_all_notifications_read", {
         p_user_id: userId,
       });
 
       if (error) throw error;
 
+      console.log('Mark all as read result:', data);
+      
       // Optimistically update state
       set((state) => {
         state.notifications = state.notifications.map((n) => ({
@@ -180,6 +200,8 @@ export const createNotificationsActions = (
     });
 
     try {
+      console.log('Deleting notification:', notificationId);
+      
       const { error } = await supabase
         .from("notifications")
         .delete()
@@ -221,6 +243,8 @@ export const createNotificationsActions = (
     });
 
     try {
+      console.log('Deleting all read notifications for user:', userId);
+      
       const { data, error } = await supabase.rpc(
         "delete_old_read_notifications",
         {
@@ -231,6 +255,8 @@ export const createNotificationsActions = (
 
       if (error) throw error;
 
+      console.log('Delete all read result:', data);
+      
       // Optimistically update state
       set((state) => {
         state.notifications = state.notifications.filter((n) => !n.read);
@@ -250,6 +276,8 @@ export const createNotificationsActions = (
 
   // Filter management
   setFilters: (filters: Partial<NotificationsState["filters"]>) => {
+    console.log('Setting notification filters:', filters);
+    
     set((state) => {
       state.filters = { ...state.filters, ...filters };
       // Reset pagination when filters change
@@ -270,6 +298,8 @@ export const createNotificationsActions = (
   },
 
   clearFilters: () => {
+    console.log('Clearing notification filters');
+    
     set((state) => {
       state.filters = {};
       // Reset pagination when filters change

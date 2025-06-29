@@ -21,6 +21,8 @@ export const createNotificationsSubscriptions = (
     }
 
     try {
+      console.log('Setting up notification subscription for user:', userId);
+      
       // Subscribe to notifications changes for this user
       const notificationsSubscription = supabase
         .channel(`notifications_${userId}`)
@@ -34,12 +36,13 @@ export const createNotificationsSubscriptions = (
           },
           (payload: RealtimePostgresChangesPayload<Notification>) => {
             try {
-              console.log('Notification change:', payload);
+              console.log('Notification change received:', payload);
 
               set((state: NotificationsState) => {
                 if (payload.eventType === 'INSERT') {
                   // Add new notification
                   const newNotification = payload.new;
+                  console.log('Adding new notification to state:', newNotification);
                   
                   // Play sound for new notifications
                   if (typeof window !== 'undefined') {
@@ -61,6 +64,7 @@ export const createNotificationsSubscriptions = (
                   // Update existing notification
                   const updatedNotification = payload.new;
                   const oldNotification = payload.old;
+                  console.log('Updating notification in state:', updatedNotification);
                   
                   // Update unread count if read status changed
                   if (!oldNotification.read && updatedNotification.read) {
@@ -77,6 +81,7 @@ export const createNotificationsSubscriptions = (
                 } else if (payload.eventType === 'DELETE') {
                   // Remove deleted notification
                   const deletedNotification = payload.old;
+                  console.log('Removing notification from state:', deletedNotification);
                   
                   // Update unread count if an unread notification was deleted
                   if (!deletedNotification.read) {
@@ -95,13 +100,16 @@ export const createNotificationsSubscriptions = (
             }
           }
         )
-        .subscribe();
+        .subscribe((status) => {
+          console.log('Notification subscription status:', status);
+        });
 
       // Store subscription references
       const subscriptionGroup: SubscriptionGroup = {
         notifications: notificationsSubscription,
         unsubscribe: () => {
           try {
+            console.log('Unsubscribing from notifications for user:', userId);
             notificationsSubscription.unsubscribe();
           } catch (error) {
             console.error('Error unsubscribing from notification subscriptions:', error);

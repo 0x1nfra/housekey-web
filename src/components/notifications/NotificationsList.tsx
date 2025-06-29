@@ -9,7 +9,6 @@ import {
   RefreshCcw,
   Calendar,
   CheckSquare,
-  ShoppingCart,
   AlertCircle,
 } from "lucide-react";
 import { useNotificationsStore } from "../../store/notifications";
@@ -64,39 +63,46 @@ const NotificationsList: React.FC = () => {
   // Initialize notifications
   useEffect(() => {
     if (user) {
+      console.log('Fetching notifications for user:', user.id);
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
     }
   }, [user, fetchNotifications, fetchUnreadCount]);
 
   const handleTypeFilter = (type: NotificationType | undefined) => {
+    console.log('Setting type filter:', type);
     setFilters({ type });
   };
 
   const handleReadFilter = (read: boolean | undefined) => {
+    console.log('Setting read filter:', read);
     setFilters({ read });
   };
 
   const handleMarkAllAsRead = async () => {
     if (user) {
+      console.log('Marking all notifications as read for user:', user.id);
       await markAllAsRead(user.id);
     }
   };
 
   const handleDeleteAllRead = async () => {
     if (user) {
+      console.log('Deleting all read notifications for user:', user.id);
       await deleteAllRead(user.id);
     }
   };
 
   const handleRefresh = () => {
     if (user) {
+      console.log('Refreshing notifications for user:', user.id);
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
     }
   };
 
   const handleLoadMore = () => {
+    console.log('Loading more notifications');
     loadMore();
   };
 
@@ -169,17 +175,6 @@ const NotificationsList: React.FC = () => {
               >
                 <CheckSquare size={12} />
                 Tasks
-              </button>
-              <button
-                onClick={() => handleTypeFilter("shopping")}
-                className={`px-3 py-1.5 text-xs rounded-full font-medium transition-colors flex items-center gap-1 ${
-                  filters.type === "shopping"
-                    ? "bg-amber-600 text-white"
-                    : "bg-amber-100 text-amber-700 hover:bg-amber-200"
-                }`}
-              >
-                <ShoppingCart size={12} />
-                Shopping
               </button>
               <button
                 onClick={() => handleTypeFilter("system")}

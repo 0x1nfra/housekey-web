@@ -1,6 +1,6 @@
 import { RealtimeChannel } from "@supabase/supabase-js";
 
-export type NotificationType = 'event' | 'task' | 'shopping' | 'system';
+export type NotificationType = 'event' | 'task' | 'system';
 export type NotificationPriority = 'low' | 'medium' | 'high';
 
 export interface Notification {
@@ -103,7 +103,6 @@ export interface Result<T = any> {
 export const NOTIFICATION_ICONS = {
   event: 'Calendar',
   task: 'CheckSquare',
-  shopping: 'ShoppingCart',
   system: 'Bell'
 } as const;
 
@@ -111,7 +110,6 @@ export const NOTIFICATION_ICONS = {
 export const NOTIFICATION_COLORS = {
   event: 'bg-indigo-100 text-indigo-600',
   task: 'bg-emerald-100 text-emerald-600',
-  shopping: 'bg-amber-100 text-amber-600',
   system: 'bg-purple-100 text-purple-600'
 } as const;
 
