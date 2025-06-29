@@ -11,8 +11,11 @@ import CalendarPage from "./pages/CalendarPage";
 import TasksPage from "./pages/TasksPage";
 import ShoppingPage from "./pages/ShoppingPage";
 import SettingsPage from "./pages/SettingsPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import Layout from "./components/Layout";
 import { shallow } from "zustand/shallow";
+import { Toaster } from "sonner";
+import NotificationSound from "./components/notifications/NotificationSound";
 
 function App() {
   const { initializeAuth, initialized } = useAuthStore(
@@ -79,6 +82,14 @@ function App() {
             }
           />
           <Route
+            path="/notifications"
+            element={
+              <Layout>
+                <NotificationsPage />
+              </Layout>
+            }
+          />
+          <Route
             path="/settings"
             element={
               <Layout>
@@ -88,6 +99,8 @@ function App() {
           />
         </Routes>
       </AnimatePresence>
+      <Toaster position="top-right" richColors />
+      <NotificationSound />
     </Router>
   );
 }

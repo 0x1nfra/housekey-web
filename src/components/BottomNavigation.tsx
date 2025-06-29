@@ -2,6 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { Home, Calendar, CheckSquare, ShoppingCart, Bell } from "lucide-react";
 import { motion } from "framer-motion";
+import NotificationBadge from "./notifications/NotificationBadge";
 
 const BottomNavigation: React.FC = () => {
   const navItems = [
@@ -9,13 +10,13 @@ const BottomNavigation: React.FC = () => {
     { path: '/calendar', icon: Calendar, label: 'Calendar' },
     { path: "/tasks", icon: CheckSquare, label: "Tasks" },
     { path: "/shopping", icon: ShoppingCart, label: "Shopping" },
-    { path: "/notifications", icon: Bell, label: "Notifications" },
+    { path: "/notifications", icon: Bell, label: "Notifications", badge: true },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
       <div className="flex justify-around items-center max-w-md mx-auto">
-        {navItems.map(({ path, icon: Icon, label }) => (
+        {navItems.map(({ path, icon: Icon, label, badge }) => (
           <NavLink
             key={path}
             to={path}
@@ -30,7 +31,11 @@ const BottomNavigation: React.FC = () => {
             {({ isActive }) => (
               <>
                 <motion.div whileTap={{ scale: 0.95 }} className="relative">
-                  <Icon size={20} />
+                  {badge ? (
+                    <NotificationBadge size={20} />
+                  ) : (
+                    <Icon size={20} />
+                  )}
                   {isActive && (
                     <motion.div
                       layoutId="activeTab"
