@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import NotificationsList from "../components/notifications/NotificationsList";
+import NotificationsView from "../components/notifications/NotificationsView";
 
 const NotificationsPage: React.FC = () => {
   return (
@@ -11,15 +11,15 @@ const NotificationsPage: React.FC = () => {
         className="max-w-4xl mx-auto"
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
             Notifications
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-500">
             Stay updated with all your household activities
           </p>
         </div>
 
-        <NotificationsList />
+        <NotificationsView />
       </motion.div>
     </div>
   );

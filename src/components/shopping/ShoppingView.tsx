@@ -46,7 +46,7 @@ interface ShoppingItem {
   completed_by?: string;
 }
 
-const CollaborativeShoppingList: React.FC = () => {
+const ShoppingView: React.FC = () => {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showEditItemModal, setShowEditItemModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -550,4 +550,4 @@ const CollaborativeShoppingList: React.FC = () => {
   );
 };
 
-export default CollaborativeShoppingList;
+export default ShoppingView;

@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import CollaborativeShoppingList from "../components/shopping/CollaborativeShoppingList";
+import ShoppingView from "../components/shopping/ShoppingView";
 
 const ShoppingPage: React.FC = () => {
   return (
@@ -11,13 +11,15 @@ const ShoppingPage: React.FC = () => {
         className="max-w-4xl mx-auto"
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Shopping</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
+            Shopping
+          </h1>
+          <p className="text-gray-500">
             Collaborate on shopping in real-time with your Hub
           </p>
         </div>
 
-        <CollaborativeShoppingList />
+        <ShoppingView />
       </motion.div>
     </div>
   );

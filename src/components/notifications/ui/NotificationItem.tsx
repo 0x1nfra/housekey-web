@@ -11,11 +11,11 @@ import {
   User,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useNotificationsStore } from "../../store/notifications";
+import { useNotificationsStore } from "../../../store/notifications";
 import {
   Notification,
   NOTIFICATION_COLORS,
-} from "../../store/notifications/types";
+} from "../../../store/notifications/types";
 import { formatDistanceToNow } from "date-fns";
 
 interface NotificationItemProps {
@@ -23,6 +23,8 @@ interface NotificationItemProps {
   compact?: boolean;
   onClose?: () => void;
 }
+
+// ... imports remain unchanged
 
 const NotificationItem: React.FC<NotificationItemProps> = ({
   notification,
@@ -44,17 +46,13 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     }
   };
 
-  const getNotificationColor = () => {
-    return NOTIFICATION_COLORS[notification.type];
-  };
+  const getNotificationColor = () => NOTIFICATION_COLORS[notification.type];
 
   const handleClick = () => {
-    // Mark as read
     if (!notification.read) {
       markAsRead(notification.id);
     }
 
-    // Navigate to related item if applicable
     if (notification.related_id && notification.related_type) {
       switch (notification.related_type) {
         case "event":
@@ -66,16 +64,10 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
         case "hub_invitation":
           navigate(`/settings?tab=invitations`);
           break;
-        default:
-          // No specific navigation
-          break;
       }
     }
 
-    // Close dropdown if provided
-    if (onClose) {
-      onClose();
-    }
+    if (onClose) onClose();
   };
 
   const handleMarkAsRead = (e: React.MouseEvent) => {
@@ -94,34 +86,32 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     addSuffix: true,
   });
 
-  // Message rendering utility
   const renderNotificationMessage = (notification: Notification) => {
-    const { message, type, metadata } = notification;
+    const { message, type } = notification;
 
-    // Define patterns for different notification types
     const messagePatterns = {
       task: {
         completed: {
           pattern: /^(.+) completed a task: (.+)$/,
-          render: (matches: RegExpMatchArray) => (
+          render: (m: RegExpMatchArray) => (
             <>
-              {matches[1]} completed a task: <strong>{matches[2]}</strong>
+              {m[1]} completed a task: <strong>{m[2]}</strong>
             </>
           ),
         },
         assigned: {
           pattern: /^(.+) assigned you a task: (.+)$/,
-          render: (matches: RegExpMatchArray) => (
+          render: (m: RegExpMatchArray) => (
             <>
-              {matches[1]} assigned you a task: <strong>{matches[2]}</strong>
+              {m[1]} assigned you a task: <strong>{m[2]}</strong>
             </>
           ),
         },
         dueToday: {
           pattern: /^Task "(.+)" is due today$/,
-          render: (matches: RegExpMatchArray) => (
+          render: (m: RegExpMatchArray) => (
             <>
-              Task <strong>"{matches[1]}"</strong> is due today
+              Task <strong>"{m[1]}"</strong> is due today
             </>
           ),
         },
@@ -129,18 +119,17 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       event: {
         reminder: {
           pattern: /^Reminder: (.+) starts in (\d+) minutes?$/,
-          render: (matches: RegExpMatchArray) => (
+          render: (m: RegExpMatchArray) => (
             <>
-              Reminder: <strong>{matches[1]}</strong> starts in {matches[2]}{" "}
-              minutes
+              Reminder: <strong>{m[1]}</strong> starts in {m[2]} minutes
             </>
           ),
         },
         invitation: {
           pattern: /^(.+) invited you to "(.+)"$/,
-          render: (matches: RegExpMatchArray) => (
+          render: (m: RegExpMatchArray) => (
             <>
-              {matches[1]} invited you to <strong>"{matches[2]}"</strong>
+              {m[1]} invited you to <strong>"{m[2]}"</strong>
             </>
           ),
         },
@@ -148,29 +137,23 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       system: {
         hubInvite: {
           pattern: /^(.+) invited you to join "(.+)" hub$/,
-          render: (matches: RegExpMatchArray) => (
+          render: (m: RegExpMatchArray) => (
             <>
-              {matches[1]} invited you to join <strong>"{matches[2]}"</strong>{" "}
-              hub
+              {m[1]} invited you to join <strong>"{m[2]}"</strong> hub
             </>
           ),
         },
       },
     };
 
-    // Try to match the message against known patterns
     const typePatterns = messagePatterns[type as keyof typeof messagePatterns];
-
     if (typePatterns) {
-      for (const [patternKey, patternConfig] of Object.entries(typePatterns)) {
-        const matches = message.match(patternConfig.pattern);
-        if (matches) {
-          return patternConfig.render(matches);
-        }
+      for (const { pattern, render } of Object.values(typePatterns)) {
+        const match = message.match(pattern);
+        if (match) return render(match);
       }
     }
 
-    // Fallback: if no pattern matches, return the original message
     return message;
   };
 
@@ -179,10 +162,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -5 }}
-      whileHover={{ backgroundColor: "rgb(249, 250, 251)" }}
+      whileHover={{ backgroundColor: "var(--tw-bg-opacity)" }}
       onClick={handleClick}
       className={`p-4 cursor-pointer transition-colors ${
-        notification.read ? "bg-white" : "bg-blue-50"
+        notification.read
+          ? "bg-white dark:bg-gray-800"
+          : "bg-blue-50 dark:bg-blue-900/20"
       }`}
     >
       <div className="flex items-start gap-3">
@@ -196,26 +181,30 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
           <div className="flex items-start justify-between gap-2">
             <h4
               className={`font-medium text-sm ${
-                notification.read ? "text-gray-700" : "text-gray-900"
+                notification.read
+                  ? "text-gray-700 dark:text-gray-300"
+                  : "text-gray-900 dark:text-white"
               }`}
             >
               {notification.title}
             </h4>
-            <span className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap flex-shrink-0">
               {timeAgo}
             </span>
           </div>
 
           <p
-            className={`text-xs ${
-              notification.read ? "text-gray-500" : "text-gray-700"
-            } line-clamp-2 mt-0.5`}
+            className={`text-xs mt-0.5 line-clamp-2 ${
+              notification.read
+                ? "text-gray-500 dark:text-gray-400"
+                : "text-gray-700 dark:text-gray-200"
+            }`}
           >
             {renderNotificationMessage(notification)}
           </p>
 
           {!compact && notification.actor_name && (
-            <div className="flex items-center gap-1 mt-2 text-xs text-gray-500">
+            <div className="flex items-center gap-1 mt-2 text-xs text-gray-500 dark:text-gray-400">
               <User size={12} />
               <span>{notification.actor_name}</span>
             </div>
@@ -223,7 +212,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
           {!compact && (
             <div className="flex items-center justify-between mt-3">
-              <div className="flex items-center gap-1 text-xs text-gray-500">
+              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                 <Clock size={12} />
                 <span>
                   {new Date(notification.created_at).toLocaleString()}
@@ -236,7 +225,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={handleMarkAsRead}
-                    className="p-1 text-blue-600 hover:bg-blue-50 rounded-full transition-colors"
+                    className="p-1 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full transition-colors"
                     title="Mark as read"
                   >
                     <Check size={14} />
@@ -247,7 +236,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={handleDelete}
-                  className="p-1 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-1 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-full transition-colors"
                   title="Delete notification"
                 >
                   <Trash2 size={14} />
@@ -258,7 +247,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={handleClick}
-                    className="p-1 text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                    className="p-1 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-full transition-colors"
                     title="View details"
                   >
                     <ExternalLink size={14} />

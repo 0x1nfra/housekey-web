@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import BottomNavigation from './BottomNavigation';
-import DashboardHeader from './DashboardHeader';
+import React from "react";
+import { motion } from "framer-motion";
+import BottomNavigation from "./BottomNavigation";
+import DashboardHeader from "./DashboardHeader";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -9,7 +9,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <DashboardHeader />
       <motion.main
         initial={{ opacity: 0, y: 20 }}

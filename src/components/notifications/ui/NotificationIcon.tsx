@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, CheckCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useNotificationsStore } from "../../store/notifications";
-import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
 import NotificationItem from "./NotificationItem";
+import { useNotificationsStore } from "../../../store/notifications";
+import { useAuthStore } from "../../../store/authStore";
 
 const NotificationIcon: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

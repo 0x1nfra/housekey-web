@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import TaskDashboard from "../components/tasks/TaskDashboard";
+import TasksView from "../components/tasks/TasksView";
 
 const TasksPage: React.FC = () => {
   return (
@@ -11,13 +11,15 @@ const TasksPage: React.FC = () => {
         className="max-w-6xl mx-auto"
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Tasks</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
+            Tasks
+          </h1>
+          <p className="text-gray-600 dark:text-gray-500">
             Manage household chores and responsibilities together
           </p>
         </div>
 
-        <TaskDashboard />
+        <TasksView />
       </motion.div>
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { useNotificationsStore } from "../../store/notifications";
+import { useNotificationsStore } from "../../../store/notifications";
 import { shallow } from "zustand/shallow";
 
 // This component doesn't render anything visible but plays sounds when new notifications arrive

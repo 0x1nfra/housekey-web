@@ -15,7 +15,8 @@ import NotificationsPage from "./pages/NotificationsPage";
 import Layout from "./components/Layout";
 import { shallow } from "zustand/shallow";
 import { Toaster } from "sonner";
-import NotificationSound from "./components/notifications/NotificationSound";
+import NotificationSound from "./components/notifications/ui/NotificationSound";
+import { ThemeProvider } from "./components/settings/ThemeProvider";
 
 function App() {
   const { initializeAuth, initialized } = useAuthStore(
@@ -42,66 +43,68 @@ function App() {
   }
 
   return (
-    <Router>
-      <AnimatePresence mode="wait">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <Layout>
-                <DashboardPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/calendar"
-            element={
-              <Layout>
-                <CalendarPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/tasks"
-            element={
-              <Layout>
-                <TasksPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/shopping"
-            element={
-              <Layout>
-                <ShoppingPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <Layout>
-                <NotificationsPage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/settings"
-            element={
-              <Layout>
-                <SettingsPage />
-              </Layout>
-            }
-          />
-        </Routes>
-      </AnimatePresence>
-      <Toaster position="top-right" richColors />
-      <NotificationSound />
-    </Router>
+    <ThemeProvider>
+      <Router>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <Layout>
+                  <DashboardPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <Layout>
+                  <CalendarPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/tasks"
+              element={
+                <Layout>
+                  <TasksPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/shopping"
+              element={
+                <Layout>
+                  <ShoppingPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/notifications"
+              element={
+                <Layout>
+                  <NotificationsPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <Layout>
+                  <SettingsPage />
+                </Layout>
+              }
+            />
+          </Routes>
+        </AnimatePresence>
+        <Toaster position="top-right" richColors />
+        <NotificationSound />
+      </Router>
+    </ThemeProvider>
   );
 }
 
