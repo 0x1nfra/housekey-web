@@ -35,11 +35,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroText, subheadline, ctaBut
             </div>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 leading-tight mb-6">
             {heroText}
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
             {subheadline}
           </p>
         </motion.div>
@@ -60,7 +60,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroText, subheadline, ctaBut
             <ArrowRight size={20} />
           </motion.button>
           
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Free to start • No credit card required
           </p>
         </motion.div>
@@ -71,19 +71,19 @@ const HeroSection: React.FC<HeroSectionProps> = ({ heroText, subheadline, ctaBut
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-16"
         >
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl mx-auto border border-gray-100">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-2xl mx-auto border border-gray-100 dark:border-gray-700">
             <div className="grid grid-cols-3 gap-6 text-center">
               <div>
                 <div className="text-3xl font-bold text-indigo-600 mb-2">10min</div>
-                <div className="text-sm text-gray-600">Setup time</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Setup time</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-emerald-600 mb-2">100%</div>
-                <div className="text-sm text-gray-600">Family adoption</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Family adoption</div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-amber-600 mb-2">0</div>
-                <div className="text-sm text-gray-600">Nagging required</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Nagging required</div>
               </div>
             </div>
           </div>

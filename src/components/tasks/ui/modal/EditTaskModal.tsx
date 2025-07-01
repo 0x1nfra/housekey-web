@@ -49,6 +49,44 @@ const RECURRENCE_OPTIONS = [
   { value: "yearly", label: "Yearly" },
 ] as const;
 
+// Custom hook for dark mode detection
+const useDarkMode = () => {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // Check initial theme
+    const checkDarkMode = () => {
+      const htmlElement = document.documentElement;
+      const isDarkMode =
+        htmlElement.classList.contains("dark") ||
+        (window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
+      setIsDark(isDarkMode);
+    };
+
+    checkDarkMode();
+
+    // Listen for theme changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => checkDarkMode();
+    mediaQuery.addEventListener("change", handleChange);
+
+    return () => {
+      observer.disconnect();
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, []);
+
+  return isDark;
+};
+
 const EditTaskModal: React.FC<EditTaskModalProps> = ({
   isOpen,
   onClose,
@@ -73,6 +111,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
     recurrenceInterval: 1,
     estimatedTime: "",
   });
+
+  const isDark = useDarkMode();
 
   const { hubMembers } = useHubStore();
   const { user, profile } = useAuthStore(
@@ -228,24 +268,41 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className={`${
+              isDark ? "bg-gray-900 border border-gray-700" : "bg-white"
+            } rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Check size={16} className="text-blue-600" />
+                <div
+                  className={`w-8 h-8 ${
+                    isDark ? "bg-blue-900/50" : "bg-blue-100"
+                  } rounded-lg flex items-center justify-center`}
+                >
+                  <Check
+                    size={16}
+                    className={isDark ? "text-blue-400" : "text-blue-600"}
+                  />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2
+                  className={`text-xl font-semibold ${
+                    isDark ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   Edit Task
                 </h2>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                className={`w-8 h-8 flex items-center justify-center rounded-lg ${
+                  isDark
+                    ? "hover:bg-gray-800 text-gray-400"
+                    : "hover:bg-gray-100 text-gray-500"
+                } transition-colors`}
               >
-                <X size={18} className="text-gray-500" />
+                <X size={18} />
               </button>
             </div>
 
@@ -258,7 +315,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                   type="text"
                   value={taskData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  className="w-full border-0 border-b-2 border-gray-200 px-0 py-3 text-lg font-medium placeholder-gray-400 focus:border-gray-900 focus:ring-0 transition-colors bg-transparent"
+                  className={`w-full border-0 border-b-2 ${
+                    isDark
+                      ? "border-gray-700 focus:border-gray-400 text-white placeholder-gray-500"
+                      : "border-gray-200 focus:border-gray-900 text-gray-900 placeholder-gray-400"
+                  } px-0 py-3 text-lg font-medium focus:ring-0 transition-colors bg-transparent`}
                   placeholder="Task title"
                   required
                 />
@@ -272,14 +333,22 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                     handleInputChange("description", e.target.value)
                   }
                   rows={2}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-400 focus:border-gray-400 focus:ring-0 transition-colors resize-none"
+                  className={`w-full border ${
+                    isDark
+                      ? "border-gray-700 focus:border-gray-600 text-white placeholder-gray-500 bg-gray-800/50"
+                      : "border-gray-200 focus:border-gray-400 text-gray-900 placeholder-gray-400 bg-white"
+                  } rounded-lg px-3 py-2 text-sm focus:ring-0 transition-colors resize-none`}
                   placeholder="Description (optional)"
                 />
               </div>
 
               {/* Priority */}
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-2 block">
+                <label
+                  className={`text-xs font-medium ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  } mb-2 block`}
+                >
                   Priority
                 </label>
                 <div className="grid grid-cols-4 gap-2">
@@ -292,7 +361,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                       }
                       className={`p-2 border rounded-lg transition-all text-center ${
                         taskData.priority === priority.value
-                          ? "border-gray-900 bg-gray-50 shadow-sm"
+                          ? isDark
+                            ? "border-gray-500 bg-gray-800 shadow-sm"
+                            : "border-gray-900 bg-gray-50 shadow-sm"
+                          : isDark
+                          ? "border-gray-700 hover:border-gray-600"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -301,7 +374,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                       >
                         <span className="text-xs font-bold">!</span>
                       </div>
-                      <span className="text-xs font-medium">
+                      <span
+                        className={`text-xs font-medium ${
+                          isDark ? "text-gray-300" : "text-gray-700"
+                        }`}
+                      >
                         {priority.label}
                       </span>
                     </button>
@@ -313,20 +390,30 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
               <div className="grid grid-cols-2 gap-3">
                 {/* Assign To */}
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                  <label
+                    className={`text-xs font-medium ${
+                      isDark ? "text-gray-400" : "text-gray-500"
+                    } mb-1 block`}
+                  >
                     Assigned to
                   </label>
                   <div className="relative">
                     <Users
                       size={16}
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                     />
                     <select
                       value={taskData.assignedTo}
                       onChange={(e) =>
                         handleInputChange("assignedTo", e.target.value)
                       }
-                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                      className={`w-full border ${
+                        isDark
+                          ? "border-gray-700 focus:border-gray-600 text-white bg-gray-800"
+                          : "border-gray-200 focus:border-gray-400 text-gray-900 bg-white"
+                      } rounded-lg px-2 py-2 pl-7 text-sm focus:ring-0 transition-colors`}
                     >
                       <option value="">Unassigned</option>
                       {availableAssignees.map((assignee) => (
@@ -340,20 +427,30 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
 
                 {/* Category */}
                 <div>
-                  <label className="text-xs font-medium text-gray-500 mb-1 block">
+                  <label
+                    className={`text-xs font-medium ${
+                      isDark ? "text-gray-400" : "text-gray-500"
+                    } mb-1 block`}
+                  >
                     Category
                   </label>
                   <div className="relative">
                     <Tag
                       size={16}
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${
+                        isDark ? "text-gray-500" : "text-gray-400"
+                      }`}
                     />
                     <select
                       value={taskData.category}
                       onChange={(e) =>
                         handleInputChange("category", e.target.value)
                       }
-                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                      className={`w-full border ${
+                        isDark
+                          ? "border-gray-700 focus:border-gray-600 text-white bg-gray-800"
+                          : "border-gray-200 focus:border-gray-400 text-gray-900 bg-white"
+                      } rounded-lg px-2 py-2 pl-7 text-sm focus:ring-0 transition-colors`}
                     >
                       <option value="">None</option>
                       {categories.map((category) => (
@@ -374,7 +471,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-2 p-3 border border-gray-200 rounded-lg bg-gray-50"
+                      className={`mt-2 p-3 border ${
+                        isDark
+                          ? "border-gray-700 bg-gray-800/50"
+                          : "border-gray-200 bg-gray-50"
+                      } rounded-lg`}
                     >
                       <div className="flex gap-2 mb-2">
                         <input
@@ -387,7 +488,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                             }))
                           }
                           placeholder="Category name"
-                          className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+                          className={`flex-1 border ${
+                            isDark
+                              ? "border-gray-600 bg-gray-800 text-white placeholder-gray-500"
+                              : "border-gray-300 bg-white text-gray-900 placeholder-gray-400"
+                          } rounded px-2 py-1 text-sm`}
                         />
                         <input
                           type="color"
@@ -398,7 +503,9 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                               color: e.target.value,
                             }))
                           }
-                          className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
+                          className={`w-8 h-8 border ${
+                            isDark ? "border-gray-600" : "border-gray-300"
+                          } rounded cursor-pointer`}
                         />
                       </div>
                       <div className="flex gap-2">
@@ -418,7 +525,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                               category: task.category_id || "",
                             }));
                           }}
-                          className="px-3 py-1 text-gray-600 text-xs rounded hover:bg-gray-200"
+                          className={`px-3 py-1 ${
+                            isDark
+                              ? "text-gray-300 hover:bg-gray-700"
+                              : "text-gray-600 hover:bg-gray-200"
+                          } text-xs rounded`}
                         >
                           Cancel
                         </button>
@@ -428,26 +539,15 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 </div>
               </div>
 
-              {/* Task Status Indicator */}
-              <div className="bg-gray-50 rounded-lg p-3 text-center">
-                <div className="text-xs text-gray-500 mb-1">Task Status</div>
-                <div className="flex items-center justify-center gap-2">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      task?.completed ? "bg-green-500" : "bg-yellow-500"
-                    }`}
-                  />
-                  <span className="text-sm font-medium text-gray-700">
-                    {task?.completed ? "Completed" : "In Progress"}
-                  </span>
-                </div>
-              </div>
-
               {/* Advanced Options Toggle */}
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className={`w-full flex items-center justify-center gap-2 py-2 text-sm ${
+                  isDark
+                    ? "text-gray-400 hover:text-gray-200"
+                    : "text-gray-600 hover:text-gray-900"
+                } transition-colors`}
               >
                 <span>Advanced Options</span>
                 {showAdvanced ? (
@@ -464,19 +564,27 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="space-y-4 border-t border-gray-100 pt-4"
+                    className={`space-y-4 border-t ${
+                      isDark ? "border-gray-700" : "border-gray-100"
+                    } pt-4`}
                   >
                     {/* Due date and Estimated Time */}
                     <div className="grid grid-cols-2 gap-3">
                       {/* Due Date */}
                       <div>
-                        <label className="text-xs font-medium text-gray-500 mb-1 block">
+                        <label
+                          className={`text-xs font-medium ${
+                            isDark ? "text-gray-400" : "text-gray-500"
+                          } mb-1 block`}
+                        >
                           Due date
                         </label>
                         <div className="relative">
                           <Calendar
                             size={16}
-                            className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${
+                              isDark ? "text-gray-500" : "text-gray-400"
+                            }`}
                           />
                           <input
                             type="date"
@@ -484,26 +592,40 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                             onChange={(e) =>
                               handleInputChange("dueDate", e.target.value)
                             }
-                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                            className={`w-full border ${
+                              isDark
+                                ? "border-gray-700 focus:border-gray-600 text-white bg-gray-800"
+                                : "border-gray-200 focus:border-gray-400 text-gray-900 bg-white"
+                            } rounded-lg px-2 py-2 pl-7 text-sm focus:ring-0 transition-colors`}
                           />
                         </div>
                       </div>
                       {/* Duration */}
                       <div>
-                        <label className="text-xs font-medium text-gray-500 mb-1 block">
+                        <label
+                          className={`text-xs font-medium ${
+                            isDark ? "text-gray-400" : "text-gray-500"
+                          } mb-1 block`}
+                        >
                           Duration
                         </label>
                         <div className="relative">
                           <Clock
                             size={16}
-                            className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400"
+                            className={`absolute left-2 top-1/2 transform -translate-y-1/2 ${
+                              isDark ? "text-gray-500" : "text-gray-400"
+                            }`}
                           />
                           <select
                             value={taskData.estimatedTime}
                             onChange={(e) =>
                               handleInputChange("estimatedTime", e.target.value)
                             }
-                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                            className={`w-full border ${
+                              isDark
+                                ? "border-gray-700 focus:border-gray-600 text-white bg-gray-800"
+                                : "border-gray-200 focus:border-gray-400 text-gray-900 bg-white"
+                            } rounded-lg px-2 py-2 pl-7 text-sm focus:ring-0 transition-colors`}
                           >
                             {DURATION_OPTIONS.map((option) => (
                               <option key={option.value} value={option.value}>
@@ -516,9 +638,16 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                     </div>
 
                     {/* Recurring Task */}
-                    <div className="bg-gray-50 rounded-lg p-3">
+                    <div
+                      className={`${
+                        isDark ? "bg-gray-800/50" : "bg-gray-50"
+                      } rounded-lg p-3`}
+                    >
                       <div className="flex items-center gap-3 mb-2">
-                        <Repeat size={16} className="text-gray-500" />
+                        <Repeat
+                          size={16}
+                          className={isDark ? "text-gray-400" : "text-gray-500"}
+                        />
                         <input
                           type="checkbox"
                           id="recurring"
@@ -526,11 +655,17 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                           onChange={(e) =>
                             handleInputChange("recurring", e.target.checked)
                           }
-                          className="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500"
+                          className={`w-4 h-4 ${
+                            isDark
+                              ? "text-gray-500 border-gray-600 bg-gray-800 focus:ring-gray-500"
+                              : "text-gray-600 border-gray-300 bg-white focus:ring-gray-500"
+                          } rounded`}
                         />
                         <label
                           htmlFor="recurring"
-                          className="text-sm font-medium text-gray-700"
+                          className={`text-sm font-medium ${
+                            isDark ? "text-gray-300" : "text-gray-700"
+                          }`}
                         >
                           Recurring task
                         </label>
@@ -552,7 +687,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                                   e.target.value
                                 )
                               }
-                              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                              className={`w-full border ${
+                                isDark
+                                  ? "border-gray-700 focus:border-gray-600 text-white bg-gray-800"
+                                  : "border-gray-200 focus:border-gray-400 text-gray-900 bg-white"
+                              } rounded-lg px-3 py-2 text-sm focus:ring-0 transition-colors`}
                             >
                               {RECURRENCE_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>
@@ -561,7 +700,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                               ))}
                             </select>
                             <div>
-                              <label className="text-xs text-gray-500 mb-1 block">
+                              <label
+                                className={`text-xs ${
+                                  isDark ? "text-gray-400" : "text-gray-500"
+                                } mb-1 block`}
+                              >
                                 Every
                               </label>
                               <input
@@ -574,7 +717,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                                     parseInt(e.target.value) || 1
                                   )
                                 }
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                                className={`w-full border ${
+                                  isDark
+                                    ? "border-gray-700 focus:border-gray-600 text-white bg-gray-800"
+                                    : "border-gray-200 focus:border-gray-400 text-gray-900 bg-white"
+                                } rounded-lg px-3 py-2 text-sm focus:ring-0 transition-colors`}
                               />
                             </div>
                           </div>
@@ -590,7 +737,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors rounded-lg"
+                  className={`flex-1 px-4 py-2.5 text-sm font-medium ${
+                    isDark
+                      ? "text-gray-300 hover:bg-gray-800"
+                      : "text-gray-700 hover:bg-gray-50"
+                  } transition-colors rounded-lg`}
                 >
                   Cancel
                 </button>

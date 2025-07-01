@@ -43,11 +43,11 @@ const CalendarFilters: React.FC = () => {
     filters.eventType !== null;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 mb-6">
+    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 p-4 mb-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Filter size={18} className="text-gray-500" />
-          <h3 className="font-medium text-gray-900">Calendar Filters</h3>
+          <Filter size={18} className="text-gray-500 dark:text-gray-400" />
+          <h3 className="font-medium text-gray-900 dark:text-gray-100">Calendar Filters</h3>
         </div>
 
         {hasActiveFilters && (
@@ -55,7 +55,7 @@ const CalendarFilters: React.FC = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={clearFilters}
-            className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-1"
           >
             <X size={14} />
             Clear Filters
@@ -66,7 +66,7 @@ const CalendarFilters: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Data Type Filter */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">
+          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
             Show
           </label>
           <select
@@ -74,7 +74,7 @@ const CalendarFilters: React.FC = () => {
             onChange={(e) =>
               setFilters({ dataType: e.target.value as CalendarDataType })
             }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             {dataTypeOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -86,7 +86,7 @@ const CalendarFilters: React.FC = () => {
 
         {/* Assignment Filter */}
         <div>
-          <label className="text-xs font-medium text-gray-500 mb-1 block">
+          <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
             Assigned To
           </label>
           <select
@@ -94,7 +94,7 @@ const CalendarFilters: React.FC = () => {
             onChange={(e) =>
               setFilters({ assignedTo: e.target.value ? e.target.value : null })
             }
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           >
             <option value="">All Members</option>
             {user && <option value={user.id}>My Items Only</option>}
@@ -111,7 +111,7 @@ const CalendarFilters: React.FC = () => {
         {/* Event Type Filter (only shown when events are included) */}
         {(filters.dataType === "all" || filters.dataType === "events") && (
           <div>
-            <label className="text-xs font-medium text-gray-500 mb-1 block">
+            <label className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
               Event Type
             </label>
             <select
@@ -123,7 +123,7 @@ const CalendarFilters: React.FC = () => {
                     : null,
                 })
               }
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="">All Types</option>
               {eventTypeOptions.map((option) => (

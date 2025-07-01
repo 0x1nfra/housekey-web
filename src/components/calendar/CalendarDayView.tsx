@@ -78,11 +78,11 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
   const timedItems = items.filter((item) => !item.all_day);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
       {/* All-day events section */}
       {allDayItems.length > 0 && (
-        <div className="border-b border-gray-100 bg-gray-50 p-4">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">
+        <div className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-4">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             All-day Events
           </h3>
           <div className="space-y-2">
@@ -91,18 +91,18 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                 key={`allday-${item.type}-${item.id}`}
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 rounded-lg border-l-4 bg-white shadow-sm"
+                className="p-3 rounded-lg border-l-4 bg-white dark:bg-gray-800 shadow-sm"
                 style={{ borderLeftColor: item.color }}
                 onClick={() => onEventClick && onEventClick(item)}
               >
                 <div className="flex items-center justify-between">
-                  <h4 className="font-medium text-gray-900">{item.title}</h4>
+                  <h4 className="font-medium text-gray-900 dark:text-gray-100">{item.title}</h4>
 
                   {item.type === "event" && (
                     <div className="flex items-center gap-1">
                       <button
                         onClick={(e) => handleEditEvent(e, item)}
-                        className="text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100"
+                        className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
                         title="Edit event"
                       >
                         <Edit size={16} />
@@ -114,7 +114,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                             handleDeleteEvent(item.id);
                           }
                         }}
-                        className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                        className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30"
                         title="Delete event"
                       >
                         <Trash2 size={16} />
@@ -124,12 +124,12 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                 </div>
 
                 {item.description && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     {item.description}
                   </p>
                 )}
 
-                <div className="flex flex-wrap gap-3 text-xs text-gray-500 mt-2">
+                <div className="flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-400 mt-2">
                   {item.assigned_to_name && (
                     <div className="flex items-center gap-1">
                       <User size={12} />
@@ -153,13 +153,13 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
       {/* Timed events section */}
       <div className="grid grid-cols-[80px_1fr] relative min-h-[800px]">
         {/* Time labels column */}
-        <div className="border-r border-gray-100">
+        <div className="border-r border-gray-100 dark:border-gray-700">
           {HOURS.map((hour) => (
             <div
               key={hour}
-              className="h-[60px] border-b border-gray-100 px-2 flex items-start justify-end pt-1"
+              className="h-[60px] border-b border-gray-100 dark:border-gray-700 px-2 flex items-start justify-end pt-1"
             >
-              <span className="text-xs text-gray-500 bg-white pl-2">
+              <span className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 pl-2">
                 {formatTimeLabel(hour)}
               </span>
             </div>
@@ -172,7 +172,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
           {HOURS.map((hour) => (
             <div
               key={hour}
-              className="h-[60px] border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+              className="h-[60px] border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
               onClick={(e) => handleTimeSlotClick(e, hour)}
             ></div>
           ))}
@@ -186,7 +186,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                 key={`${item.type}-${item.id}`}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="absolute left-0 right-0 mx-4 rounded-lg overflow-hidden shadow-sm border-l-4 z-10 bg-white"
+                className="absolute left-0 right-0 mx-4 rounded-lg overflow-hidden shadow-sm border-l-4 z-10 bg-white dark:bg-gray-800"
                 style={{
                   top: `${top}px`,
                   height: `${height}px`,
@@ -196,7 +196,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
               >
                 <div className="p-2 h-full flex flex-col">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium text-gray-900 text-sm">
+                    <h4 className="font-medium text-gray-900 dark:text-gray-100 text-sm">
                       {item.title}
                     </h4>
 
@@ -204,7 +204,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                       <div className="flex items-center gap-1">
                         <button
                           onClick={(e) => handleEditEvent(e, item)}
-                          className="text-gray-500 hover:text-gray-700 p-1 rounded hover:bg-gray-100"
+                          className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
                           title="Edit event"
                         >
                           <Edit size={14} />
@@ -216,7 +216,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                               handleDeleteEvent(item.id);
                             }
                           }}
-                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"
+                          className="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30"
                           title="Delete event"
                         >
                           <Trash2 size={14} />
@@ -226,7 +226,7 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                   </div>
 
                   {item.start_time && (
-                    <div className="text-xs text-gray-500 flex items-center gap-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                       <Clock size={10} />
                       {item.start_time}
                       {item.end_time ? ` - ${item.end_time}` : ""}
@@ -234,13 +234,13 @@ const CalendarDayView: React.FC<CalendarDayViewProps> = ({
                   )}
 
                   {item.description && height > 60 && (
-                    <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                       {item.description}
                     </p>
                   )}
 
                   {height > 80 && (
-                    <div className="flex flex-wrap gap-2 text-xs text-gray-500 mt-auto">
+                    <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400 mt-auto">
                       {item.assigned_to_name && (
                         <div className="flex items-center gap-1">
                           <User size={10} />

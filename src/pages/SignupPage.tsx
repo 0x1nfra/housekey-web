@@ -57,14 +57,14 @@ const SignupPage: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-emerald-50 px-6 py-8"
+      className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-6 py-8"
     >
       <div className="max-w-md mx-auto">
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-8 transition-colors"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 mb-8 transition-colors"
         >
           <ArrowLeft size={20} />
           Back to home
@@ -74,13 +74,13 @@ const SignupPage: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700"
         >
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
               Create Your Family Hub
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Start bringing your household together in just a few minutes
             </p>
           </div>
@@ -89,28 +89,28 @@ const SignupPage: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+              className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
             >
-              <p className="text-red-700 text-sm">{error}</p>
+              <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
             </motion.div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 Your Name
               </label>
               <div className="relative">
                 <User
                   size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
                 />
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 pl-10 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter your full name"
                   required
                 />
@@ -118,20 +118,20 @@ const SignupPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 Email Address
               </label>
               <div className="relative">
                 <Mail
                   size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
                 />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 pl-10 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter your email"
                   required
                 />
@@ -139,27 +139,27 @@ const SignupPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 Password
               </label>
               <div className="relative">
                 <Lock
                   size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
                 />
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="border border-gray-300 rounded-lg px-4 py-3 pl-10 pr-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  className="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 pl-10 pr-10 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Create a secure password"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                   aria-label="Toggle password visibility"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -168,21 +168,21 @@ const SignupPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-2 block">
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                 Confirm Password
               </label>
               <div className="relative">
                 <Lock
                   size={20}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
                 />
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className={`border rounded-lg px-4 py-3 pl-10 pr-10 w-full focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
-                    showPasswordError ? "border-red-300" : "border-gray-300"
+                  className={`border rounded-lg px-4 py-3 pl-10 pr-10 w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${
+                    showPasswordError ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder="Confirm your password"
                   required
@@ -190,7 +190,7 @@ const SignupPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                   aria-label="Toggle confirm password visibility"
                 >
                   {showConfirmPassword ? (
@@ -201,7 +201,7 @@ const SignupPage: React.FC = () => {
                 </button>
               </div>
               {showPasswordError && (
-                <p className="text-red-600 text-sm mt-1">
+                <p className="text-red-600 dark:text-red-400 text-sm mt-1">
                   Passwords do not match
                 </p>
               )}
@@ -226,7 +226,7 @@ const SignupPage: React.FC = () => {
           </form>
 
           <div className="text-center mt-6">
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Already have an account?{" "}
               <Link
                 to="/login"
@@ -237,7 +237,7 @@ const SignupPage: React.FC = () => {
             </p>
           </div>
 
-          <p className="text-center text-sm text-gray-500 mt-4">
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
             By creating an account, you agree to our Terms of Service and
             Privacy Policy
           </p>

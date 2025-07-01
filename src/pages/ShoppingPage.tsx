@@ -14,7 +14,7 @@ const ShoppingPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
             Shopping
           </h1>
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             Collaborate on shopping in real-time with your Hub
           </p>
         </div>

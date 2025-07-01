@@ -38,13 +38,13 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
       {/* Days of Week Header */}
       <div className="grid grid-cols-7 gap-4 p-6 pb-2">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div
             key={day}
-            className="text-center text-sm font-medium text-gray-500 py-2"
+            className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2"
           >
             {day}
           </div>
@@ -66,19 +66,19 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.01 }}
                   onClick={() => onDateClick(day.date)}
-                  className={`min-h-[120px] p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-indigo-300 transition-colors ${
+                  className={`min-h-[120px] p-3 border border-gray-100 dark:border-gray-700 rounded-lg cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors ${
                     !day.isCurrentMonth ? "opacity-50" : ""
                   } ${
                     isDayToday
-                      ? "bg-indigo-50 border-indigo-200"
+                      ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-700"
                       : isSelected
-                      ? "bg-blue-50 border-blue-200"
-                      : "hover:bg-gray-50"
+                      ? "bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700"
+                      : "hover:bg-gray-50 dark:hover:bg-gray-800"
                   }`}
                 >
                   <div
                     className={`text-sm font-medium mb-2 ${
-                      isDayToday ? "text-indigo-700" : "text-gray-900"
+                      isDayToday ? "text-indigo-700 dark:text-indigo-400" : "text-gray-900 dark:text-gray-100"
                     }`}
                   >
                     {format(new Date(day.date), "d")}
@@ -153,7 +153,7 @@ const CalendarMonthView: React.FC<CalendarMonthViewProps> = ({
 
                     {/* Show count of additional items */}
                     {(day.events.length + day.tasks.length) > 4 && (
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         +{(day.events.length + day.tasks.length) - 4} more
                       </div>
                     )}
