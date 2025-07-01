@@ -27,13 +27,13 @@ interface Member {
 }
 
 /*
-FIXME:
-1. change to dayjs
-2. move types to type folders
+TODO:
+- hook up to functions
+- load dynamic data from db
+- break down ui components
 */
 
-const HouseholdOverview: React.FC = () => {
-  // Mock data - in real app, this would come from props or API
+const DashboardView: React.FC = () => {
   const todayEvents: Event[] = [
     {
       id: "1",
@@ -101,16 +101,14 @@ const HouseholdOverview: React.FC = () => {
   };
 
   const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "high":
-        return "text-red-600 bg-red-50";
-      case "medium":
-        return "text-amber-600 bg-amber-50";
-      case "low":
-        return "text-green-600 bg-green-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
+    const base = {
+      high: "text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400",
+      medium:
+        "text-amber-600 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400",
+      low: "text-green-600 bg-green-50 dark:bg-green-500/10 dark:text-green-400",
+      default: "text-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-gray-300",
+    };
+    return base[priority as keyof typeof base] || base.default;
   };
 
   return (
@@ -120,15 +118,20 @@ const HouseholdOverview: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+        className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-            <Calendar size={20} className="text-indigo-600" />
+          <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg flex items-center justify-center">
+            <Calendar
+              size={20}
+              className="text-indigo-600 dark:text-indigo-400"
+            />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Today's Events</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              Today's Events
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {todayEvents.length} scheduled
             </p>
           </div>
@@ -138,22 +141,22 @@ const HouseholdOverview: React.FC = () => {
           {todayEvents.map((event) => (
             <div
               key={event.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
             >
               <div className="flex-1">
-                <p className="font-medium text-gray-900 text-sm">
+                <p className="font-medium text-gray-900 dark:text-white text-sm">
                   {event.title}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {formatTime(event.time)} • {event.assignedTo}
                 </p>
               </div>
-              <Clock size={16} className="text-gray-400" />
+              <Clock size={16} className="text-gray-400 dark:text-gray-500" />
             </div>
           ))}
 
           {todayEvents.length === 0 && (
-            <p className="text-gray-500 text-sm text-center py-4">
+            <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
               No events scheduled for today
             </p>
           )}
@@ -165,15 +168,20 @@ const HouseholdOverview: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+        className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-            <CheckSquare size={20} className="text-emerald-600" />
+          <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg flex items-center justify-center">
+            <CheckSquare
+              size={20}
+              className="text-emerald-600 dark:text-emerald-400"
+            />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Pending Tasks</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              Pending Tasks
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {pendingTasks.length} remaining
             </p>
           </div>
@@ -183,13 +191,13 @@ const HouseholdOverview: React.FC = () => {
           {pendingTasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
             >
               <div className="flex-1">
-                <p className="font-medium text-gray-900 text-sm">
+                <p className="font-medium text-gray-900 dark:text-white text-sm">
                   {task.title}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Assigned to {task.assignedTo}
                 </p>
               </div>
@@ -204,7 +212,7 @@ const HouseholdOverview: React.FC = () => {
           ))}
 
           {pendingTasks.length === 0 && (
-            <p className="text-gray-500 text-sm text-center py-4">
+            <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
               All tasks completed! 🎉
             </p>
           )}
@@ -216,15 +224,17 @@ const HouseholdOverview: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+        className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-            <Users size={20} className="text-amber-600" />
+          <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-lg flex items-center justify-center">
+            <Users size={20} className="text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Family Members</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="font-semibold text-gray-900 dark:text-white">
+              Family Members
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {householdMembers.length} active
             </p>
           </div>
@@ -234,14 +244,14 @@ const HouseholdOverview: React.FC = () => {
           {householdMembers.map((member) => (
             <div
               key={member.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
             >
               <div className="text-2xl">{member.avatar}</div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900 text-sm">
+                <p className="font-medium text-gray-900 dark:text-white text-sm">
                   {member.name}
                 </p>
-                <p className="text-xs text-gray-500 capitalize">
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
                   {member.role}
                 </p>
               </div>
@@ -254,4 +264,4 @@ const HouseholdOverview: React.FC = () => {
   );
 };
 
-export default HouseholdOverview;
+export default DashboardView;

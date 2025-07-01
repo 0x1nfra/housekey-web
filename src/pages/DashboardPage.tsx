@@ -1,8 +1,8 @@
 import React from "react";
 import { motion } from "framer-motion";
-import HouseholdOverview from "../components/dashboard/HouseholdOverview";
-import QuickActions from "../components/dashboard/QuickActions";
-import ActivityFeed from "../components/dashboard/ActivityFeed";
+import DashboardView from "../components/dashboard/DashboardView";
+import QuickActions from "../components/dashboard/ui/QuickActions";
+import ActivityFeed from "../components/dashboard/ui/ActivityFeed";
 import { useAuthStore } from "../store/authStore";
 import { shallow } from "zustand/shallow";
 
@@ -22,15 +22,15 @@ const DashboardPage: React.FC = () => {
         className="max-w-4xl mx-auto space-y-8"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
             Good morning, {profile?.name || "User"}! 👋
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-500">
             Here's what's happening with your family today
           </p>
         </div>
 
-        <HouseholdOverview />
+        <DashboardView />
         <QuickActions />
         <ActivityFeed />
       </motion.div>

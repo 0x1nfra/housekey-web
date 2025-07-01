@@ -63,9 +63,11 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
   };
 
   const roleColors = {
-    owner: "text-yellow-600 bg-yellow-100",
-    manager: "text-indigo-600 bg-indigo-100",
-    member: "text-gray-600 bg-gray-100",
+    owner:
+      "text-amber-600 bg-amber-100 dark:text-amber-400 dark:bg-amber-900/50",
+    manager:
+      "text-indigo-600 bg-indigo-100 dark:text-indigo-400 dark:bg-indigo-900/50",
+    member: "text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-700",
   };
 
   const pendingInvitations = userInvitations.filter((inv) => !inv.is_expired);
@@ -97,19 +99,19 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
           >
             <div className="animate-pulse">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 bg-gray-200 rounded-lg" />
+                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg" />
                 <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-                  <div className="h-3 bg-gray-200 rounded w-1/2" />
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-2" />
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="h-8 bg-gray-200 rounded w-20" />
-                <div className="h-8 bg-gray-200 rounded w-20" />
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20" />
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-20" />
               </div>
             </div>
           </div>
@@ -123,13 +125,13 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6"
+        className="bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6"
       >
         <div className="flex items-center justify-between">
-          <p className="text-red-700">{error}</p>
+          <p className="text-red-700 dark:text-red-300">{error}</p>
           <button
             onClick={clearError}
-            className="text-red-500 hover:text-red-700"
+            className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
           >
             <X size={16} />
           </button>
@@ -141,13 +143,13 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
   if (pendingInvitations.length === 0 && expiredInvitations.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Inbox size={24} className="text-gray-400" />
+        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Inbox size={24} className="text-gray-400 dark:text-gray-500" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
           No Invitations
         </h3>
-        <p className="text-gray-500">
+        <p className="text-gray-500 dark:text-gray-400">
           You don't have any hub invitations at the moment
         </p>
       </div>
@@ -159,7 +161,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
       {/* Pending Invitations */}
       {pendingInvitations.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Pending Invitations ({pendingInvitations.length})
           </h3>
 
@@ -174,22 +176,22 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 hover:shadow-md dark:hover:shadow-lg transition-shadow"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                        <span className="text-indigo-600 font-bold text-lg">
+                      <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center">
+                        <span className="text-indigo-600 dark:text-indigo-400 font-bold text-lg">
                           {invitation.hub.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
 
                       <div>
-                        <h4 className="text-lg font-semibold text-gray-900">
+                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                           {invitation.hub.name}
                         </h4>
                         {invitation.hub.description && (
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             {invitation.hub.description}
                           </p>
                         )}
@@ -206,7 +208,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-4">
                     <div className="flex items-center gap-2">
                       <Mail size={16} />
                       <span>Invited by {invitation.invited_by.name}</span>
@@ -227,9 +229,12 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                   </div>
 
                   {expiringSoon && (
-                    <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
-                      <AlertCircle size={16} className="text-amber-600" />
-                      <span className="text-sm text-amber-700 font-medium">
+                    <div className="flex items-center gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg mb-4">
+                      <AlertCircle
+                        size={16}
+                        className="text-amber-600 dark:text-amber-400"
+                      />
+                      <span className="text-sm text-amber-700 dark:text-amber-300 font-medium">
                         This invitation expires soon!
                       </span>
                     </div>
@@ -243,7 +248,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                         handleAccept(invitation.id, invitation.hub_id)
                       }
                       disabled={loadingInvitations}
-                      className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check size={16} />
                       Accept
@@ -254,7 +259,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleDecline(invitation.id)}
                       disabled={loadingInvitations}
-                      className="flex items-center gap-2 border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <X size={16} />
                       Decline
@@ -270,7 +275,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
       {/* Expired Invitations */}
       {expiredInvitations.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
             Expired Invitations ({expiredInvitations.length})
           </h3>
 
@@ -284,22 +289,22 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-gray-50 rounded-xl border border-gray-200 p-6 opacity-75"
+                  className="bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 p-6 opacity-75"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-500 font-bold text-lg">
+                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+                        <span className="text-gray-500 dark:text-gray-400 font-bold text-lg">
                           {invitation.hub.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
 
                       <div>
-                        <h4 className="text-lg font-semibold text-gray-600">
+                        <h4 className="text-lg font-semibold text-gray-600 dark:text-gray-400">
                           {invitation.hub.name}
                         </h4>
                         {invitation.hub.description && (
-                          <p className="text-sm text-gray-500 mt-1">
+                          <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
                             {invitation.hub.description}
                           </p>
                         )}
@@ -308,18 +313,18 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
 
                     <div className="flex items-center gap-2">
                       <div
-                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-600`}
+                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400`}
                       >
                         <RoleIcon size={14} />
                         <span className="capitalize">{invitation.role}</span>
                       </div>
-                      <span className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
+                      <span className="px-2 py-1 bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 text-xs rounded-full font-medium">
                         Expired
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-2">
                       <Mail size={16} />
                       <span>Invited by {invitation.invited_by.name}</span>

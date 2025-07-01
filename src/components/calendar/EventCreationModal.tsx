@@ -149,40 +149,40 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-100 dark:border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 {existingEvent ? "Edit Event" : "Create New Event"}
               </h2>
               <button
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
-                <X size={20} className="text-gray-500" />
+                <X size={20} className="text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
             <div className="space-y-6">
               {/* Event Title */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Event Title *
                 </label>
                 <input
                   type="text"
                   value={eventData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Enter event title"
                 />
               </div>
 
               {/* Event Type */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Event Type
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -192,8 +192,8 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                       onClick={() => handleInputChange("type", type.value)}
                       className={`p-3 border rounded-lg transition-colors ${
                         eventData.type === type.value
-                          ? "border-indigo-300 bg-indigo-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-indigo-300 dark:border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20"
+                          : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                       }`}
                       style={{
                         borderColor:
@@ -221,18 +221,18 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
               {/* Date and Time */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Date *
                   </label>
                   <input
                     type="date"
                     value={eventData.date}
                     onChange={(e) => handleInputChange("date", e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     Start Time
                   </label>
                   <input
@@ -241,11 +241,11 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                     onChange={(e) =>
                       handleInputChange("startTime", e.target.value)
                     }
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                     End Time
                   </label>
                   <input
@@ -254,14 +254,14 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                     onChange={(e) =>
                       handleInputChange("endTime", e.target.value)
                     }
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   />
                 </div>
               </div>
 
               {/* Assign to Family Members */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Assign to Family Members
                 </label>
                 <div className="flex flex-wrap gap-3">
@@ -271,11 +271,11 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                       onClick={() => handleMemberToggle(member.id)}
                       className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                         eventData.assignedTo.includes(member.id)
-                          ? "border-indigo-300 bg-indigo-50 text-indigo-700"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-indigo-300 dark:border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300"
+                          : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 text-gray-700 dark:text-gray-300"
                       }`}
                     >
-                      <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center text-xs font-medium">
+                      <div className="w-6 h-6 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300">
                         {member.avatar}
                       </div>
                       <span className="font-medium">{member.name}</span>
@@ -286,7 +286,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
 
               {/* Location */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Location
                 </label>
                 <div className="relative">
@@ -296,7 +296,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                     onChange={(e) =>
                       handleInputChange("location", e.target.value)
                     }
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 pl-10 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                     placeholder="Enter location (optional)"
                   />
                 </div>
@@ -316,7 +316,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                   />
                   <label
                     htmlFor="recurring"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-gray-700 dark:text-gray-300"
                   >
                     Recurring Event
                   </label>
@@ -328,7 +328,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
                     onChange={(e) =>
                       handleInputChange("recurrencePattern", e.target.value)
                     }
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   >
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
@@ -340,14 +340,14 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
 
               {/* Notes */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
                   Notes
                 </label>
                 <textarea
                   value={eventData.notes}
                   onChange={(e) => handleInputChange("notes", e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
                   placeholder="Add any additional notes..."
                 />
               </div>
@@ -357,7 +357,7 @@ const EventCreationModal: React.FC<EventCreationModalProps> = ({
             <div className="flex gap-3 mt-8">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Cancel
               </button>

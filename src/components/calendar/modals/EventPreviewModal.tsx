@@ -63,7 +63,7 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md border border-gray-100 dark:border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header with color indicator */}
@@ -80,10 +80,10 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
                   )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 truncate max-w-[250px]">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 truncate max-w-[250px]">
                     {event.title}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {event.type === "event"
                       ? event.event_type
                       : `Task - Priority ${event.priority}`}
@@ -92,25 +92,25 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
-                <X size={20} className="text-gray-500" />
+                <X size={20} className="text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
             {/* Event/Task Details */}
             <div className="space-y-4">
               {/* Date and Time */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar size={18} className="text-gray-500" />
+              <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <Calendar size={18} className="text-gray-500 dark:text-gray-400" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                     {dayjs(event.date).format("dddd, MMMM D, YYYY")}
                   </p>
                   {event.all_day ? (
-                    <p className="text-xs text-gray-500">All day</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">All day</p>
                   ) : event.start_time ? (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {event.start_time}
                       {event.end_time ? ` - ${event.end_time}` : ""}
                     </p>
@@ -120,28 +120,28 @@ const EventPreviewModal: React.FC<EventPreviewModalProps> = ({
 
               {/* Description */}
               {event.description && (
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-700">{event.description}</p>
+                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{event.description}</p>
                 </div>
               )}
 
               {/* Location */}
               {event.location && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <MapPin size={18} className="text-gray-500" />
-                  <p className="text-sm text-gray-700">{event.location}</p>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <MapPin size={18} className="text-gray-500 dark:text-gray-400" />
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{event.location}</p>
                 </div>
               )}
 
               {/* Assigned To */}
               {event.assigned_to_name && (
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                  <User size={18} className="text-gray-500" />
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                  <User size={18} className="text-gray-500 dark:text-gray-400" />
                   <div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       {event.type === "event" ? "Created by" : "Assigned to"}
                     </p>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {event.assigned_to_name}
                     </p>
                   </div>

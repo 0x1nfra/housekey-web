@@ -16,13 +16,13 @@ import TaskList from "./ui/TaskList";
 import { TaskData, TaskPriority } from "../../types/tasks";
 import AddTaskModal from "./ui/modal/AddTaskModal";
 
-const TaskDashboard: React.FC = () => {
+const TasksView: React.FC = () => {
   const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const { currentHub } = useHubStore();
-  const { user, profile } = useAuthStore(
+  const { user } = useAuthStore(
     (state) => ({
       user: state.user,
       profile: state.profile,
@@ -202,4 +202,4 @@ const TaskDashboard: React.FC = () => {
   );
 };
 
-export default TaskDashboard;
+export default TasksView;

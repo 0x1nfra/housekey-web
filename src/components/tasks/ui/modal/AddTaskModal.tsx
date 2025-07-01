@@ -104,10 +104,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
   );
 
   useEffect(() => {
-    if (isOpen) {
-      fetchCategories();
+    if (isOpen && profile?.id) {
+      setTaskData((prev) => ({
+        ...prev,
+        assignedTo: profile.id,
+      }));
     }
-  }, [isOpen, fetchCategories]);
+  }, [isOpen, profile?.id]);
 
   const priorityOptions = [
     {
@@ -192,15 +195,17 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto dark:bg-gray-800"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 dark:bg-gray-800">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                 <Plus size={16} className="text-blue-600" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900">New Task</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                New Task
+              </h2>
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
@@ -218,7 +223,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                   type="text"
                   value={taskData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  className="w-full border-0 border-b-2 border-gray-200 px-0 py-3 text-lg font-medium placeholder-gray-400 focus:border-gray-900 focus:ring-0 transition-colors bg-transparent"
+                  className="w-full border-0 border-b-2 border-gray-200 px-0 py-3 text-lg font-medium placeholder-gray-400 focus:border-gray-900 focus:ring-0 transition-colors bg-transparent dark:text-gray-100"
                   placeholder="What needs to be done?"
                   required
                 />
@@ -232,14 +237,14 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     handleInputChange("description", e.target.value)
                   }
                   rows={2}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm placeholder-gray-400 focus:border-gray-400 focus:ring-0 transition-colors resize-none"
+                  className="w-full border-0 border-b-2 border-gray-200 px-0 py-3 text-sm placeholder-gray-400 focus:border-gray-400 focus:ring-0 transition-colors resize-none bg-transparent dark:text-gray-100"
                   placeholder="Description (optional)"
                 />
               </div>
 
               {/* Priority */}
               <div>
-                <label className="text-xs font-medium text-gray-500 mb-2 block">
+                <label className="text-xs font-medium text-gray-500 mb-2 block dark:text-gray-100">
                   Priority
                 </label>
                 <div className="grid grid-cols-4 gap-2">
@@ -252,7 +257,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                       }
                       className={`p-2 border rounded-lg transition-all text-center ${
                         taskData.priority === priority.value
-                          ? "border-gray-900 bg-gray-50 shadow-sm"
+                          ? "border-gray-900 bg-gray-50 shadow-sm dark:bg-gray-700"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -283,10 +288,11 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     />
                     <select
                       value={taskData.assignedTo}
+                      // defaultValue={profile?.nam}
                       onChange={(e) =>
                         handleInputChange("assignedTo", e.target.value)
                       }
-                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors dark:bg-gray-800 text-gray-100"
                     >
                       <option value="">Anyone</option>
                       {availableAssignees.map((assignee) => (
@@ -313,7 +319,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                       onChange={(e) =>
                         handleInputChange("category", e.target.value)
                       }
-                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                      className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors dark:bg-gray-800 text-gray-100"
                     >
                       <option value="">None</option>
                       {categories.map((category) => (
@@ -389,7 +395,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
-                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors dark:text-gray-100 dark:hover:text-gray-400"
               >
                 <span>Advanced Options</span>
                 {showAdvanced ? (
@@ -412,7 +418,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     <div className="grid grid-cols-2 gap-3">
                       {/* Due Date */}
                       <div>
-                        <label className="text-xs font-medium text-gray-500 mb-1 block">
+                        <label className="text-xs font-medium text-gray-500 mb-1 block dark:text-gray-100">
                           Due
                         </label>
                         <div className="relative">
@@ -426,13 +432,13 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                             onChange={(e) =>
                               handleInputChange("dueDate", e.target.value)
                             }
-                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors dark:bg-gray-800 dark:text-gray-100"
                           />
                         </div>
                       </div>
                       {/* Duration */}
                       <div>
-                        <label className="text-xs font-medium text-gray-500 mb-1 block">
+                        <label className="text-xs font-medium text-gray-500 mb-1 block dark:text-gray-100">
                           Duration
                         </label>
                         <div className="relative">
@@ -445,7 +451,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                             onChange={(e) =>
                               handleInputChange("estimatedTime", e.target.value)
                             }
-                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                            className="w-full border border-gray-200 rounded-lg px-2 py-2 pl-7 text-sm focus:border-gray-400 focus:ring-0 transition-colors dark:bg-gray-800"
                           >
                             {DURATION_OPTIONS.map((option) => (
                               <option key={option.value} value={option.value}>
@@ -458,9 +464,12 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                     </div>
 
                     {/* Recurring Task */}
-                    <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="bg-gray-50 rounded-lg p-3 dark:bg-gray-600">
                       <div className="flex items-center gap-3 mb-2">
-                        <Repeat size={16} className="text-gray-500" />
+                        <Repeat
+                          size={16}
+                          className="text-gray-500 dark:text-gray-100"
+                        />
                         <input
                           type="checkbox"
                           id="recurring"
@@ -472,7 +481,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                         />
                         <label
                           htmlFor="recurring"
-                          className="text-sm font-medium text-gray-700"
+                          className="text-sm font-medium text-gray-700 dark:text-gray-100"
                         >
                           Recurring task
                         </label>
@@ -494,7 +503,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                                   e.target.value
                                 )
                               }
-                              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors dark:bg-gray-800 dark:text-gray-100"
                             >
                               {RECURRENCE_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>
@@ -503,7 +512,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                               ))}
                             </select>
                             <div>
-                              <label className="text-xs text-gray-500 mb-1 block">
+                              <label className="text-xs text-gray-500 mb-1 block dark:text-gray-100">
                                 Every
                               </label>
                               <input
@@ -516,7 +525,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                                     parseInt(e.target.value) || 1
                                   )
                                 }
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-gray-400 focus:ring-0 transition-colors dark:bg-gray-800 dark:text-gray-100"
                               />
                             </div>
                           </div>
@@ -532,7 +541,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors rounded-lg"
+                  className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors rounded-lg dark:text-gray-100"
                 >
                   Cancel
                 </button>
@@ -541,7 +550,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({
                   whileTap={{ scale: 0.98 }}
                   type="submit"
                   disabled={!taskData.title}
-                  className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:text-gray-100"
                 >
                   Create Task
                 </motion.button>

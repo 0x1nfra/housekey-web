@@ -46,7 +46,7 @@ interface ShoppingItem {
   completed_by?: string;
 }
 
-const CollaborativeShoppingList: React.FC = () => {
+const ShoppingView: React.FC = () => {
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showEditItemModal, setShowEditItemModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -190,7 +190,7 @@ const CollaborativeShoppingList: React.FC = () => {
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 currentList?.id === list.id
                   ? "bg-indigo-600 text-white"
-                  : "bg-white border border-gray-200 text-gray-700 hover:border-gray-300"
+                  : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -212,7 +212,7 @@ const CollaborativeShoppingList: React.FC = () => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowStatsModal(true)}
-              className="bg-white border border-gray-200 text-gray-700 hover:border-gray-300 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
             >
               <BarChart3 size={16} />
               Stats
@@ -235,12 +235,12 @@ const CollaborativeShoppingList: React.FC = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Main Shopping List */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
               {/* List Header */}
-              <div className="p-6 border-b border-gray-100">
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-bold text-gray-900">
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                       {currentList.name}
                     </h2>
                     {canUserManage && (
@@ -278,12 +278,12 @@ const CollaborativeShoppingList: React.FC = () => {
                 </div>
 
                 {currentList.description && (
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
                     {currentList.description}
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-2">
                     <Users size={16} />
                     <span>{collaborators.length} collaborators</span>
@@ -302,13 +302,13 @@ const CollaborativeShoppingList: React.FC = () => {
                 {quickStats && (
                   <div className="mt-4">
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-gray-600">Progress</span>
-                      <span className="text-gray-900 font-medium">
+                      <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                      <span className="text-gray-900 dark:text-gray-100 font-medium">
                         {quickStats.completedItems} of {quickStats.totalItems}{" "}
                         items
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                       <motion.div
                         className="bg-emerald-500 h-2 rounded-full"
                         initial={{ width: 0 }}
@@ -324,7 +324,7 @@ const CollaborativeShoppingList: React.FC = () => {
 
               {/* Pending Items */}
               <div className="p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
                   To Buy ({pendingItems.length})
                 </h3>
 
@@ -332,11 +332,11 @@ const CollaborativeShoppingList: React.FC = () => {
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="animate-pulse">
-                        <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                           <div className="w-6 h-6 bg-gray-200 rounded-full" />
                           <div className="flex-1">
-                            <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-                            <div className="h-3 bg-gray-200 rounded w-1/2" />
+                            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/3 mb-2" />
+                            <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-1/2" />
                           </div>
                         </div>
                       </div>
@@ -352,13 +352,13 @@ const CollaborativeShoppingList: React.FC = () => {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
                           transition={{ delay: index * 0.05 }}
-                          className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group"
+                          className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
                         >
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleItemComplete(item.id)}
-                            className="w-6 h-6 border-2 border-gray-300 rounded-full hover:border-emerald-500 transition-colors flex items-center justify-center"
+                            className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-full hover:border-emerald-500 transition-colors flex items-center justify-center"
                           >
                             <Check
                               size={14}
@@ -368,7 +368,7 @@ const CollaborativeShoppingList: React.FC = () => {
 
                           <div className="flex-1">
                             <div className="flex items-center gap-3 mb-1">
-                              <span className="font-medium text-gray-900">
+                              <span className="font-medium text-gray-900 dark:text-gray-100">
                                 {item.name}
                               </span>
                               {item.quantity > 1 && (
@@ -387,7 +387,7 @@ const CollaborativeShoppingList: React.FC = () => {
                               )}
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                               <span className="text-lg">
                                 {getMemberAvatar("User")}
                               </span>
@@ -412,7 +412,7 @@ const CollaborativeShoppingList: React.FC = () => {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => openEditModal(item)}
-                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
                               title="Edit item"
                             >
                               <Edit3 size={16} />
@@ -424,7 +424,7 @@ const CollaborativeShoppingList: React.FC = () => {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handleItemDelete(item.id)}
-                              className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
                               title="Delete item"
                             >
                               <Trash2 size={16} />
@@ -438,18 +438,18 @@ const CollaborativeShoppingList: React.FC = () => {
 
                 {pendingItems.length === 0 && !loading.items && (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Check size={24} className="text-emerald-600" />
+                    <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Check size={24} className="text-emerald-600 dark:text-emerald-400" />
                     </div>
-                    <p className="text-gray-500">All items completed! 🎉</p>
+                    <p className="text-gray-500 dark:text-gray-400">All items completed! 🎉</p>
                   </div>
                 )}
               </div>
 
               {/* Completed Items */}
               {completedItems.length > 0 && (
-                <div className="p-6 border-t border-gray-100 bg-gray-50">
-                  <h3 className="font-semibold text-gray-900 mb-4">
+                <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
                     Completed ({completedItems.length})
                   </h3>
 
@@ -457,18 +457,18 @@ const CollaborativeShoppingList: React.FC = () => {
                     {completedItems.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center gap-4 p-3 bg-white rounded-lg opacity-75"
+                        className="flex items-center gap-4 p-3 bg-white dark:bg-gray-700 rounded-lg opacity-75"
                       >
                         <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
                           <Check size={14} className="text-white" />
                         </div>
 
                         <div className="flex-1">
-                          <span className="text-gray-600 line-through">
+                          <span className="text-gray-600 dark:text-gray-400 line-through">
                             {item.name}
                           </span>
                           {item.completed_by && (
-                            <span className="text-sm text-gray-500 ml-2">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
                               by{" "}
                               <span className="font-semibold">
                                 {profile?.name}
@@ -483,7 +483,7 @@ const CollaborativeShoppingList: React.FC = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleItemComplete(item.id)}
-                          className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
                           title="Mark as incomplete"
                         >
                           <X size={16} />
@@ -550,4 +550,4 @@ const CollaborativeShoppingList: React.FC = () => {
   );
 };
 
-export default CollaborativeShoppingList;
+export default ShoppingView;

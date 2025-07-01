@@ -47,7 +47,7 @@ const TaskStats: React.FC<TaskStatsProps> = ({ taskStats, overdueCount }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 p-4"
+          className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4"
         >
           <div className="flex items-center gap-3">
             <div
@@ -56,10 +56,12 @@ const TaskStats: React.FC<TaskStatsProps> = ({ taskStats, overdueCount }) => {
               <stat.icon size={20} />
             </div>
             <div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {stat.value}
               </div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {stat.label}
+              </div>
             </div>
           </div>
         </motion.div>

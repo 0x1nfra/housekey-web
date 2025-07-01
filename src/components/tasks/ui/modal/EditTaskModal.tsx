@@ -22,6 +22,7 @@ import {
 import { useHubStore } from "../../../../store/hubStore";
 import { useAuthStore } from "../../../../store/authStore";
 import { useTasksStore } from "../../../../store/tasks";
+import { useTheme } from "../../../settings/ThemeProvider";
 import { shallow } from "zustand/shallow";
 import { TaskPriority } from "../../../../types/tasks";
 
@@ -91,6 +92,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
     }),
     shallow
   );
+
+  const { darkMode } = useTheme();
 
   useEffect(() => {
     if (isOpen) {
@@ -228,24 +231,24 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="bg-white rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto border border-gray-100 dark:border-gray-700"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Check size={16} className="text-blue-600" />
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <Check size={16} className="text-blue-600 dark:text-blue-400" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   Edit Task
                 </h2>
               </div>
               <button
                 onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
-                <X size={18} className="text-gray-500" />
+                <X size={18} className="text-gray-500 dark:text-gray-400" />
               </button>
             </div>
 
@@ -258,7 +261,7 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({
                   type="text"
                   value={taskData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  className="w-full border-0 border-b-2 border-gray-200 px-0 py-3 text-lg font-medium placeholder-gray-400 focus:border-gray-900 focus:ring-0 transition-colors bg-transparent"
+                  className="w-full border-0 border-b-2 border-gray-200 dark:border-gray-600 px-0 py-3 text-lg font-medium text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-gray-900 dark:focus:border-gray-300 focus:ring-0 transition-colors bg-transparent"
                   placeholder="Task title"
                   required
                 />

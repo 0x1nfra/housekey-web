@@ -83,11 +83,11 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
       {/* Week header */}
-      <div className="grid grid-cols-8 border-b border-gray-100">
+      <div className="grid grid-cols-8 border-b border-gray-100 dark:border-gray-700">
         {/* Empty cell for time column */}
-        <div className="p-4 text-center border-r border-gray-100"></div>
+        <div className="p-4 text-center border-r border-gray-100 dark:border-gray-700"></div>
 
         {/* Day headers */}
         {weekDays.map((day) => {
@@ -100,20 +100,20 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
             <div
               key={day}
               onClick={() => onDateClick(day)}
-              className={`p-4 text-center cursor-pointer transition-colors border-r border-gray-100 ${
+              className={`p-4 text-center cursor-pointer transition-colors border-r border-gray-100 dark:border-gray-700 ${
                 isToday
-                  ? "bg-indigo-50"
+                  ? "bg-indigo-50 dark:bg-indigo-900/20"
                   : isSelected
-                  ? "bg-blue-50"
-                  : "hover:bg-gray-50"
+                  ? "bg-blue-50 dark:bg-blue-900/20"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-800"
               }`}
             >
-              <div className="text-sm font-medium text-gray-500">
+              <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
                 {date.format("ddd")}
               </div>
               <div
                 className={`text-lg font-semibold ${
-                  isToday ? "text-indigo-600" : "text-gray-900"
+                  isToday ? "text-indigo-600 dark:text-indigo-400" : "text-gray-900 dark:text-gray-100"
                 }`}
               >
                 {date.format("D")}
@@ -127,13 +127,13 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
       <div className="relative">
         <div className="grid grid-cols-8">
           {/* Time labels column */}
-          <div className="border-r border-gray-100">
+          <div className="border-r border-gray-100 dark:border-gray-700">
             {HOURS.map((hour) => (
               <div
                 key={hour}
-                className="h-[60px] border-b border-gray-100 px-2 flex items-start justify-end pt-1"
+                className="h-[60px] border-b border-gray-100 dark:border-gray-700 px-2 flex items-start justify-end pt-1"
               >
-                <span className="text-xs text-gray-500 bg-white pl-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-900 pl-2">
                   {formatTimeLabel(hour)}
                 </span>
               </div>
@@ -142,12 +142,12 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
 
           {/* Day columns */}
           {weekDays.map((day, dayIndex) => (
-            <div key={day} className="relative border-r border-gray-100">
+            <div key={day} className="relative border-r border-gray-100 dark:border-gray-700">
               {/* Hour grid lines */}
               {HOURS.map((hour) => (
                 <div
                   key={hour}
-                  className="h-[60px] border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
+                  className="h-[60px] border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                   onClick={(e) => handleTimeSlotClick(e, day, hour)}
                 ></div>
               ))}
@@ -161,7 +161,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                     key={`${item.type}-${item.id}`}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="absolute left-0 right-0 mx-1 rounded overflow-hidden shadow-sm border-l-4 z-10 bg-white group"
+                    className="absolute left-0 right-0 mx-1 rounded overflow-hidden shadow-sm border-l-4 z-10 bg-white dark:bg-gray-800 group"
                     style={{
                       top: `${top}px`,
                       height: `${height}px`,
@@ -174,19 +174,19 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                   >
                     <div className="p-1 text-xs overflow-hidden h-full">
                       <div className="flex justify-between items-center">
-                        <div className="font-medium truncate">{item.title}</div>
+                        <div className="font-medium truncate text-gray-900 dark:text-gray-100">{item.title}</div>
                         {item.type === "event" && (
                           <div className="hidden group-hover:flex items-center gap-1">
                             <button
                               onClick={(e) => handleEditEvent(e, item)}
-                              className="text-gray-500 hover:text-gray-700 p-0.5 rounded hover:bg-gray-100"
+                              className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 p-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-600"
                               title="Edit event"
                             >
                               <Edit size={10} />
                             </button>
                             <button
                               onClick={(e) => handleDeleteEvent(e, item.id)}
-                              className="text-red-500 hover:text-red-700 p-0.5 rounded hover:bg-red-50"
+                              className="text-red-500 hover:text-red-700 p-0.5 rounded hover:bg-red-50 dark:hover:bg-red-900/30"
                               title="Delete event"
                             >
                               <Trash2 size={10} />
@@ -195,7 +195,7 @@ const CalendarWeekView: React.FC<CalendarWeekViewProps> = ({
                         )}
                       </div>
                       {item.start_time && (
-                        <div className="text-gray-500 truncate">
+                        <div className="text-gray-500 dark:text-gray-400 truncate">
                           {item.start_time}
                           {item.end_time ? ` - ${item.end_time}` : ""}
                         </div>

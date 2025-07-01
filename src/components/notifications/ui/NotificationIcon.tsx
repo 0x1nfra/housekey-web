@@ -1,22 +1,20 @@
-import React, { useState, useRef, useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, CheckCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useNotificationsStore } from "../../store/notifications";
-import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
 import NotificationItem from "./NotificationItem";
+import { useNotificationsStore } from "../../../store/notifications";
+import { useAuthStore } from "../../../store/authStore";
 
 const NotificationIcon: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { user } = useAuthStore(
-    (state) => ({
-      user: state.user,
-    }),
-    shallow
-  );
+  const { user } = useAuthStore((state) => ({ user: state.user }), shallow);
 
   const {
     notifications,
@@ -41,34 +39,24 @@ const NotificationIcon: React.FC = () => {
     shallow
   );
 
-  // Add a UUID validation function
   const isValidUUID = (id: string) =>
     /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
       id
     );
 
-  // Initialize notifications
   useEffect(() => {
     if (user && isValidUUID(user.id)) {
       fetchNotifications(user.id, true);
       fetchUnreadCount(user.id);
       subscribeToNotifications(user.id);
     }
-
     return () => {
       if (user && isValidUUID(user.id)) {
         unsubscribeFromNotifications(user.id);
       }
     };
-  }, [
-    user,
-    fetchNotifications,
-    fetchUnreadCount,
-    subscribeToNotifications,
-    unsubscribeFromNotifications,
-  ]);
+  }, [user]);
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -78,18 +66,14 @@ const NotificationIcon: React.FC = () => {
         setIsOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleMarkAllAsRead = async () => {
-    if (user) {
-      await markAllAsRead(user.id);
-    }
+    if (user) await markAllAsRead(user.id);
   };
 
-  // Get recent notifications for preview
   const recentNotifications = notifications.slice(0, 5);
 
   return (
@@ -98,7 +82,7 @@ const NotificationIcon: React.FC = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
         aria-label="Notifications"
       >
         <Bell size={20} />
@@ -116,18 +100,19 @@ const NotificationIcon: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+            className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <h3 className="font-semibold text-gray-900">Notifications</h3>
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                Notifications
+              </h3>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleMarkAllAsRead}
-                    className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     title="Mark all as read"
                   >
                     <CheckCheck size={16} />
@@ -137,7 +122,7 @@ const NotificationIcon: React.FC = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                   title="Close"
                 >
                   <X size={16} />
@@ -145,7 +130,6 @@ const NotificationIcon: React.FC = () => {
               </div>
             </div>
 
-            {/* Notification List */}
             <div className="max-h-[400px] overflow-y-auto">
               {loading.fetch && recentNotifications.length === 0 ? (
                 <div className="p-4 space-y-3">
@@ -154,16 +138,16 @@ const NotificationIcon: React.FC = () => {
                       key={i}
                       className="animate-pulse flex items-start gap-3"
                     >
-                      <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
+                      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
                       <div className="flex-1">
-                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
+                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : recentNotifications.length > 0 ? (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
                   {recentNotifications.map((notification) => (
                     <NotificationItem
                       key={notification.id}
@@ -175,20 +159,24 @@ const NotificationIcon: React.FC = () => {
                 </div>
               ) : (
                 <div className="p-8 text-center">
-                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Bell size={20} className="text-gray-400" />
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Bell
+                      size={20}
+                      className="text-gray-400 dark:text-gray-500"
+                    />
                   </div>
-                  <p className="text-gray-500 text-sm">No notifications yet</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    No notifications yet
+                  </p>
                 </div>
               )}
             </div>
 
-            {/* Footer */}
-            <div className="p-3 border-t border-gray-100 text-center">
+            <div className="p-3 border-t border-gray-100 dark:border-gray-800 text-center">
               <Link
                 to="/notifications"
                 onClick={() => setIsOpen(false)}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
               >
                 View All Notifications
               </Link>

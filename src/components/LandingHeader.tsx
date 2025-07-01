@@ -20,18 +20,18 @@ const LandingHeader: React.FC = () => {
           <div className="w-8 h-8 bg-indigo-600 rounded-md text-white flex items-center justify-center font-bold text-sm">
             F
           </div>
-          <span className="text-xl font-semibold text-gray-900">Harmony</span>
+          <span className="text-xl font-semibold text-gray-900 dark:text-gray-100">Harmony</span>
         </div>
 
         {/* Center: Navigation */}
-        <nav className="hidden md:flex gap-8 text-gray-600 font-medium">
-          <button className="hover:text-gray-900 transition-colors">
+        <nav className="hidden md:flex gap-8 text-gray-600 dark:text-gray-300 font-medium">
+          <button className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
             Pricing
           </button>
-          <button className="hover:text-gray-900 transition-colors">
+          <button className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
             Blogs
           </button>
-          <button className="hover:text-gray-900 transition-colors">
+          <button className="hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
             Docs
           </button>
         </nav>
@@ -40,7 +40,7 @@ const LandingHeader: React.FC = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/login")}
-            className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+            className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 font-medium transition-colors"
           >
             Log In
           </button>

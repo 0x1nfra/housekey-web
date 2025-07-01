@@ -42,11 +42,11 @@ const TaskList: React.FC<TaskListProps> = ({
     <div className="space-y-3">
       {[1, 2, 3].map((i) => (
         <div key={i} className="animate-pulse">
-          <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
-            <div className="w-6 h-6 bg-gray-200 rounded-full" />
+          <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+            <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-full" />
             <div className="flex-1">
-              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-              <div className="h-3 bg-gray-200 rounded w-1/2" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-2" />
+              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
             </div>
           </div>
         </div>
@@ -56,15 +56,15 @@ const TaskList: React.FC<TaskListProps> = ({
 
   const EmptyState = () => (
     <div className="text-center py-12">
-      <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center mx-auto mb-4">
         <CheckCircle size={24} className="text-emerald-600" />
       </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
         {hasActiveFilters
           ? "No tasks match your filters"
           : "All tasks completed! 🎉"}
       </h3>
-      <p className="text-gray-500 mb-4">
+      <p className="text-gray-500 dark:text-gray-400 mb-4">
         {hasActiveFilters
           ? "Try adjusting your filters to see more tasks"
           : "You're all caught up"}
@@ -83,10 +83,10 @@ const TaskList: React.FC<TaskListProps> = ({
   );
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-6 border-b border-gray-100">
+    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+      <div className="p-6 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             Tasks ({tasks.length})
           </h3>
 
@@ -94,14 +94,14 @@ const TaskList: React.FC<TaskListProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={onSelectAll}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                className="text-sm text-indigo-600 hover:text-indigo-700 dark:hover:text-indigo-400 font-medium"
               >
                 Select All
               </button>
               {selectedTasks.length > 0 && (
                 <button
                   onClick={onClearSelection}
-                  className="text-sm text-gray-600 hover:text-gray-700"
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
                 >
                   Clear Selection
                 </button>
