@@ -9,7 +9,7 @@ import InvitationsList from "../components/hub/InvitationsList";
 import NotificationsTab from "../components/settings/NotificationsTab";
 import PrivacyTab from "../components/settings/PrivacyTab";
 import { useHubStore } from "../store/hubStore";
-import { useSettingsStore } from "../store/settings";
+import { SettingsState, useSettingsStore } from "../store/settings";
 import { shallow } from "zustand/shallow";
 
 const SettingsPage: React.FC = () => {
@@ -41,10 +41,20 @@ const SettingsPage: React.FC = () => {
   }, [searchParams, activeTab, setSearchParams]);
 
   // Handle tab change
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = (tab: SettingsState["activeTab"] | string) => {
     setActiveTabState(tab);
     setSearchParams({ tab });
-    setActiveTab(tab as any);
+    const validTabs = [
+      "preferences",
+      "profile",
+      "hub",
+      "invitations",
+      "notifications",
+      "privacy",
+    ];
+    if (validTabs.includes(tab)) {
+      setActiveTab(tab as SettingsState["activeTab"]);
+    }
   };
 
   // Render the active tab content

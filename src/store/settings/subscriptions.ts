@@ -27,7 +27,7 @@ export const createSettingsSubscriptions = (
         .on(
           "postgres_changes",
           {
-            event: "*",
+            event: "UPDATE",
             schema: "public",
             table: "user_settings",
             filter: `user_id=eq.${userId}`,
@@ -35,14 +35,15 @@ export const createSettingsSubscriptions = (
           (payload: RealtimePostgresChangesPayload<UserSettings>) => {
             try {
               set((state: SettingsState) => {
-                if (payload.eventType === "UPDATE") {
-                  // Update existing settings
-                  state.settings = payload.new;
-                  state.hasUnsavedChanges = false;
-                }
+                // Update existing settings
+                state.settings = payload.new as UserSettings;
+                state.hasUnsavedChanges = false;
               });
             } catch (error) {
-              console.error("Error handling settings subscription update:", error);
+              console.error(
+                "Error handling settings subscription update:",
+                error
+              );
               set((state: SettingsState) => {
                 state.error =
                   "Failed to process settings update. Please refresh the page.";

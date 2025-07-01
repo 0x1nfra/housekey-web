@@ -7,21 +7,10 @@ import SettingsSection from "./ui/SettingsSection";
 import { getInitials } from "../../utils/userUtils";
 
 const ProfileTab: React.FC = () => {
-  // const { user, profile, loading, error } = useAuthStore(
-  //   (state) => ({
-  //     user: state.user,
-  //     profile: state.profile,
-  //     loading: state.loading,
-  //     error: state.error,
-  //   }),
-  //   shallow
-  // );
   const { profile, loading } = useAuthStore(
     (state) => ({
-      user: state.user,
       profile: state.profile,
       loading: state.loading,
-      error: state.error,
     }),
     shallow
   );
@@ -92,7 +81,7 @@ const ProfileTab: React.FC = () => {
         {/* Profile Avatar */}
         <div className="flex items-center gap-6">
           <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-300 text-2xl font-semibold">
-            {getInitials(profile.name)}
+            {getInitials(profile.name || "")}
           </div>
           <div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">

@@ -4,8 +4,12 @@ import {
   UserSettings,
   SetStateFunction,
   GetStateFunction,
-  Result,
 } from "./types";
+
+const DEFAULT_SETTINGS: Partial<UserSettings> = {
+  dark_mode: false,
+  time_format: "12" as const,
+};
 
 export const createSettingsActions = (
   set: SetStateFunction,
@@ -46,8 +50,7 @@ export const createSettingsActions = (
           .from("user_settings")
           .insert({
             user_id: user.user.id,
-            dark_mode: false,
-            time_format: "12",
+            ...DEFAULT_SETTINGS,
           })
           .select()
           .single();
@@ -76,12 +79,12 @@ export const createSettingsActions = (
     set((state) => {
       state.loading.update = true;
       state.error = null;
-      
+
       // Update local state immediately for better UX
       if (state.settings) {
         state.settings = { ...state.settings, ...settings };
       }
-      
+
       state.hasUnsavedChanges = true;
     });
   },
@@ -99,8 +102,7 @@ export const createSettingsActions = (
       const { error } = await supabase
         .from("user_settings")
         .update({
-          dark_mode: settings.dark_mode,
-          time_format: settings.time_format,
+          ...DEFAULT_SETTINGS,
         })
         .eq("id", settings.id);
 
@@ -133,8 +135,7 @@ export const createSettingsActions = (
       const { error } = await supabase
         .from("user_settings")
         .update({
-          dark_mode: false,
-          time_format: "12",
+          ...DEFAULT_SETTINGS,
         })
         .eq("user_id", user.user.id);
 
@@ -154,9 +155,9 @@ export const createSettingsActions = (
         state.loading.update = false;
         state.hasUnsavedChanges = false;
       });
-      
+
       // Apply dark mode change to document
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     } catch (error) {
       console.error("Error resetting settings:", error);
       set((state) => {
@@ -204,7 +205,7 @@ export const createSettingsActions = (
       };
       state.error = null;
       state.hasUnsavedChanges = false;
-      state.activeTab = 'preferences';
+      state.activeTab = "preferences";
       state.subscriptions = {};
     });
   },

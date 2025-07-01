@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { SettingsStore, ImmerSet, ImmerGet, SubscriptionGroup } from "./types";
+import { SettingsStore, ImmerSet, ImmerGet } from "./types";
 import { initialState } from "./state";
 import { createSettingsActions } from "./actions";
 import { createSettingsSelectors } from "./selectors";
@@ -21,7 +21,12 @@ export const useSettingsStore = create<SettingsStore>()(
 
 // Subscribe to auth store changes to initialize settings when user logs in
 useAuthStore.subscribe((state) => {
-  if (state.user && !useSettingsStore.getState().settings) {
+  const settingsState = useSettingsStore.getState();
+  if (
+    state.user &&
+    !settingsState.settings &&
+    !settingsState.loading.settings
+  ) {
     useSettingsStore.getState().fetchUserSettings();
   }
 });
@@ -39,9 +44,7 @@ export const cleanupSettingsStore = () => {
   const store = useSettingsStore.getState();
 
   // Unsubscribe from all realtime subscriptions
-  Object.values(
-    store.subscriptions as Record<string, SubscriptionGroup>
-  ).forEach((subscription) => {
+  Object.values(store.subscriptions).forEach((subscription) => {
     if (subscription && typeof subscription.unsubscribe === "function") {
       subscription.unsubscribe();
     }

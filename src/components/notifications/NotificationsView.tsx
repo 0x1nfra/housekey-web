@@ -97,6 +97,30 @@ const NotificationsView: React.FC = () => {
   const hasActiveFilters =
     filters.type !== undefined || filters.read !== undefined;
 
+  // Static class mappings to avoid dynamic Tailwind classes
+  const typeColorClasses = {
+    gray: {
+      active: "bg-gray-600 text-white",
+      inactive: "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-800"
+    },
+    indigo: {
+      active: "bg-indigo-600 text-white",
+      inactive: "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800"
+    },
+    emerald: {
+      active: "bg-emerald-600 text-white",
+      inactive: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-800"
+    },
+    purple: {
+      active: "bg-purple-600 text-white",
+      inactive: "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800"
+    },
+    blue: {
+      active: "bg-blue-600 text-white",
+      inactive: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800"
+    }
+  };
+
   return (
     <div className="space-y-6">
       {error && (
@@ -150,15 +174,13 @@ const NotificationsView: React.FC = () => {
                 { label: "System", type: "system", base: "purple", Icon: Bell },
               ].map(({ label, type, base, Icon }) => {
                 const active = filters.type === type;
-                const activeClasses = `bg-${base}-600 text-white`;
-                const inactiveClasses = `bg-${base}-100 dark:bg-${base}-900/30 text-${base}-700 dark:text-${base}-300 hover:bg-${base}-200 dark:hover:bg-${base}-800`;
+                const colorClasses = typeColorClasses[base as keyof typeof typeColorClasses] || typeColorClasses.gray;
+                const classes = active ? colorClasses.active : colorClasses.inactive;
                 return (
                   <button
                     key={label}
                     onClick={() => handleTypeFilter(type)}
-                    className={`px-3 py-1.5 text-xs rounded-full font-medium transition-colors flex items-center gap-1 ${
-                      active ? activeClasses : inactiveClasses
-                    }`}
+                    className={`px-3 py-1.5 text-xs rounded-full font-medium transition-colors flex items-center gap-1 ${classes}`}
                   >
                     {Icon && <Icon size={12} />}
                     {label}
@@ -175,17 +197,14 @@ const NotificationsView: React.FC = () => {
                 { label: "Read", value: true },
               ].map(({ label, value }) => {
                 const active = filters.read === value;
-                const base =
-                  value === false ? "blue" : value === true ? "gray" : "gray";
+                const baseColor = value === false ? "blue" : "gray";
+                const colorClasses = typeColorClasses[baseColor as keyof typeof typeColorClasses] || typeColorClasses.gray;
+                const classes = active ? colorClasses.active : colorClasses.inactive;
                 return (
                   <button
                     key={label}
                     onClick={() => handleReadFilter(value)}
-                    className={`px-3 py-1.5 text-xs rounded-full font-medium transition-colors ${
-                      active
-                        ? `bg-${base}-600 text-white`
-                        : `bg-${base}-100 dark:bg-${base}-900/30 text-${base}-700 dark:text-${base}-300 hover:bg-${base}-200 dark:hover:bg-${base}-800`
-                    }`}
+                    className={`px-3 py-1.5 text-xs rounded-full font-medium transition-colors ${classes}`}
                   >
                     {label}
                   </button>
