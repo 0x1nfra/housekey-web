@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.7.0
+
+### 🚀 Major Features
+
+- **User Settings Management**: Dark mode and time format preferences with real-time syncing and persistence.
+- **Settings UI**: Comprehensive interface with tabs for app preferences, profile, notifications, privacy, and invitations.
+
+### 🛠 Improvements & Fixes
+
+- Extensive dark mode support across all major pages and components.
+- Added reusable UI components for toggles, radio groups, and settings sections.
+- Improved modularity and navigation with new layout and tab system.
+- Refined visual consistency and accessibility for both light and dark themes.
+
+### 🧩 Backend & Database
+
+- Added user_settings table with secure per-user preferences and row-level security.
+- Created triggers and policies for data integrity and access control.
+
+### ⚙️ Dependencies
+
+- Updated Tailwind CSS configuration to enable class-based dark mode toggling.
+
+---
+
 ## v0.6.0
 
 ### 🚀 Major Features
