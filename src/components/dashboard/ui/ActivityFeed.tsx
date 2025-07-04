@@ -66,13 +66,13 @@ const ActivityFeed: React.FC = () => {
       case "task":
         return "bg-sage-green-light text-deep-charcoal";
       case "event":
-        return "bg-blue-100 text-blue-700";
+        return "bg-sage-green-light text-deep-charcoal";
       case "shopping":
-        return "bg-amber-100 text-amber-700";
+        return "bg-sage-green-light text-deep-charcoal";
       case "member":
-        return "bg-purple-100 text-purple-700";
+        return "bg-sage-green-light text-deep-charcoal";
       default:
-        return "bg-gray-100 text-charcoal-muted";
+        return "bg-sage-green-light text-deep-charcoal";
     }
   };
 
@@ -93,15 +93,15 @@ const ActivityFeed: React.FC = () => {
       className="bg-white border border-gray-100 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300"
     >
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-          <Activity size={20} className="text-blue-700" />
+        <div className="w-10 h-10 bg-sage-green rounded-lg flex items-center justify-center">
+          <Activity size={20} className="text-deep-charcoal" />
         </div>
         <div>
           <h3 className="font-chivo font-semibold text-deep-charcoal">
-            Recent Activity
+            Member's Activity
           </h3>
           <p className="text-sm text-charcoal-muted font-lora">
-            See what your family has been up to
+            See what other members has been up to
           </p>
         </div>
       </div>

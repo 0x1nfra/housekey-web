@@ -23,19 +23,19 @@ const QuickActions: React.FC = () => {
       type: "event",
       icon: Calendar,
       label: "Add Event",
-      color: "bg-blue-100 text-blue-700",
+      color: "bg-sage-green text-deep-charcoal",
     },
     {
       type: "task",
       icon: CheckSquare,
       label: "Create Task",
-      color: "bg-sage-green-light text-deep-charcoal",
+      color: "bg-sage-green text-deep-charcoal",
     },
     {
       type: "shopping",
       icon: ShoppingCart,
       label: "Add to List",
-      color: "bg-amber-100 text-amber-700",
+      color: "bg-sage-green text-deep-charcoal",
     },
   ];
 

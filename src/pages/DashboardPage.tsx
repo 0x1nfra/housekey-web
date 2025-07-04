@@ -1,8 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
 import DashboardView from "../components/dashboard/DashboardView";
-import QuickActions from "../components/dashboard/ui/QuickActions";
-import ActivityFeed from "../components/dashboard/ui/ActivityFeed";
 import { useAuthStore } from "../store/auth";
 import { useHubStore } from "../store/hub";
 import { getTimeBasedGreeting } from "../utils/time";
@@ -44,8 +42,6 @@ const DashboardPage: React.FC = () => {
         </div>
 
         <DashboardView />
-        <QuickActions />
-        <ActivityFeed />
       </motion.div>
     </div>
   );

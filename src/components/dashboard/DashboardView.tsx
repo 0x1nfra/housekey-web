@@ -1,8 +1,11 @@
 "use client";
 
 import type React from "react";
-import { motion } from "framer-motion";
-import { Calendar, CheckSquare, Users, Clock, TrendingUp } from "lucide-react";
+
+import QuickActions from "./ui/QuickActions";
+import ActivityFeed from "./ui/ActivityFeed";
+import Stats from "./ui/Stats";
+import Activity from "./ui/Activity";
 
 interface Event {
   id: string;
@@ -87,160 +90,18 @@ const DashboardView: React.FC = () => {
     },
   ];
 
-  const formatTime = (timeString: string) => {
-    return new Date(timeString).toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  // Stats data for the dashboard
-  const stats = [
-    {
-      id: "events",
-      title: "Today's Events",
-      value: todayEvents.length.toString(),
-      change: "+2 from yesterday",
-      icon: Calendar,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-    },
-    {
-      id: "tasks",
-      title: "Pending Tasks",
-      value: pendingTasks.length.toString(),
-      change: "-1 from yesterday",
-      icon: CheckSquare,
-      color: "text-sage-green-dark",
-      bgColor: "bg-sage-green-light",
-    },
-    {
-      id: "members",
-      title: "Active Members",
-      value: householdMembers.length.toString(),
-      change: "All online",
-      icon: Users,
-      color: "text-amber-600",
-      bgColor: "bg-amber-100",
-    },
-    {
-      id: "completion",
-      title: "Task Completion",
-      value: "87%",
-      change: "+5% this week",
-      icon: TrendingUp,
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-100",
-    },
-  ];
-
   return (
     <div className="space-y-8">
-      {/* Stats Grid - 4 columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 * index }}
-            className="bg-white border border-gray-100 rounded-lg shadow-soft p-6"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <div
-                className={`w-10 h-10 ${stat.bgColor} rounded-lg flex items-center justify-center`}
-              >
-                <stat.icon size={20} className={stat.color} />
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-charcoal-muted font-chivo mb-1">
-                {stat.title}
-              </p>
-              <p className="text-3xl font-semibold text-deep-charcoal font-chivo mb-1">
-                {stat.value}
-              </p>
-              <p className="text-sm text-sage-green-dark font-lora">
-                {stat.change}
-              </p>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      <Stats
+        eventsCount={todayEvents.length}
+        tasksCount={pendingTasks.length}
+        membersCount={householdMembers.length}
+        completionRate="87%"
+      />
 
-      {/* Main Content Grid - 3 columns */}
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Chart Container - spans 2 columns */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="lg:col-span-2 bg-white border border-gray-100 rounded-lg shadow-soft p-6"
-        >
-          <h3 className="font-semibold text-deep-charcoal font-chivo mb-4">
-            Family Activity Overview
-          </h3>
-
-          {/* Mock chart area */}
-          <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200">
-            <div className="text-center">
-              <TrendingUp size={48} className="text-sage-green mx-auto mb-2" />
-              <p className="text-charcoal-muted font-lora">
-                Activity chart would go here
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Activity Table Container - spans 1 column */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-white border border-gray-100 rounded-lg shadow-soft p-6"
-        >
-          <h3 className="font-semibold text-deep-charcoal font-chivo mb-4">
-            Recent Activity
-          </h3>
-
-          <div className="space-y-3">
-            {todayEvents.slice(0, 3).map((event) => (
-              <div
-                key={event.id}
-                className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
-              >
-                <Clock size={16} className="text-charcoal-muted" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-deep-charcoal text-sm font-chivo truncate">
-                    {event.title}
-                  </p>
-                  <p className="text-xs text-charcoal-muted font-lora">
-                    {formatTime(event.time)} • {event.assignedTo}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {pendingTasks.slice(0, 2).map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
-              >
-                <CheckSquare size={16} className="text-charcoal-muted" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-deep-charcoal text-sm font-chivo truncate">
-                    {task.title}
-                  </p>
-                  <p className="text-xs text-charcoal-muted font-lora">
-                    {task.assignedTo} • {task.priority} priority
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+      <Activity events={todayEvents} tasks={pendingTasks} />
+      <QuickActions />
+      <ActivityFeed />
     </div>
   );
 };
