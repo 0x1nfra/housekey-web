@@ -2,8 +2,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Filter, X } from "lucide-react";
 import { useEventsStore } from "../../store/events";
-import { useHubStore } from "../../store/hubStore";
-import { useAuthStore } from "../../store/authStore";
+import { useHubStore } from "../../store/hub";
+import { useAuthStore } from "../../store/auth";
 import {
   CalendarDataType,
   EventType,

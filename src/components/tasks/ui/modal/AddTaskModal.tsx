@@ -18,8 +18,8 @@ import {
   getPriorityLabel,
   getPriorityColor,
 } from "../../../../store/tasks/types";
-import { useHubStore } from "../../../../store/hubStore";
-import { useAuthStore } from "../../../../store/authStore";
+import { useHubStore } from "../../../../store/hub";
+import { useAuthStore } from "../../../../store/auth";
 import { useTasksStore } from "../../../../store/tasks";
 import { shallow } from "zustand/shallow";
 import { TaskPriority } from "../../../../types/tasks";

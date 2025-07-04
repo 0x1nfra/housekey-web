@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Plus, Settings, Users, Bell } from "lucide-react";
-import { useHubStore } from "../../store/hubStore";
+import { useHubStore } from "../../store/hub";
 import { useNavigate } from "react-router-dom";
 import { shallow } from "zustand/shallow";
 

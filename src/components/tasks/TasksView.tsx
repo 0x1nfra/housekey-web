@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useTasksStore } from "../../store/tasks";
-import { useHubStore } from "../../store/hubStore";
-import { useAuthStore } from "../../store/authStore";
+import { useHubStore } from "../../store/hub";
+import { useAuthStore } from "../../store/auth";
 import { useTasksData } from "./hooks/useTasksData";
 import { Task, TaskFilters } from "../../store/tasks/types";
 import EditTaskModal from "./ui/modal/EditTaskModal";

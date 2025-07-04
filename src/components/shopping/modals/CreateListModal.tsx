@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingCart } from "lucide-react";
 import { useShoppingStore } from "../../../store/shopping";
-import { useHubStore } from "../../../store/hubStore";
+import { useHubStore } from "../../../store/hub";
 
 interface CreateListModalProps {
   isOpen: boolean;

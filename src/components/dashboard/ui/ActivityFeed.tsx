@@ -18,11 +18,7 @@ interface ActivityItem {
   type: "task" | "event" | "shopping" | "member";
 }
 
-interface ActivityFeedProps {
-  designVariation: "A" | "B";
-}
-
-const ActivityFeed: React.FC<ActivityFeedProps> = ({ designVariation }) => {
+const ActivityFeed: React.FC = () => {
   const activities: ActivityItem[] = [
     {
       member: "Emma",
@@ -49,18 +45,6 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ designVariation }) => {
       type: "member",
     },
   ];
-
-  const getCardClasses = () => {
-    return designVariation === "A"
-      ? "bg-white border border-gray-100 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300"
-      : "bg-warm-off-white border border-gray-200 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300";
-  };
-
-  const getActivityItemClasses = () => {
-    return designVariation === "A"
-      ? "bg-warm-off-white hover:bg-sage-green-light"
-      : "bg-white hover:bg-sage-green-light";
-  };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
@@ -106,7 +90,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ designVariation }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className={getCardClasses()}
+      className="bg-white border border-gray-100 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300"
     >
       <div className="flex items-center gap-3 mb-6">
         <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -132,7 +116,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ designVariation }) => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * index }}
-              className={`flex items-start gap-4 p-4 rounded-lg transition-colors duration-300 ease-out ${getActivityItemClasses()}`}
+              className="flex items-start gap-4 p-4 rounded-lg transition-colors duration-300 ease-out bg-warm-off-white hover:bg-sage-green-light"
             >
               <div className="flex items-center gap-3">
                 <div className="text-2xl">
@@ -165,11 +149,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({ designVariation }) => {
 
       {activities.length === 0 && (
         <div className="text-center py-8">
-          <div
-            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-              designVariation === "A" ? "bg-warm-off-white" : "bg-white"
-            }`}
-          >
+          <div className="w-16 h-16 bg-warm-off-white rounded-full flex items-center justify-center mx-auto mb-4">
             <Activity size={24} className="text-charcoal-muted" />
           </div>
           <p className="text-charcoal-muted text-sm font-lora">

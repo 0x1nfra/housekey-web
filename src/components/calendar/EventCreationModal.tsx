@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import dayjs from "dayjs";
-import { useHubStore } from "../../store/hubStore";
+import { useHubStore } from "../../store/hub";
 import { EventType, EVENT_TYPES, CalendarItem } from "../../store/events/types";
 import { getInitials } from "../../utils/userUtils";
 

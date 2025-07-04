@@ -111,6 +111,11 @@ export const convertTimeFormat = (
     }
   }
 
+  // Validate parsed values
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    return timeStr; // Return original if invalid
+  }
+
   // Format according to target format
   if (toFormat === "24") {
     return `${hours.toString().padStart(2, "0")}:${minutes
@@ -139,4 +144,62 @@ export const getTimeFormatter = (format: "12" | "24" = "12") => {
  */
 export const getDateTimeFormatter = (format: "12" | "24" = "12") => {
   return (date: Date | string) => formatDateTime(date, format);
+};
+
+/**
+ * Determines the time of day based on the hour
+ * @param date The date to check (defaults to current time)
+ * @returns Time of day classification
+ */
+export const getTimeOfDay = (
+  date?: Date | string
+): "early-morning" | "morning" | "afternoon" | "evening" | "night" => {
+  const dateObj = date
+    ? typeof date === "string"
+      ? new Date(date)
+      : date
+    : new Date();
+
+  // Check for invalid date
+  if (isNaN(dateObj.getTime())) {
+    return "morning"; // Default fallback
+  }
+
+  const hour = dateObj.getHours();
+
+  if (hour >= 4 && hour < 7) {
+    return "early-morning"; // 4:00 AM - 6:59 AM
+  } else if (hour >= 7 && hour < 12) {
+    return "morning"; // 7:00 AM - 11:59 AM
+  } else if (hour >= 12 && hour < 17) {
+    return "afternoon"; // 12:00 PM - 4:59 PM
+  } else if (hour >= 17 && hour < 21) {
+    return "evening"; // 5:00 PM - 8:59 PM
+  } else {
+    return "night"; // 9:00 PM - 3:59 AM
+  }
+};
+
+/**
+ * Returns a greeting based on the time of day
+ * @param date The date to check (defaults to current time)
+ * @returns Appropriate greeting
+ */
+export const getTimeBasedGreeting = (date?: Date | string): string => {
+  const timeOfDay = getTimeOfDay(date);
+
+  switch (timeOfDay) {
+    case "early-morning":
+      return "Good morning";
+    case "morning":
+      return "Good morning";
+    case "afternoon":
+      return "Good afternoon";
+    case "evening":
+      return "Good evening";
+    case "night":
+      return "Hello";
+    default:
+      return "Hello";
+  }
 };

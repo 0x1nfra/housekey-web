@@ -24,7 +24,8 @@ import {
   type UpdateItemData,
   useShoppingStore,
 } from "../../store/shopping";
-import { useAuthStore } from "../../store/authStore";
+import { useHubStore } from "../../store/hub";
+import { useAuthStore } from "../../store/auth";
 import { shallow } from "zustand/shallow";
 import EditItemModal from "./modals/EditItemModal";
 

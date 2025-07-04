@@ -5,7 +5,7 @@ import {
   useShoppingStore,
   useShoppingSelectors,
 } from "../../../store/shopping";
-import { useHubStore } from "../../../store/hubStore";
+import { useHubStore } from "../../../store/hub";
 
 export const useShoppingData = () => {
   const { currentHub } = useHubStore();

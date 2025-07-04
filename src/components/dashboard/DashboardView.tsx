@@ -28,11 +28,7 @@ interface Member {
   lastActive: string;
 }
 
-interface DashboardViewProps {
-  designVariation: "A" | "B";
-}
-
-const DashboardView: React.FC<DashboardViewProps> = ({ designVariation }) => {
+const DashboardView: React.FC = () => {
   const todayEvents: Event[] = [
     {
       id: "1",
@@ -91,12 +87,6 @@ const DashboardView: React.FC<DashboardViewProps> = ({ designVariation }) => {
     },
   ];
 
-  const getCardClasses = () => {
-    return designVariation === "A"
-      ? "bg-white border border-gray-100 rounded-lg shadow-soft p-6"
-      : "bg-blue border border-gray-200 rounded-lg shadow-soft p-6";
-  };
-
   const formatTime = (timeString: string) => {
     return new Date(timeString).toLocaleTimeString("en-US", {
       hour: "numeric",
@@ -105,17 +95,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ designVariation }) => {
     });
   };
 
-  // const getPriorityColor = (priority: string) => {
-  //   const base = {
-  //     high: "text-red-600 bg-red-50",
-  //     medium: "text-amber-600 bg-amber-50",
-  //     low: "text-green-600 bg-green-50",
-  //     default: "text-gray-600 bg-gray-50",
-  //   };
-  //   return base[priority as keyof typeof base] || base.default;
-  // };
-
-  // Stats data for the new design
+  // Stats data for the dashboard
   const stats = [
     {
       id: "events",
@@ -165,7 +145,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ designVariation }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * index }}
-            className={getCardClasses()}
+            className="bg-white border border-gray-100 rounded-lg shadow-soft p-6"
           >
             <div className="flex items-center gap-3 mb-3">
               <div
@@ -196,7 +176,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ designVariation }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className={`lg:col-span-2 ${getCardClasses()}`}
+          className="lg:col-span-2 bg-white border border-gray-100 rounded-lg shadow-soft p-6"
         >
           <h3 className="font-semibold text-deep-charcoal font-chivo mb-4">
             Family Activity Overview
@@ -218,7 +198,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ designVariation }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className={getCardClasses()}
+          className="bg-white border border-gray-100 rounded-lg shadow-soft p-6"
         >
           <h3 className="font-semibold text-deep-charcoal font-chivo mb-4">
             Recent Activity

@@ -4,7 +4,8 @@ import type React from "react";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSettingsStore } from "../../store/settings";
-import { useAuthStore } from "../../store/authStore";
+import { useHubStore } from "../../store/hub";
+import { useAuthStore } from "../../store/auth";
 import { shallow } from "zustand/shallow";
 import { X, Settings, User, Home, Inbox } from "lucide-react";
 

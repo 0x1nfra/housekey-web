@@ -5,7 +5,7 @@ import { initialState } from "./state";
 import { createSettingsActions } from "./actions";
 import { createSettingsSelectors } from "./selectors";
 import { createSettingsSubscriptions } from "./subscriptions";
-import { useAuthStore } from "../authStore";
+import { useHubStore } from "../hub";
 
 export const useSettingsStore = create<SettingsStore>()(
   immer((set: ImmerSet, get: ImmerGet) => ({
@@ -18,6 +18,8 @@ export const useSettingsStore = create<SettingsStore>()(
     ...createSettingsSubscriptions(set, get),
   }))
 );
+
+import { useAuthStore } from "../auth";
 
 // Subscribe to auth store changes to initialize settings when user logs in
 useAuthStore.subscribe((state) => {

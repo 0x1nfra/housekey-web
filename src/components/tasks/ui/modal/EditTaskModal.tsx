@@ -19,8 +19,8 @@ import {
   getPriorityLabel,
   getPriorityColor,
 } from "../../../../store/tasks/types";
-import { useHubStore } from "../../../../store/hubStore";
-import { useAuthStore } from "../../../../store/authStore";
+import { useHubStore } from "../../../../store/hub";
+import { useAuthStore } from "../../../../store/auth";
 import { useTasksStore } from "../../../../store/tasks";
 import { useTheme } from "../../../settings/ThemeProvider";
 import { shallow } from "zustand/shallow";

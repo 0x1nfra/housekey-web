@@ -12,7 +12,7 @@ import {
   Calendar,
   AlertCircle,
 } from "lucide-react";
-import { useHubStore } from "../../store/hubStore";
+import { useHubStore } from "../../store/hub";
 import { formatDistanceToNow } from "date-fns";
 import { shallow } from "zustand/shallow";
 import dayjs from "dayjs";

@@ -7,10 +7,10 @@ import SharedCalendarView from "../components/calendar/SharedCalendarView";
 import EventCreationModal from "../components/calendar/EventCreationModal";
 import { useCalendarData } from "../components/calendar/hooks/useCalendarData";
 import { useEventsStore } from "../store/events";
-import { useHubStore } from "../store/hubStore";
-import { X, Calendar } from "lucide-react";
+import { useHubStore } from "../store/hub";
+import { useAuthStore } from "../store/auth";
 import dayjs from "dayjs";
-import { useAuthStore } from "../store/authStore";
+import { Calendar, X } from "lucide-react";
 
 const CalendarPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -12,7 +12,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useNotificationsStore } from "../../store/notifications";
-import { useAuthStore } from "../../store/authStore";
+import { useHubStore } from "../../store/hub";
 import { shallow } from "zustand/shallow";
 import { NotificationType } from "../../store/notifications/types";
 import NotificationItem from "./ui/NotificationItem";

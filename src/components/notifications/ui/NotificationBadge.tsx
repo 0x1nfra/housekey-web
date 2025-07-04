@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell } from "lucide-react";
 import { useNotificationsStore } from "../../../store/notifications";
-import { useAuthStore } from "../../../store/authStore";
+import { useAuthStore } from "../../../store/auth";
 import { shallow } from "zustand/shallow";
 
 interface NotificationBadgeProps {

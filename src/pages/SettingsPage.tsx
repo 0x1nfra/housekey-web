@@ -12,7 +12,7 @@ import HubSettings from "../components/hub/HubSettings";
 import InvitationsList from "../components/hub/InvitationsList";
 import NotificationsTab from "../components/settings/NotificationsTab";
 import PrivacyTab from "../components/settings/PrivacyTab";
-import { useHubStore } from "../store/hubStore";
+import { useHubStore } from "../store/hub";
 import { type SettingsState, useSettingsStore } from "../store/settings";
 import { shallow } from "zustand/shallow";
 

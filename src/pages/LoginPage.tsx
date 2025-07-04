@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useAuthStore } from "../store/authStore";
+import { useAuthStore } from "../store/auth";
 import { shallow } from "zustand/shallow";
 
 const LoginPage: React.FC = () => {

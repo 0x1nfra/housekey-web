@@ -4,7 +4,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Mail, Save, RotateCcw, Camera } from "lucide-react";
-import { useAuthStore } from "../../store/authStore";
+import { useAuthStore } from "../../store/auth";
 import { shallow } from "zustand/shallow";
 import SettingsSection from "./ui/SettingsSection";
 import { getInitials } from "../../utils/userUtils";

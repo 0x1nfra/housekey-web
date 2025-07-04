@@ -12,11 +12,7 @@ interface QuickAction {
   color: string;
 }
 
-interface QuickActionsProps {
-  designVariation: "A" | "B";
-}
-
-const QuickActions: React.FC<QuickActionsProps> = ({ designVariation }) => {
+const QuickActions: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<QuickAction | null>(
     null
@@ -42,12 +38,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ designVariation }) => {
       color: "bg-amber-100 text-amber-700",
     },
   ];
-
-  const getCardClasses = () => {
-    return designVariation === "A"
-      ? "bg-white border border-gray-100 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300"
-      : "bg-warm-off-white border border-gray-200 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300";
-  };
 
   const handleActionClick = (action: QuickAction) => {
     setSelectedAction(action);
@@ -144,7 +134,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ designVariation }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className={getCardClasses()}
+        className="bg-white border border-gray-100 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300"
       >
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-sage-green-light rounded-lg flex items-center justify-center">

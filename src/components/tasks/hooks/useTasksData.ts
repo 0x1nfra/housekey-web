@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useTasksStore } from "../../../store/tasks";
-import { useHubStore } from "../../../store/hubStore";
+import { useHubStore } from "../../../store/hub";
 import {
   selectCurrentTasks,
   selectFilteredTasks,

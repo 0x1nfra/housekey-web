@@ -14,7 +14,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import HubSelector from "./hub/HubSelector";
-import { useHubStore } from "../store/hubStore";
+import { useHubStore } from "../store/hub";
 import { shallow } from "zustand/shallow";
 import { version } from "../../package.json";
 

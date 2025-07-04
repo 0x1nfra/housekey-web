@@ -15,7 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import { shallow } from "zustand/shallow";
-import { useHubStore } from "../../store/hubStore";
+import { useHubStore } from "../../store/hub";
 import {
   InviteMemberData,
   CreateHubData,
