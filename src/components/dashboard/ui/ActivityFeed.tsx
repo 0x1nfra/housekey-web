@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import { motion } from "framer-motion";
 import {
   Activity,
@@ -16,13 +18,11 @@ interface ActivityItem {
   type: "task" | "event" | "shopping" | "member";
 }
 
-/*
-FIXME:
-1. change to dayjs
-2. move types to type folders
-*/
+interface ActivityFeedProps {
+  designVariation: "A" | "B";
+}
 
-const ActivityFeed: React.FC = () => {
+const ActivityFeed: React.FC<ActivityFeedProps> = ({ designVariation }) => {
   const activities: ActivityItem[] = [
     {
       member: "Emma",
@@ -50,6 +50,18 @@ const ActivityFeed: React.FC = () => {
     },
   ];
 
+  const getCardClasses = () => {
+    return designVariation === "A"
+      ? "bg-white border border-gray-100 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300"
+      : "bg-warm-off-white border border-gray-200 rounded-lg shadow-soft p-6 hover:shadow-medium hover:-translate-y-1 transition-all duration-300";
+  };
+
+  const getActivityItemClasses = () => {
+    return designVariation === "A"
+      ? "bg-warm-off-white hover:bg-sage-green-light"
+      : "bg-white hover:bg-sage-green-light";
+  };
+
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "task":
@@ -68,15 +80,15 @@ const ActivityFeed: React.FC = () => {
   const getActivityColor = (type: string) => {
     switch (type) {
       case "task":
-        return "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400";
+        return "bg-sage-green-light text-deep-charcoal";
       case "event":
-        return "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400";
+        return "bg-blue-100 text-blue-700";
       case "shopping":
-        return "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400";
+        return "bg-amber-100 text-amber-700";
       case "member":
-        return "bg-purple-100 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400";
+        return "bg-purple-100 text-purple-700";
       default:
-        return "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
+        return "bg-gray-100 text-charcoal-muted";
     }
   };
 
@@ -94,17 +106,17 @@ const ActivityFeed: React.FC = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
+      className={getCardClasses()}
     >
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-blue-100 dark:bg-blue-500/20 rounded-lg flex items-center justify-center">
-          <Activity size={20} className="text-blue-600 dark:text-blue-400" />
+        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <Activity size={20} className="text-blue-700" />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900 dark:text-white">
+          <h3 className="font-chivo font-semibold text-deep-charcoal">
             Recent Activity
           </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-charcoal-muted font-lora">
             See what your family has been up to
           </p>
         </div>
@@ -120,7 +132,7 @@ const ActivityFeed: React.FC = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 * index }}
-              className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+              className={`flex items-start gap-4 p-4 rounded-lg transition-colors duration-300 ease-out ${getActivityItemClasses()}`}
             >
               <div className="flex items-center gap-3">
                 <div className="text-2xl">
@@ -136,11 +148,13 @@ const ActivityFeed: React.FC = () => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900 dark:text-white">
-                  <span className="font-medium">{activity.member}</span>{" "}
+                <p className="text-sm text-deep-charcoal font-lora">
+                  <span className="font-chivo font-medium">
+                    {activity.member}
+                  </span>{" "}
                   {activity.action}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-charcoal-muted mt-1 font-chivo">
                   {formatDistanceToNow(activity.timestamp, { addSuffix: true })}
                 </p>
               </div>
@@ -151,10 +165,14 @@ const ActivityFeed: React.FC = () => {
 
       {activities.length === 0 && (
         <div className="text-center py-8">
-          <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Activity size={24} className="text-gray-400 dark:text-gray-500" />
+          <div
+            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+              designVariation === "A" ? "bg-warm-off-white" : "bg-white"
+            }`}
+          >
+            <Activity size={24} className="text-charcoal-muted" />
           </div>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <p className="text-charcoal-muted text-sm font-lora">
             No recent activity. Start by adding an event or task!
           </p>
         </div>

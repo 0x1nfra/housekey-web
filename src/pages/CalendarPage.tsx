@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+"use client";
+
+import type React from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import SharedCalendarView from "../components/calendar/SharedCalendarView";
 import EventCreationModal from "../components/calendar/EventCreationModal";
 import { useCalendarData } from "../components/calendar/hooks/useCalendarData";
 import { useEventsStore } from "../store/events";
 import { useHubStore } from "../store/hubStore";
-import { X } from "lucide-react";
+import { X, Calendar } from "lucide-react";
 import dayjs from "dayjs";
 import { useAuthStore } from "../store/authStore";
 
@@ -48,10 +51,10 @@ const CalendarPage: React.FC = () => {
         reminders: eventData.recurring
           ? [
               {
-                user_id: user.id, // Use current user for reminder
+                user_id: user.id,
                 reminder_time: dayjs(`${eventData.date}T${eventData.startTime}`)
                   .subtract(15, "minutes")
-                  .toISOString(), // 15 minutes before
+                  .toISOString(),
                 reminder_type: "in_app" as const,
               },
             ]
@@ -71,14 +74,20 @@ const CalendarPage: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-6xl mx-auto"
       >
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Family Calendar
-            </h1>
-            <p className="text-gray-600">
-              Keep everyone in sync with shared scheduling
-            </p>
+        {/* Page Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-sage-green-light rounded-xl flex items-center justify-center">
+              <Calendar size={24} className="text-deep-charcoal" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-deep-charcoal font-interface mb-2">
+                Family Calendar
+              </h1>
+              <p className="text-charcoal-muted font-content">
+                Keep everyone in sync with shared scheduling and events
+              </p>
+            </div>
           </div>
         </div>
 
@@ -87,15 +96,15 @@ const CalendarPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+            className="mb-8 p-6 bg-red-50 border border-red-200 rounded-xl"
           >
             <div className="flex items-center justify-between">
-              <p className="text-red-700">{error}</p>
+              <p className="text-red-700 font-content">{error}</p>
               <button
                 onClick={clearError}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 transition-colors duration-300"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
           </motion.div>

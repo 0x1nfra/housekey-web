@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AlertTriangle } from 'lucide-react';
-import { useShoppingStore } from '../../../store/shopping';
-import { ShoppingList } from '../../../store/shopping/types';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
+import { useShoppingStore } from "../../../store/shopping";
+import { ShoppingList } from "../../../store/shopping/types";
 
 interface DeleteListModalProps {
   isOpen: boolean;
@@ -10,8 +10,12 @@ interface DeleteListModalProps {
   list: ShoppingList | null;
 }
 
-const DeleteListModal: React.FC<DeleteListModalProps> = ({ isOpen, onClose, list }) => {
-  const [confirmText, setConfirmText] = useState('');
+const DeleteListModal: React.FC<DeleteListModalProps> = ({
+  isOpen,
+  onClose,
+  list,
+}) => {
+  const [confirmText, setConfirmText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { deleteList, loading } = useShoppingStore();
@@ -26,14 +30,14 @@ const DeleteListModal: React.FC<DeleteListModalProps> = ({ isOpen, onClose, list
       await deleteList(list.id);
       onClose();
     } catch (error) {
-      console.error('Error deleting list:', error);
+      console.error("Error deleting list:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleClose = () => {
-    setConfirmText('');
+    setConfirmText("");
     onClose();
   };
 
@@ -59,16 +63,21 @@ const DeleteListModal: React.FC<DeleteListModalProps> = ({ isOpen, onClose, list
                 <AlertTriangle size={24} className="text-red-600" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Delete Shopping List</h2>
-                <p className="text-sm text-gray-500">This action cannot be undone</p>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Delete Shopping List
+                </h2>
+                <p className="text-sm text-gray-500">
+                  This action cannot be undone
+                </p>
               </div>
             </div>
 
             <div className="space-y-4">
               <p className="text-gray-700">
-                Are you sure you want to delete <strong>{list.name}</strong>? This will permanently delete:
+                Are you sure you want to delete <strong>{list.name}</strong>?
+                This will permanently delete:
               </p>
-              
+
               <ul className="text-sm text-gray-600 space-y-1 ml-4">
                 <li>• All items in this list</li>
                 <li>• All collaborator access</li>
@@ -105,7 +114,7 @@ const DeleteListModal: React.FC<DeleteListModalProps> = ({ isOpen, onClose, list
                   disabled={isSubmitting || !isConfirmed || loading.lists}
                   className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'Deleting...' : 'Delete List'}
+                  {isSubmitting ? "Deleting..." : "Delete List"}
                 </motion.button>
               </div>
             </div>

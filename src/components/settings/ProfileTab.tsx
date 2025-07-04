@@ -1,6 +1,9 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Save, RotateCcw } from "lucide-react";
+import { User, Mail, Save, RotateCcw, Camera } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
 import SettingsSection from "./ui/SettingsSection";
@@ -42,7 +45,6 @@ const ProfileTab: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement profile update functionality
     alert(
       "Profile update functionality will be implemented in a future update"
     );
@@ -61,62 +63,83 @@ const ProfileTab: React.FC = () => {
 
   if (!profile) {
     return (
-      <div className="animate-pulse">
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
+      <div className="animate-pulse space-y-8">
+        <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
         <div className="space-y-6">
-          <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
-          <div className="h-24 bg-gray-100 dark:bg-gray-800 rounded-lg"></div>
+          <div className="h-32 bg-gray-100 rounded-xl"></div>
+          <div className="h-24 bg-gray-100 rounded-xl"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-        Profile Settings
-      </h2>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8"
+    >
+      <div>
+        <h2 className="text-2xl font-bold text-deep-charcoal font-interface mb-2">
+          Profile Settings
+        </h2>
+        <p className="text-charcoal-muted font-content">
+          Manage your personal information and account details
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Profile Avatar */}
-        <div className="flex items-center gap-6">
-          <div className="w-20 h-20 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-300 text-2xl font-semibold">
-            {getInitials(profile.name || "")}
-          </div>
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-              {profile.name}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {profile.email}
-            </p>
-            {/* TODO: add function to change avatar */}
-            {/* <button
-              type="button"
-              className="mt-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
-            >
-              Change Avatar
-            </button> */}
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Profile Avatar Section */}
+        <div className="card">
+          <div className="card-content">
+            <div className="flex items-center gap-8">
+              <div className="relative">
+                <div className="w-24 h-24 bg-sage-green-light rounded-full flex items-center justify-center text-sage-green text-3xl font-bold font-interface">
+                  {getInitials(profile.name || "")}
+                </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  type="button"
+                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-sage-green text-deep-charcoal rounded-full flex items-center justify-center shadow-md hover:bg-sage-green-hover transition-colors duration-300"
+                  title="Change avatar"
+                >
+                  <Camera size={16} />
+                </motion.button>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-semibold text-deep-charcoal font-interface mb-1">
+                  {profile.name}
+                </h3>
+                <p className="text-charcoal-muted font-content mb-3">
+                  {profile.email}
+                </p>
+                <p className="text-sm text-charcoal-muted font-content">
+                  Your profile picture helps others recognize you across the
+                  family hub
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <SettingsSection
           title="Personal Information"
-          description="Update your personal details"
-          icon={<User size={20} className="text-indigo-600" />}
+          description="Update your personal details and contact information"
+          icon={<User size={20} className="text-sage-green" />}
         >
-          <div className="space-y-4 py-3">
+          <div className="space-y-6 py-4">
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                className="block text-sm font-medium text-deep-charcoal font-interface mb-2"
               >
                 Full Name
               </label>
               <div className="relative">
                 <User
-                  size={16}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
+                  size={18}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-charcoal-muted"
                 />
                 <input
                   type="text"
@@ -124,7 +147,8 @@ const ProfileTab: React.FC = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="pl-10 w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="input pl-12"
+                  placeholder="Enter your full name"
                 />
               </div>
             </div>
@@ -132,14 +156,14 @@ const ProfileTab: React.FC = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                className="block text-sm font-medium text-deep-charcoal font-interface mb-2"
               >
                 Email Address
               </label>
               <div className="relative">
                 <Mail
-                  size={16}
-                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
+                  size={18}
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-charcoal-muted"
                 />
                 <input
                   type="email"
@@ -147,26 +171,26 @@ const ProfileTab: React.FC = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="pl-10 w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-70 disabled:bg-gray-100 dark:disabled:bg-gray-700"
+                  className="input pl-12 opacity-70 cursor-not-allowed"
                   disabled
                 />
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                Email address cannot be changed
+              <p className="text-xs text-charcoal-muted font-content mt-2">
+                Email address cannot be changed for security reasons
               </p>
             </div>
           </div>
         </SettingsSection>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+        <div className="flex justify-end gap-4 pt-6 border-t border-gray-100">
           <motion.button
             type="button"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleReset}
             disabled={loading || !hasChanges}
-            className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+            className="btn btn-ghost"
           >
             <RotateCcw size={16} />
             Reset Changes
@@ -177,17 +201,17 @@ const ProfileTab: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             disabled={loading || !hasChanges}
-            className="flex items-center gap-2 px-4 py-2 text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            className="btn btn-primary relative"
           >
             <Save size={16} />
             Save Profile
             {hasChanges && (
-              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
+              <span className="absolute -top-1 -right-1 w-3 h-3 bg-sage-green rounded-full animate-pulse"></span>
             )}
           </motion.button>
         </div>
       </form>
-    </div>
+    </motion.div>
   );
 };
 

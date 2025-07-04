@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
+import { Settings } from "lucide-react";
 import SettingsLayout from "../components/settings/SettingsLayout";
 import AppPreferencesTab from "../components/settings/AppPreferencesTab";
 import ProfileTab from "../components/settings/ProfileTab";
@@ -9,7 +13,7 @@ import InvitationsList from "../components/hub/InvitationsList";
 import NotificationsTab from "../components/settings/NotificationsTab";
 import PrivacyTab from "../components/settings/PrivacyTab";
 import { useHubStore } from "../store/hubStore";
-import { SettingsState, useSettingsStore } from "../store/settings";
+import { type SettingsState, useSettingsStore } from "../store/settings";
 import { shallow } from "zustand/shallow";
 
 const SettingsPage: React.FC = () => {
@@ -26,11 +30,9 @@ const SettingsPage: React.FC = () => {
     shallow
   );
 
-  // Get tab from URL or default to 'preferences'
   const initialTab = searchParams.get("tab") || "preferences";
   const [activeTab, setActiveTabState] = useState(initialTab);
 
-  // Sync URL with active tab
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
     if (tabFromUrl && tabFromUrl !== activeTab) {
@@ -40,7 +42,6 @@ const SettingsPage: React.FC = () => {
     }
   }, [searchParams, activeTab, setSearchParams]);
 
-  // Handle tab change
   const handleTabChange = (tab: SettingsState["activeTab"] | string) => {
     setActiveTabState(tab);
     setSearchParams({ tab });
@@ -57,7 +58,6 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  // Render the active tab content
   const renderTabContent = () => {
     switch (activeTab) {
       case "preferences":
@@ -79,10 +79,10 @@ const SettingsPage: React.FC = () => {
             className="space-y-6"
           >
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg font-semibold text-deep-charcoal font-interface">
                 Your Invitations
               </h3>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-charcoal-muted font-content">
                 Hub invitations you've received from other users
               </p>
             </div>
@@ -106,13 +106,19 @@ const SettingsPage: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl mx-auto"
       >
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
-            Settings
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Customize your family hub experience
-          </p>
+        {/* Page Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 bg-sage-green-light rounded-xl flex items-center justify-center">
+            <Settings size={24} className="text-deep-charcoal" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-deep-charcoal font-interface mb-2">
+              Settings
+            </h1>
+            <p className="text-charcoal-muted font-content">
+              Customize your family hub experience and preferences
+            </p>
+          </div>
         </div>
 
         <SettingsLayout activeTab={activeTab} onTabChange={handleTabChange}>

@@ -1,6 +1,11 @@
-import { useEffect } from 'react';
-import { useShoppingStore, useShoppingSelectors } from '../../../store/shopping';
-import { useHubStore } from '../../../store/hubStore';
+"use client";
+
+import { useEffect } from "react";
+import {
+  useShoppingStore,
+  useShoppingSelectors,
+} from "../../../store/shopping";
+import { useHubStore } from "../../../store/hubStore";
 
 export const useShoppingData = () => {
   const { currentHub } = useHubStore();
@@ -51,17 +56,36 @@ export const useShoppingData = () => {
         unsubscribeFromList(currentList.id);
       };
     }
-  }, [currentList, fetchItems, fetchCollaborators, fetchListStats, subscribeToList, unsubscribeFromList]);
+  }, [
+    currentList,
+    fetchItems,
+    fetchCollaborators,
+    fetchListStats,
+    subscribeToList,
+    unsubscribeFromList,
+  ]);
 
   // Get current list data
-  const currentListItems = currentList ? selectors.getItemsByList(currentList.id) : [];
-  const pendingItems = currentList ? selectors.getPendingItems(currentList.id) : [];
-  const completedItems = currentList ? selectors.getCompletedItems(currentList.id) : [];
-  const collaborators = currentList ? selectors.getCollaboratorsByList(currentList.id) : [];
-  const quickStats = currentList ? selectors.getQuickStats(currentList.id) : null;
+  const currentListItems = currentList
+    ? selectors.getItemsByList(currentList.id)
+    : [];
+  const pendingItems = currentList
+    ? selectors.getPendingItems(currentList.id)
+    : [];
+  const completedItems = currentList
+    ? selectors.getCompletedItems(currentList.id)
+    : [];
+  const collaborators = currentList
+    ? selectors.getCollaboratorsByList(currentList.id)
+    : [];
+  const quickStats = currentList
+    ? selectors.getQuickStats(currentList.id)
+    : null;
 
   // Get shopping suggestions for the current hub
-  const shoppingSuggestions = currentHub ? selectors.getShoppingSuggestions(currentHub.id) : [];
+  const shoppingSuggestions = currentHub
+    ? selectors.getShoppingSuggestions(currentHub.id)
+    : [];
 
   return {
     // Data
@@ -73,15 +97,15 @@ export const useShoppingData = () => {
     collaborators,
     quickStats,
     shoppingSuggestions,
-    
+
     // State
     loading,
     error,
-    
+
     // Actions
     setCurrentList,
     clearError,
-    
+
     // Selectors
     selectors,
   };

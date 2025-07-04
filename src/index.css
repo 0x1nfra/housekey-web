@@ -1,3 +1,223 @@
+@import url("https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;500;700&family=Lora:wght@400;500;600&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Color System */
+    --sage-green: #ddeb9d;
+    --warm-off-white: #faf6e9;
+    --deep-charcoal: #22333b;
+    --sage-green-hover: #d4e394;
+    --sage-green-light: #e8f2b3;
+    --charcoal-light: #3a4b54;
+    --charcoal-muted: #5a6b74;
+
+    /* Spacing System - 8px base unit */
+    --space-1: 0.5rem; /* 8px */
+    --space-2: 1rem; /* 16px */
+    --space-3: 1.5rem; /* 24px */
+    --space-4: 2rem; /* 32px */
+    --space-6: 3rem; /* 48px */
+    --space-8: 4rem; /* 64px */
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* Shadows */
+    --shadow-soft: 0 2px 8px rgba(34, 51, 59, 0.08);
+    --shadow-medium: 0 4px 16px rgba(34, 51, 59, 0.12);
+    --shadow-strong: 0 8px 32px rgba(34, 51, 59, 0.16);
+  }
+
+  html {
+    font-family: "Lora", serif;
+    line-height: 1.6;
+    color: var(--deep-charcoal);
+  }
+
+  body {
+    background-color: var(--warm-off-white);
+    font-size: 16px;
+  }
+
+  /* Typography Scale */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Chivo", sans-serif;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--deep-charcoal);
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 600;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+
+  /* Interface Elements */
+  button,
+  input,
+  select,
+  textarea {
+    font-family: "Chivo", sans-serif;
+  }
+
+  /* Focus States */
+  *:focus {
+    outline: 2px solid var(--sage-green);
+    outline-offset: 2px;
+  }
+
+  /* Smooth Transitions */
+  * {
+    transition: all 300ms ease-out;
+  }
+}
+
+@layer components {
+  /* Button System */
+  .btn-primary {
+    @apply bg-sage-green text-deep-charcoal font-medium px-6 py-3 rounded-lg;
+    @apply hover:bg-sage-green-hover active:scale-95;
+    @apply focus:ring-2 focus:ring-sage-green focus:ring-offset-2;
+    @apply transition-all duration-300 ease-out;
+    font-family: "Chivo", sans-serif;
+  }
+
+  .btn-secondary {
+    @apply border-2 border-deep-charcoal text-deep-charcoal font-medium px-6 py-3 rounded-lg;
+    @apply hover:bg-deep-charcoal hover:text-warm-off-white active:scale-95;
+    @apply focus:ring-2 focus:ring-deep-charcoal focus:ring-offset-2;
+    @apply transition-all duration-300 ease-out;
+    font-family: "Chivo", sans-serif;
+  }
+
+  .btn-ghost {
+    @apply text-deep-charcoal font-medium px-4 py-2 rounded-lg;
+    @apply hover:bg-sage-green-light active:scale-95;
+    @apply transition-all duration-300 ease-out;
+    font-family: "Chivo", sans-serif;
+  }
+
+  /* Card System */
+  .card {
+    @apply bg-white rounded-lg shadow-soft border border-gray-100;
+    @apply p-6 transition-all duration-300 ease-out;
+  }
+
+  .card-hover {
+    @apply hover:shadow-medium hover:-translate-y-1;
+  }
+
+  /* Input System */
+  .input-field {
+    @apply w-full px-4 py-3 rounded-lg border border-gray-200;
+    @apply bg-warm-off-white text-deep-charcoal placeholder-charcoal-muted;
+    @apply focus:border-sage-green focus:ring-2 focus:ring-sage-green focus:ring-opacity-20;
+    @apply transition-all duration-300 ease-out;
+    font-family: "Chivo", sans-serif;
+  }
+
+  /* Navigation */
+  .nav-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-lg;
+    @apply text-deep-charcoal font-medium transition-all duration-300 ease-out;
+    @apply hover:bg-sage-green-light active:scale-95;
+    font-family: "Chivo", sans-serif;
+  }
+
+  .nav-item-active {
+    @apply bg-sage-green text-deep-charcoal;
+  }
+}
+
+@layer utilities {
+  /* Custom Color Classes */
+  .text-sage-green {
+    color: var(--sage-green);
+  }
+  .text-deep-charcoal {
+    color: var(--deep-charcoal);
+  }
+  .text-charcoal-muted {
+    color: var(--charcoal-muted);
+  }
+  .bg-sage-green {
+    background-color: var(--sage-green);
+  }
+  .bg-sage-green-hover {
+    background-color: var(--sage-green-hover);
+  }
+  .bg-sage-green-light {
+    background-color: var(--sage-green-light);
+  }
+  .bg-warm-off-white {
+    background-color: var(--warm-off-white);
+  }
+  .bg-deep-charcoal {
+    background-color: var(--deep-charcoal);
+  }
+  .border-sage-green {
+    border-color: var(--sage-green);
+  }
+  .border-deep-charcoal {
+    border-color: var(--deep-charcoal);
+  }
+
+  /* Shadow Utilities */
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+  .shadow-strong {
+    box-shadow: var(--shadow-strong);
+  }
+
+  /* Typography Utilities */
+  .font-chivo {
+    font-family: "Chivo", sans-serif;
+  }
+  .font-lora {
+    font-family: "Lora", serif;
+  }
+
+  /* Spacing Utilities */
+  .space-1 {
+    margin: var(--space-1);
+  }
+  .space-2 {
+    margin: var(--space-2);
+  }
+  .space-3 {
+    margin: var(--space-3);
+  }
+  .space-4 {
+    margin: var(--space-4);
+  }
+  .space-6 {
+    margin: var(--space-6);
+  }
+  .space-8 {
+    margin: var(--space-8);
+  }
+}

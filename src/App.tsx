@@ -36,7 +36,9 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-emerald-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          <span className="text-gray-600 dark:text-gray-300 font-medium">Loading...</span>
+          <span className="text-gray-600 dark:text-gray-300 font-medium">
+            Loading...
+          </span>
         </div>
       </div>
     );

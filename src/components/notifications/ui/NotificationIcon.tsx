@@ -3,18 +3,22 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, X, CheckCheck } from "lucide-react";
-import { Link } from "react-router-dom";
-import { shallow } from "zustand/shallow";
-import NotificationItem from "./NotificationItem";
+import { Bell, Check, Trash2 } from "lucide-react";
 import { useNotificationsStore } from "../../../store/notifications";
 import { useAuthStore } from "../../../store/authStore";
+import { shallow } from "zustand/shallow";
+import NotificationItem from "./NotificationItem";
 
 const NotificationIcon: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { user } = useAuthStore((state) => ({ user: state.user }), shallow);
+  const { user } = useAuthStore(
+    (state) => ({
+      user: state.user,
+    }),
+    shallow
+  );
 
   const {
     notifications,
@@ -23,8 +27,7 @@ const NotificationIcon: React.FC = () => {
     fetchNotifications,
     fetchUnreadCount,
     markAllAsRead,
-    subscribeToNotifications,
-    unsubscribeFromNotifications,
+    clearAllNotifications,
   } = useNotificationsStore(
     (state) => ({
       notifications: state.notifications,
@@ -33,29 +36,10 @@ const NotificationIcon: React.FC = () => {
       fetchNotifications: state.fetchNotifications,
       fetchUnreadCount: state.fetchUnreadCount,
       markAllAsRead: state.markAllAsRead,
-      subscribeToNotifications: state.subscribeToNotifications,
-      unsubscribeFromNotifications: state.unsubscribeFromNotifications,
+      clearAllNotifications: state.clearAllNotifications,
     }),
     shallow
   );
-
-  const isValidUUID = (id: string) =>
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
-      id
-    );
-
-  useEffect(() => {
-    if (user && isValidUUID(user.id)) {
-      fetchNotifications(user.id, true);
-      fetchUnreadCount(user.id);
-      subscribeToNotifications(user.id);
-    }
-    return () => {
-      if (user && isValidUUID(user.id)) {
-        unsubscribeFromNotifications(user.id);
-      }
-    };
-  }, [user]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -66,121 +50,150 @@ const NotificationIcon: React.FC = () => {
         setIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMarkAllAsRead = async () => {
-    if (user) await markAllAsRead(user.id);
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount(user.id);
+    }
+  }, [user, fetchUnreadCount]);
+
+  const handleToggle = async () => {
+    if (!isOpen && user) {
+      await fetchNotifications(user.id);
+    }
+    setIsOpen(!isOpen);
   };
 
-  const recentNotifications = notifications.slice(0, 5);
+  const handleMarkAllAsRead = async () => {
+    if (user) {
+      await markAllAsRead(user.id);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (user) {
+      await clearAllNotifications(user.id);
+    }
+  };
 
   return (
     <div className="relative" ref={dropdownRef}>
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-        aria-label="Notifications"
+        onClick={handleToggle}
+        className="relative p-2 text-charcoal-muted hover:text-deep-charcoal hover:bg-sage-green-light rounded-lg transition-colors"
       >
-        <Bell size={20} />
-        {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center px-1">
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </span>
-        )}
+        <Bell size={24} />
+        <AnimatePresence>
+          {unreadCount > 0 && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0 }}
+              className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center px-1 font-chivo font-medium"
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </motion.span>
+          )}
+        </AnimatePresence>
       </motion.button>
 
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            initial={{ opacity: 0, y: -8, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-medium border border-gray-100 z-50 max-h-96 overflow-hidden"
           >
-            <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
-              <h3 className="font-semibold text-gray-900 dark:text-white">
-                Notifications
-              </h3>
-              <div className="flex items-center gap-2">
-                {unreadCount > 0 && (
+            {/* Header */}
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <h3 className="font-chivo font-semibold text-deep-charcoal">
+                  Notifications
+                </h3>
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleMarkAllAsRead}
+                      className="p-1 text-sage-green hover:bg-sage-green-light rounded transition-colors"
+                      title="Mark all as read"
+                    >
+                      <Check size={16} />
+                    </motion.button>
+                  )}
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleMarkAllAsRead}
-                    className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                    title="Mark all as read"
+                    onClick={handleClearAll}
+                    className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                    title="Clear all"
                   >
-                    <CheckCheck size={16} />
+                    <Trash2 size={16} />
                   </motion.button>
-                )}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsOpen(false)}
-                  className="p-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  title="Close"
-                >
-                  <X size={16} />
-                </motion.button>
+                </div>
               </div>
             </div>
 
-            <div className="max-h-[400px] overflow-y-auto">
-              {loading.fetch && recentNotifications.length === 0 ? (
-                <div className="p-4 space-y-3">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="animate-pulse flex items-start gap-3"
-                    >
-                      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                      <div className="flex-1">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                        <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+            {/* Notifications List */}
+            <div className="max-h-80 overflow-y-auto">
+              {loading ? (
+                <div className="p-4">
+                  <div className="animate-pulse space-y-3">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-gray-200 rounded-lg" />
+                        <div className="flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                          <div className="h-3 bg-gray-200 rounded w-1/2" />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              ) : recentNotifications.length > 0 ? (
-                <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {recentNotifications.map((notification) => (
+              ) : notifications.length > 0 ? (
+                <div className="divide-y divide-gray-100">
+                  {notifications.slice(0, 10).map((notification) => (
                     <NotificationItem
                       key={notification.id}
                       notification={notification}
-                      compact={true}
+                      compact
                       onClose={() => setIsOpen(false)}
                     />
                   ))}
                 </div>
               ) : (
                 <div className="p-8 text-center">
-                  <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Bell
-                      size={20}
-                      className="text-gray-400 dark:text-gray-500"
-                    />
-                  </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  <Bell
+                    size={32}
+                    className="mx-auto text-charcoal-muted mb-3"
+                  />
+                  <p className="text-charcoal-muted font-lora">
                     No notifications yet
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="p-3 border-t border-gray-100 dark:border-gray-800 text-center">
-              <Link
-                to="/notifications"
-                onClick={() => setIsOpen(false)}
-                className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium"
-              >
-                View All Notifications
-              </Link>
-            </div>
+            {/* Footer */}
+            {notifications.length > 0 && (
+              <div className="p-3 border-t border-gray-100">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-center text-sm font-chivo font-medium text-sage-green hover:text-deep-charcoal transition-colors"
+                >
+                  View all notifications
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

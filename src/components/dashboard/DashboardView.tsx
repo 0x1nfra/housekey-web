@@ -1,6 +1,8 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import { motion } from "framer-motion";
-import { Calendar, CheckSquare, Users, Clock } from "lucide-react";
+import { Calendar, CheckSquare, Users, Clock, TrendingUp } from "lucide-react";
 
 interface Event {
   id: string;
@@ -26,14 +28,11 @@ interface Member {
   lastActive: string;
 }
 
-/*
-TODO:
-- hook up to functions
-- load dynamic data from db
-- break down ui components
-*/
+interface DashboardViewProps {
+  designVariation: "A" | "B";
+}
 
-const DashboardView: React.FC = () => {
+const DashboardView: React.FC<DashboardViewProps> = ({ designVariation }) => {
   const todayEvents: Event[] = [
     {
       id: "1",
@@ -92,6 +91,12 @@ const DashboardView: React.FC = () => {
     },
   ];
 
+  const getCardClasses = () => {
+    return designVariation === "A"
+      ? "bg-white border border-gray-100 rounded-lg shadow-soft p-6"
+      : "bg-blue border border-gray-200 rounded-lg shadow-soft p-6";
+  };
+
   const formatTime = (timeString: string) => {
     return new Date(timeString).toLocaleTimeString("en-US", {
       hour: "numeric",
@@ -100,166 +105,162 @@ const DashboardView: React.FC = () => {
     });
   };
 
-  const getPriorityColor = (priority: string) => {
-    const base = {
-      high: "text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400",
-      medium:
-        "text-amber-600 bg-amber-50 dark:bg-amber-500/10 dark:text-amber-400",
-      low: "text-green-600 bg-green-50 dark:bg-green-500/10 dark:text-green-400",
-      default: "text-gray-600 bg-gray-50 dark:bg-gray-700 dark:text-gray-300",
-    };
-    return base[priority as keyof typeof base] || base.default;
-  };
+  // const getPriorityColor = (priority: string) => {
+  //   const base = {
+  //     high: "text-red-600 bg-red-50",
+  //     medium: "text-amber-600 bg-amber-50",
+  //     low: "text-green-600 bg-green-50",
+  //     default: "text-gray-600 bg-gray-50",
+  //   };
+  //   return base[priority as keyof typeof base] || base.default;
+  // };
+
+  // Stats data for the new design
+  const stats = [
+    {
+      id: "events",
+      title: "Today's Events",
+      value: todayEvents.length.toString(),
+      change: "+2 from yesterday",
+      icon: Calendar,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+    },
+    {
+      id: "tasks",
+      title: "Pending Tasks",
+      value: pendingTasks.length.toString(),
+      change: "-1 from yesterday",
+      icon: CheckSquare,
+      color: "text-sage-green-dark",
+      bgColor: "bg-sage-green-light",
+    },
+    {
+      id: "members",
+      title: "Active Members",
+      value: householdMembers.length.toString(),
+      change: "All online",
+      icon: Users,
+      color: "text-amber-600",
+      bgColor: "bg-amber-100",
+    },
+    {
+      id: "completion",
+      title: "Task Completion",
+      value: "87%",
+      change: "+5% this week",
+      icon: TrendingUp,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-100",
+    },
+  ];
 
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {/* Today's Events */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-500/20 rounded-lg flex items-center justify-center">
-            <Calendar
-              size={20}
-              className="text-indigo-600 dark:text-indigo-400"
-            />
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              Today's Events
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {todayEvents.length} scheduled
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {todayEvents.map((event) => (
-            <div
-              key={event.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-            >
-              <div className="flex-1">
-                <p className="font-medium text-gray-900 dark:text-white text-sm">
-                  {event.title}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {formatTime(event.time)} • {event.assignedTo}
-                </p>
-              </div>
-              <Clock size={16} className="text-gray-400 dark:text-gray-500" />
-            </div>
-          ))}
-
-          {todayEvents.length === 0 && (
-            <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
-              No events scheduled for today
-            </p>
-          )}
-        </div>
-      </motion.div>
-
-      {/* Pending Tasks */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg flex items-center justify-center">
-            <CheckSquare
-              size={20}
-              className="text-emerald-600 dark:text-emerald-400"
-            />
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              Pending Tasks
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {pendingTasks.length} remaining
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {pendingTasks.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-            >
-              <div className="flex-1">
-                <p className="font-medium text-gray-900 dark:text-white text-sm">
-                  {task.title}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Assigned to {task.assignedTo}
-                </p>
-              </div>
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(
-                  task.priority
-                )}`}
+    <div className="space-y-8">
+      {/* Stats Grid - 4 columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 * index }}
+            className={getCardClasses()}
+          >
+            <div className="flex items-center gap-3 mb-3">
+              <div
+                className={`w-10 h-10 ${stat.bgColor} rounded-lg flex items-center justify-center`}
               >
-                {task.priority}
-              </span>
-            </div>
-          ))}
-
-          {pendingTasks.length === 0 && (
-            <p className="text-gray-500 dark:text-gray-400 text-sm text-center py-4">
-              All tasks completed! 🎉
-            </p>
-          )}
-        </div>
-      </motion.div>
-
-      {/* Family Members */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 bg-amber-100 dark:bg-amber-500/20 rounded-lg flex items-center justify-center">
-            <Users size={20} className="text-amber-600 dark:text-amber-400" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">
-              Family Members
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {householdMembers.length} active
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          {householdMembers.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-            >
-              <div className="text-2xl">{member.avatar}</div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900 dark:text-white text-sm">
-                  {member.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                  {member.role}
-                </p>
+                <stat.icon size={20} className={stat.color} />
               </div>
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
             </div>
-          ))}
-        </div>
-      </motion.div>
+            <div>
+              <p className="text-sm text-charcoal-muted font-chivo mb-1">
+                {stat.title}
+              </p>
+              <p className="text-3xl font-semibold text-deep-charcoal font-chivo mb-1">
+                {stat.value}
+              </p>
+              <p className="text-sm text-sage-green-dark font-lora">
+                {stat.change}
+              </p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Main Content Grid - 3 columns */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        {/* Chart Container - spans 2 columns */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className={`lg:col-span-2 ${getCardClasses()}`}
+        >
+          <h3 className="font-semibold text-deep-charcoal font-chivo mb-4">
+            Family Activity Overview
+          </h3>
+
+          {/* Mock chart area */}
+          <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200">
+            <div className="text-center">
+              <TrendingUp size={48} className="text-sage-green mx-auto mb-2" />
+              <p className="text-charcoal-muted font-lora">
+                Activity chart would go here
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Activity Table Container - spans 1 column */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className={getCardClasses()}
+        >
+          <h3 className="font-semibold text-deep-charcoal font-chivo mb-4">
+            Recent Activity
+          </h3>
+
+          <div className="space-y-3">
+            {todayEvents.slice(0, 3).map((event) => (
+              <div
+                key={event.id}
+                className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
+              >
+                <Clock size={16} className="text-charcoal-muted" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-deep-charcoal text-sm font-chivo truncate">
+                    {event.title}
+                  </p>
+                  <p className="text-xs text-charcoal-muted font-lora">
+                    {formatTime(event.time)} • {event.assignedTo}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {pendingTasks.slice(0, 2).map((task) => (
+              <div
+                key={task.id}
+                className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
+              >
+                <CheckSquare size={16} className="text-charcoal-muted" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-deep-charcoal text-sm font-chivo truncate">
+                    {task.title}
+                  </p>
+                  <p className="text-xs text-charcoal-muted font-lora">
+                    {task.assignedTo} • {task.priority} priority
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 };

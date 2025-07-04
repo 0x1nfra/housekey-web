@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+"use client";
+
+import type React from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus,
   Check,
   X,
-  ShoppingCart,
   Users,
-  // Clock,
   Edit3,
   Trash2,
   BarChart3,
+  List,
 } from "lucide-react";
 import AddItemModal from "./modals/AddItemModal";
 import CreateListModal from "./modals/CreateListModal";
@@ -18,24 +20,14 @@ import DeleteListModal from "./modals/DeleteListModal";
 import StatsModal from "./modals/StatsModal";
 import { useShoppingData } from "./hooks/useShoppingData";
 import {
-  CreateItemData,
-  UpdateItemData,
+  type CreateItemData,
+  type UpdateItemData,
   useShoppingStore,
 } from "../../store/shopping";
 import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
-// import dayjs from "dayjs";
 import EditItemModal from "./modals/EditItemModal";
 
-/*
-
-TODO:
-- break this into smaller components
-- simplfy color scheme: page, stats, buttons
-- update get member avatar/emoji logic
-- add categories table
-- implement suggestion logic
-*/
 interface ShoppingItem {
   id: string;
   name: string;
@@ -53,8 +45,6 @@ const ShoppingView: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStatsModal, setShowStatsModal] = useState(false);
-
-  // Add state for tracking current item being edited
   const [currentEditingItem, setCurrentEditingItem] =
     useState<ShoppingItem | null>(null);
 
@@ -92,7 +82,6 @@ const ShoppingView: React.FC = () => {
 
   const handleItemAdd = async (itemData: CreateItemData) => {
     if (!currentList) return;
-
     try {
       await createItem(currentList.id, itemData);
       setShowAddItemModal(false);
@@ -119,13 +108,11 @@ const ShoppingView: React.FC = () => {
     }
   };
 
-  // Function to open edit modal with item data
   const openEditModal = (item: ShoppingItem) => {
     setCurrentEditingItem(item);
     setShowEditItemModal(true);
   };
 
-  // Function to close edit modal and reset current item
   const closeEditModal = () => {
     setShowEditItemModal(false);
     setCurrentEditingItem(null);
@@ -142,13 +129,15 @@ const ShoppingView: React.FC = () => {
 
   const getCategoryColor = (category?: string) => {
     const colors: { [key: string]: string } = {
-      Dairy: "bg-blue-100 text-blue-700",
-      Bakery: "bg-amber-100 text-amber-700",
-      Produce: "bg-green-100 text-green-700",
-      Meat: "bg-red-100 text-red-700",
-      Pantry: "bg-purple-100 text-purple-700",
+      Dairy: "bg-blue-50 text-blue-700 border-blue-200",
+      Bakery: "bg-amber-50 text-amber-700 border-amber-200",
+      Produce: "bg-green-50 text-green-700 border-green-200",
+      Meat: "bg-red-50 text-red-700 border-red-200",
+      Pantry: "bg-purple-50 text-purple-700 border-purple-200",
     };
-    return colors[category || ""] || "bg-gray-100 text-gray-700";
+    return (
+      colors[category || ""] || "bg-gray-50 text-charcoal-muted border-gray-200"
+    );
   };
 
   const canUserEdit =
@@ -162,17 +151,21 @@ const ShoppingView: React.FC = () => {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4"
+      >
         <div className="flex items-center justify-between">
-          <p className="text-red-700">{error}</p>
+          <p className="text-red-700 font-content">{error}</p>
           <button
             onClick={clearError}
-            className="text-red-500 hover:text-red-700"
+            className="text-red-500 hover:text-red-700 transition-colors duration-300"
           >
-            <X size={16} />
+            <X size={20} />
           </button>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -180,25 +173,25 @@ const ShoppingView: React.FC = () => {
     <div className="space-y-6">
       {/* List Selector */}
       <div className="flex flex-wrap gap-3 items-center justify-between">
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           {lists.map((list) => (
             <motion.button
               key={list.id}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setCurrentList(list)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-3 py-2 rounded-lg font-medium font-interface transition-all duration-300 ${
                 currentList?.id === list.id
-                  ? "bg-indigo-600 text-white"
-                  : "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500"
+                  ? "bg-sage-green text-deep-charcoal shadow-md"
+                  : "bg-warm-off-white border border-gray-200 text-deep-charcoal hover:border-sage-green hover:bg-sage-green-light"
               }`}
             >
               <div className="flex items-center gap-2">
-                <ShoppingCart size={16} />
+                <List size={16} />
                 <span>{list.name}</span>
                 {quickStats && currentList?.id === list.id && (
-                  <span className="text-xs opacity-75">
-                    ({quickStats.pendingItems})
+                  <span className="text-xs opacity-75 bg-deep-charcoal text-warm-off-white px-2 py-1 rounded-full">
+                    {quickStats.pendingItems}
                   </span>
                 )}
               </div>
@@ -206,13 +199,13 @@ const ShoppingView: React.FC = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {currentList && (
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setShowStatsModal(true)}
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+              className="btn btn-ghost btn-sm"
             >
               <BarChart3 size={16} />
               Stats
@@ -220,10 +213,10 @@ const ShoppingView: React.FC = () => {
           )}
 
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setShowCreateModal(true)}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            className="btn btn-primary btn-sm"
           >
             <Plus size={16} />
             New List
@@ -232,24 +225,24 @@ const ShoppingView: React.FC = () => {
       </div>
 
       {currentList && (
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-4">
           {/* Main Shopping List */}
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="card">
               {/* List Header */}
-              <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+              <div className="card-header">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    <h2 className="text-xl font-bold text-deep-charcoal font-interface">
                       {currentList.name}
                     </h2>
                     {canUserManage && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setShowEditModal(true)}
-                          className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                          className="p-1 text-charcoal-muted hover:text-deep-charcoal hover:bg-sage-green-light rounded-lg transition-all duration-300"
                           title="Edit list"
                         >
                           <Edit3 size={16} />
@@ -258,7 +251,7 @@ const ShoppingView: React.FC = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setShowDeleteModal(true)}
-                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300"
                           title="Delete list"
                         >
                           <Trash2 size={16} />
@@ -267,10 +260,10 @@ const ShoppingView: React.FC = () => {
                     )}
                   </div>
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setShowAddItemModal(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                    className="btn btn-primary btn-sm"
                   >
                     <Plus size={16} />
                     Add Item
@@ -278,44 +271,36 @@ const ShoppingView: React.FC = () => {
                 </div>
 
                 {currentList.description && (
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  <p className="text-sm text-charcoal-muted mb-4 font-content leading-relaxed">
                     {currentList.description}
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-charcoal-muted font-interface mb-4">
                   <div className="flex items-center gap-2">
-                    <Users size={16} />
+                    <Users size={14} />
                     <span>{collaborators.length} collaborators</span>
                   </div>
-                  {/* <div className="flex items-center gap-2">
-                    <Clock size={16} />
-                    <span>
-                      TODO: add 24/12 time format
-                      Last Update:{" "}
-                      {dayjs(currentList.updated_at).format("h:mm A")}
-                    </span>
-                  </div> */}
                 </div>
 
                 {/* Progress Bar */}
                 {quickStats && (
-                  <div className="mt-4">
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-gray-600 dark:text-gray-400">Progress</span>
-                      <span className="text-gray-900 dark:text-gray-100 font-medium">
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2 font-interface">
+                      <span className="text-charcoal-muted">Progress</span>
+                      <span className="text-deep-charcoal font-medium">
                         {quickStats.completedItems} of {quickStats.totalItems}{" "}
                         items
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2">
                       <motion.div
-                        className="bg-emerald-500 h-2 rounded-full"
+                        className="bg-sage-green h-2 rounded-full"
                         initial={{ width: 0 }}
                         animate={{
                           width: `${quickStats.completionPercentage}%`,
                         }}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                       />
                     </div>
                   </div>
@@ -323,8 +308,8 @@ const ShoppingView: React.FC = () => {
               </div>
 
               {/* Pending Items */}
-              <div className="p-6">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+              <div className="card-content">
+                <h3 className="font-semibold text-deep-charcoal mb-4 font-interface text-lg">
                   To Buy ({pendingItems.length})
                 </h3>
 
@@ -332,18 +317,18 @@ const ShoppingView: React.FC = () => {
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
                       <div key={i} className="animate-pulse">
-                        <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                          <div className="w-6 h-6 bg-gray-200 rounded-full" />
+                        <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                          <div className="w-5 h-5 bg-gray-200 rounded-full" />
                           <div className="flex-1">
-                            <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-1/3 mb-2" />
-                            <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-1/2" />
+                            <div className="h-3 bg-gray-200 rounded w-1/3 mb-1" />
+                            <div className="h-2 bg-gray-200 rounded w-1/2" />
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     <AnimatePresence>
                       {pendingItems.map((item, index) => (
                         <motion.div
@@ -351,34 +336,34 @@ const ShoppingView: React.FC = () => {
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: 20 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                          transition={{ delay: index * 0.05, duration: 0.3 }}
+                          className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-300 group"
                         >
                           <motion.button
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
                             onClick={() => handleItemComplete(item.id)}
-                            className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 rounded-full hover:border-emerald-500 transition-colors flex items-center justify-center"
+                            className="w-6 h-6 border-2 border-gray-300 rounded-full hover:border-sage-green transition-all duration-300 flex items-center justify-center group-hover:border-sage-green"
                           >
                             <Check
                               size={14}
-                              className="text-transparent hover:text-emerald-500"
+                              className="text-transparent group-hover:text-sage-green transition-colors duration-300"
                             />
                           </motion.button>
 
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-1">
-                              <span className="font-medium text-gray-900 dark:text-gray-100">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-deep-charcoal font-interface">
                                 {item.name}
                               </span>
                               {item.quantity > 1 && (
-                                <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">
+                                <span className="px-2 py-1 bg-sage-green-light text-deep-charcoal text-xs rounded-full font-medium font-interface">
                                   {item.quantity}x
                                 </span>
                               )}
                               {item.category && (
                                 <span
-                                  className={`px-2 py-1 text-xs rounded-full font-medium ${getCategoryColor(
+                                  className={`px-2 py-1 text-xs rounded-full font-medium font-interface border ${getCategoryColor(
                                     item.category
                                   )}`}
                                 >
@@ -387,15 +372,13 @@ const ShoppingView: React.FC = () => {
                               )}
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center gap-1 text-xs text-charcoal-muted font-content">
                               <span className="text-lg">
                                 {getMemberAvatar("User")}
                               </span>
                               <span>
                                 <span className="font-semibold">
                                   {profile?.name}
-                                  {/* TODO: add item completer name logic */}
-                                  {/* {getItemCompleterName(item.completed_by)} */}
                                 </span>
                               </span>
                               {item.note && (
@@ -412,10 +395,10 @@ const ShoppingView: React.FC = () => {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => openEditModal(item)}
-                              className="opacity-0 group-hover:opacity-100 p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1 text-charcoal-muted hover:text-deep-charcoal hover:bg-sage-green-light rounded-lg transition-all duration-300"
                               title="Edit item"
                             >
-                              <Edit3 size={16} />
+                              <Edit3 size={14} />
                             </motion.button>
                           )}
 
@@ -424,10 +407,10 @@ const ShoppingView: React.FC = () => {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => handleItemDelete(item.id)}
-                              className="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                              className="opacity-0 group-hover:opacity-100 p-1 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300"
                               title="Delete item"
                             >
-                              <Trash2 size={16} />
+                              <Trash2 size={14} />
                             </motion.button>
                           )}
                         </motion.div>
@@ -438,18 +421,20 @@ const ShoppingView: React.FC = () => {
 
                 {pendingItems.length === 0 && !loading.items && (
                   <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Check size={24} className="text-emerald-600 dark:text-emerald-400" />
+                    <div className="w-16 h-16 bg-sage-green-light rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Check size={28} className="text-sage-green" />
                     </div>
-                    <p className="text-gray-500 dark:text-gray-400">All items completed! 🎉</p>
+                    <p className="text-charcoal-muted font-content text-lg">
+                      All items completed! 🎉
+                    </p>
                   </div>
                 )}
               </div>
 
               {/* Completed Items */}
               {completedItems.length > 0 && (
-                <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                <div className="card-footer">
+                  <h3 className="font-semibold text-deep-charcoal mb-4 font-interface text-lg">
                     Completed ({completedItems.length})
                   </h3>
 
@@ -457,23 +442,21 @@ const ShoppingView: React.FC = () => {
                     {completedItems.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-center gap-4 p-3 bg-white dark:bg-gray-700 rounded-lg opacity-75"
+                        className="flex items-center gap-3 p-3 bg-warm-off-white rounded-lg opacity-75 hover:opacity-100 transition-opacity duration-300"
                       >
-                        <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center">
-                          <Check size={14} className="text-white" />
+                        <div className="w-6 h-6 bg-sage-green rounded-full flex items-center justify-center">
+                          <Check size={14} className="text-deep-charcoal" />
                         </div>
 
                         <div className="flex-1">
-                          <span className="text-gray-600 dark:text-gray-400 line-through">
+                          <span className="text-charcoal-muted line-through font-interface">
                             {item.name}
                           </span>
                           {item.completed_by && (
-                            <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
+                            <span className="text-xs text-charcoal-muted ml-1 font-content">
                               by{" "}
                               <span className="font-semibold">
                                 {profile?.name}
-                                {/* TODO: add item completer name logic */}
-                                {/* {getItemCompleterName(item.completed_by)} */}
                               </span>
                             </span>
                           )}
@@ -483,10 +466,10 @@ const ShoppingView: React.FC = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleItemComplete(item.id)}
-                          className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+                          className="p-1 text-charcoal-muted hover:text-deep-charcoal hover:bg-sage-green-light rounded-lg transition-all duration-300"
                           title="Mark as incomplete"
                         >
-                          <X size={16} />
+                          <X size={14} />
                         </motion.button>
                       </div>
                     ))}

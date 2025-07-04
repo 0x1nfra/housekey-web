@@ -1,25 +1,41 @@
-import React from "react";
-import { motion } from "framer-motion";
+"use client";
+
+import type React from "react";
+import { useLocation } from "react-router-dom";
+
 import BottomNavigation from "./BottomNavigation";
-import DashboardHeader from "./DashboardHeader";
+import SideNavigation from "./SideNavigation";
+import Header from "./Header";
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const location = useLocation();
+  const isLandingPage = location.pathname === "/";
+  const isAuthPage = ["/login", "/signup"].includes(location.pathname);
+
+  if (isLandingPage || isAuthPage) {
+    return <>{children}</>;
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <DashboardHeader />
-      <motion.main
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.3 }}
-        className="pb-20"
-      >
-        {children}
-      </motion.main>
+    <div className="min-h-screen bg-warm-off-white text-deep-charcoal font-lora">
+      {/* Desktop Sidebar Navigation */}
+      <SideNavigation />
+
+      {/* Header - adjusted for sidebar */}
+      <div className="md:ml-52">
+        <Header />
+      </div>
+
+      {/* Main Content - adjusted for sidebar */}
+      <main className="md:ml-52 pt-16 pb-20 md:pb-4">
+        <div className="h-full">{children}</div>
+      </main>
+
+      {/* Mobile Bottom Navigation */}
       <BottomNavigation />
     </div>
   );

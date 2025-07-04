@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import { motion } from "framer-motion";
 
 interface ToggleSwitchProps {
@@ -18,36 +20,29 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   icons,
 }) => {
   return (
-    <motion.button
+    <button
       type="button"
-      role="switch"
-      aria-checked={checked}
       onClick={() => !disabled && onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-        checked ? "bg-indigo-600" : "bg-gray-200 dark:bg-gray-700"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-      whileTap={{ scale: disabled ? 1 : 0.95 }}
+      disabled={disabled}
+      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-sage-green focus:ring-offset-2 ${
+        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+      } ${checked ? "bg-sage-green" : "bg-gray-200"}`}
     >
-      <span className="sr-only">{checked ? "Enable" : "Disable"}</span>
       <motion.span
         layout
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className={`${
+        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform duration-300 flex items-center justify-center ${
           checked ? "translate-x-6" : "translate-x-1"
-        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+        }`}
+        whileHover={!disabled ? { scale: 1.05 } : {}}
+        whileTap={!disabled ? { scale: 0.95 } : {}}
       >
-        {checked && icons?.checked && (
-          <span className="absolute inset-0 flex items-center justify-center text-indigo-600">
-            {icons.checked}
-          </span>
-        )}
-        {!checked && icons?.unchecked && (
-          <span className="absolute inset-0 flex items-center justify-center text-gray-400">
-            {icons.unchecked}
+        {icons && (
+          <span className="text-xs text-charcoal-muted">
+            {checked ? icons.checked : icons.unchecked}
           </span>
         )}
       </motion.span>
-    </motion.button>
+    </button>
   );
 };
 

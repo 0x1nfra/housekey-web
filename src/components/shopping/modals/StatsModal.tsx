@@ -1,8 +1,17 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, BarChart3, Users, Calendar, Clock, Crown, Shield, User } from 'lucide-react';
-import { ShoppingList, ListCollaborator } from '../../../store/shopping/types';
-import dayjs from 'dayjs';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  BarChart3,
+  Users,
+  Calendar,
+  Clock,
+  Crown,
+  Shield,
+  User,
+} from "lucide-react";
+import { ShoppingList, ListCollaborator } from "../../../store/shopping/types";
+import dayjs from "dayjs";
 
 interface StatsModalProps {
   isOpen: boolean;
@@ -22,7 +31,7 @@ const StatsModal: React.FC<StatsModalProps> = ({
   onClose,
   list,
   collaborators,
-  quickStats
+  quickStats,
 }) => {
   if (!list) return null;
 
@@ -71,7 +80,9 @@ const StatsModal: React.FC<StatsModalProps> = ({
                   <BarChart3 size={20} className="text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">List Statistics</h2>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    List Statistics
+                  </h2>
                   <p className="text-sm text-gray-500">{list.name}</p>
                 </div>
               </div>
@@ -86,8 +97,10 @@ const StatsModal: React.FC<StatsModalProps> = ({
             <div className="space-y-6">
               {/* Quick Stats Section */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
-                
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Quick Stats
+                </h3>
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-blue-50 rounded-lg p-4 text-center">
                     <div className="text-2xl font-bold text-blue-600">
@@ -95,21 +108,21 @@ const StatsModal: React.FC<StatsModalProps> = ({
                     </div>
                     <div className="text-sm text-blue-700">Total Items</div>
                   </div>
-                  
+
                   <div className="bg-emerald-50 rounded-lg p-4 text-center">
                     <div className="text-2xl font-bold text-emerald-600">
                       {quickStats?.completedItems || 0}
                     </div>
                     <div className="text-sm text-emerald-700">Completed</div>
                   </div>
-                  
+
                   <div className="bg-amber-50 rounded-lg p-4 text-center">
                     <div className="text-2xl font-bold text-amber-600">
                       {quickStats?.pendingItems || 0}
                     </div>
                     <div className="text-sm text-amber-700">Pending</div>
                   </div>
-                  
+
                   <div className="bg-purple-50 rounded-lg p-4 text-center">
                     <div className="text-2xl font-bold text-purple-600">
                       {quickStats?.completionPercentage || 0}%
@@ -124,14 +137,17 @@ const StatsModal: React.FC<StatsModalProps> = ({
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-gray-600">Progress</span>
                       <span className="text-gray-900 font-medium">
-                        {quickStats.completedItems} of {quickStats.totalItems} items
+                        {quickStats.completedItems} of {quickStats.totalItems}{" "}
+                        items
                       </span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-3">
                       <motion.div
                         className="bg-emerald-500 h-3 rounded-full"
                         initial={{ width: 0 }}
-                        animate={{ width: `${quickStats.completionPercentage}%` }}
+                        animate={{
+                          width: `${quickStats.completionPercentage}%`,
+                        }}
                         transition={{ duration: 0.5 }}
                       />
                     </div>
@@ -145,21 +161,25 @@ const StatsModal: React.FC<StatsModalProps> = ({
                       <Calendar size={16} className="text-indigo-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Created</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        Created
+                      </p>
                       <p className="text-sm text-gray-500">
-                        {dayjs(list.created_at).format('MMM DD, YYYY')}
+                        {dayjs(list.created_at).format("MMM DD, YYYY")}
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                     <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
                       <Clock size={16} className="text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Last Modified</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        Last Modified
+                      </p>
                       <p className="text-sm text-gray-500">
-                        {dayjs(list.updated_at).format('MMM DD, YYYY')}
+                        {dayjs(list.updated_at).format("MMM DD, YYYY")}
                       </p>
                     </div>
                   </div>
@@ -181,7 +201,7 @@ const StatsModal: React.FC<StatsModalProps> = ({
                   <div className="space-y-3">
                     {collaborators.map((collaborator) => {
                       const RoleIcon = roleIcons[collaborator.role];
-                      
+
                       return (
                         <div
                           key={collaborator.id}
@@ -189,25 +209,37 @@ const StatsModal: React.FC<StatsModalProps> = ({
                         >
                           <div className="flex items-center gap-4">
                             <div className="text-2xl">
-                              {getMemberAvatar(collaborator.user_profile?.name || "User")}
+                              {getMemberAvatar(
+                                collaborator.user_profile?.name || "User"
+                              )}
                             </div>
-                            
+
                             <div>
                               <p className="font-medium text-gray-900">
-                                {collaborator.user_profile?.name || "Unknown User"}
+                                {collaborator.user_profile?.name ||
+                                  "Unknown User"}
                               </p>
                               <p className="text-sm text-gray-500">
                                 {collaborator.user_profile?.email}
                               </p>
                               <p className="text-xs text-gray-400">
-                                Joined {dayjs(collaborator.created_at).format('MMM DD, YYYY')}
+                                Joined{" "}
+                                {dayjs(collaborator.created_at).format(
+                                  "MMM DD, YYYY"
+                                )}
                               </p>
                             </div>
                           </div>
 
-                          <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${roleColors[collaborator.role]}`}>
+                          <div
+                            className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                              roleColors[collaborator.role]
+                            }`}
+                          >
                             <RoleIcon size={14} />
-                            <span className="capitalize">{collaborator.role}</span>
+                            <span className="capitalize">
+                              {collaborator.role}
+                            </span>
                           </div>
                         </div>
                       );

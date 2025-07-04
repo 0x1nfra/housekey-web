@@ -130,9 +130,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
-                <Edit3 size={20} className="text-emerald-600 dark:text-emerald-400" />
+                <Edit3
+                  size={20}
+                  className="text-emerald-600 dark:text-emerald-400"
+                />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Edit Item</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                Edit Item
+              </h2>
               <button
                 onClick={handleClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

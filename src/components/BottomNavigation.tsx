@@ -1,45 +1,52 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Calendar, CheckSquare, ShoppingCart, Bell } from "lucide-react";
 import { motion } from "framer-motion";
-import NotificationBadge from "./notifications/ui/NotificationBadge";
+import {
+  Home,
+  Calendar,
+  CheckSquare,
+  ShoppingCart,
+  Settings,
+} from "lucide-react";
 
 const BottomNavigation: React.FC = () => {
   const navItems = [
-    { path: "/dashboard", icon: Home, label: "Home" },
-    { path: "/calendar", icon: Calendar, label: "Calendar" },
-    { path: "/tasks", icon: CheckSquare, label: "Tasks" },
-    { path: "/shopping", icon: ShoppingCart, label: "Shopping" },
-    { path: "/notifications", icon: Bell, label: "Notifications", badge: true },
+    { to: "/dashboard", icon: Home, label: "Home" },
+    { to: "/calendar", icon: Calendar, label: "Calendar" },
+    { to: "/tasks", icon: CheckSquare, label: "Tasks" },
+    { to: "/shopping", icon: ShoppingCart, label: "Shopping" },
+    { to: "/settings", icon: Settings, label: "Settings" },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-2 z-50">
-      <div className="flex justify-around items-center max-w-md mx-auto">
-        {navItems.map(({ path, icon: Icon, label, badge }) => (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+      <div className="flex items-center justify-around py-2">
+        {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
-            key={path}
-            to={path}
+            key={to}
+            to={to}
             className={({ isActive }) =>
-              `flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
+              `flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all duration-300 font-interface ${
                 isActive
-                  ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/10"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  ? "text-sage-green"
+                  : "text-charcoal-muted hover:text-deep-charcoal"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <motion.div whileTap={{ scale: 0.95 }} className="relative">
-                  {badge ? <NotificationBadge size={20} /> : <Icon size={20} />}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-indigo-600 dark:bg-indigo-400 rounded-full"
-                    />
-                  )}
+                <motion.div
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className={`transition-colors duration-300 ${
+                    isActive ? "text-sage-green" : ""
+                  }`}
+                >
+                  <Icon size={20} />
                 </motion.div>
-                <span className="text-xs mt-1 font-medium">{label}</span>
+                <span className="text-xs font-medium">{label}</span>
               </>
             )}
           </NavLink>

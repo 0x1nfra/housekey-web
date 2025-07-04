@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSettingsStore } from "../../store/settings";
 import { useAuthStore } from "../../store/authStore";
 import { shallow } from "zustand/shallow";
-// import { X, Settings, User, Home, Bell, Shield, Inbox } from "lucide-react";
 import { X, Settings, User, Home, Inbox } from "lucide-react";
 
 interface SettingsLayoutProps {
@@ -50,50 +52,48 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
     { id: "profile", label: "Profile", icon: User },
     { id: "hub", label: "Hub", icon: Home },
     { id: "invitations", label: "Invitations", icon: Inbox },
-    // TODO: add these tabs
-    // { id: "notifications", label: "Notifications", icon: Bell },
-    // { id: "privacy", label: "Privacy", icon: Shield },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Error Display */}
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4"
+          className="bg-red-50 border border-red-200 rounded-xl p-6"
         >
           <div className="flex items-center justify-between">
-            <p className="text-red-700 dark:text-red-400">{error}</p>
+            <p className="text-red-700 font-content">{error}</p>
             <button
               onClick={clearError}
-              className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+              className="text-red-500 hover:text-red-700 transition-colors duration-300"
             >
-              <X size={16} />
+              <X size={18} />
             </button>
           </div>
         </motion.div>
       )}
 
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-200">
         <nav className="flex space-x-8 overflow-x-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
-              <button
+              <motion.button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                whileHover={{ y: -2 }}
+                className={`flex items-center gap-3 py-4 px-2 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap font-interface ${
                   activeTab === tab.id
-                    ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
-                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
+                    ? "border-sage-green text-sage-green"
+                    : "border-transparent text-charcoal-muted hover:text-deep-charcoal hover:border-gray-300"
                 }`}
               >
-                <Icon size={16} />
+                <Icon size={18} />
                 {tab.label}
-              </button>
+              </motion.button>
             );
           })}
         </nav>

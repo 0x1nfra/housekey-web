@@ -1,5 +1,8 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import { motion } from "framer-motion";
+import { ShoppingCart } from "lucide-react";
 import ShoppingView from "../components/shopping/ShoppingView";
 
 const ShoppingPage: React.FC = () => {
@@ -8,15 +11,21 @@ const ShoppingPage: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
+        className="max-w-6xl mx-auto"
       >
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-gray-100">
-            Shopping
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            Collaborate on shopping in real-time with your Hub
-          </p>
+        {/* Page Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 bg-sage-green-light rounded-xl flex items-center justify-center">
+            <ShoppingCart size={24} className="text-deep-charcoal" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-deep-charcoal font-interface mb-2">
+              Shopping Lists
+            </h1>
+            <p className="text-charcoal-muted font-content">
+              Collaborate on shopping in real-time with your family hub
+            </p>
+          </div>
         </div>
 
         <ShoppingView />
