@@ -77,7 +77,7 @@ export interface UserInvitation {
   is_expired: boolean;
 }
 
-export enum HubRole {
+export enum HubRoleType {
   Owner = "owner",
   Manager = "manager",
   Member = "member",

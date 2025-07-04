@@ -23,12 +23,11 @@ export const createAuthActions = (
     // localStorage.removeItem("lastVisitedPage");
 
     // Reset auth state
-    set((state) => ({
-      ...state,
-      user: null,
-      profile: null,
-      error: null,
-    }));
+    set((state) => {
+      state.user = null;
+      state.profile = null;
+      state.error = null;
+    });
   },
 
   resetAllStores: () => {
@@ -45,7 +44,10 @@ export const createAuthActions = (
 
   // Actions
   signUp: async (email: string, password: string, name: string) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       // Create auth user
@@ -55,12 +57,18 @@ export const createAuthActions = (
       });
 
       if (authError) {
-        set((state) => ({ ...state, loading: false, error: authError.message }));
+        set((state) => {
+          state.loading = false;
+          state.error = authError.message;
+        });
         return { success: false, error: authError.message };
       }
 
       if (!authData.user) {
-        set((state) => ({ ...state, loading: false, error: "Failed to create user account" }));
+        set((state) => {
+          state.loading = false;
+          state.error = "Failed to create user account";
+        });
         return { success: false, error: "Failed to create user account" };
       }
 
@@ -74,31 +82,39 @@ export const createAuthActions = (
         });
 
       if (profileError) {
-        set((state) => ({ ...state, loading: false, error: profileError.message }));
+        set((state) => {
+          state.loading = false;
+          state.error = profileError.message;
+        });
         return { success: false, error: profileError.message };
       }
 
       // Fetch the created profile
       await get().fetchUserProfile(authData.user.id);
 
-      set((state) => ({
-        ...state,
-        user: authData.user,
-        loading: false,
-        error: null,
-      }));
+      set((state) => {
+        state.user = authData.user;
+        state.loading = false;
+        state.error = null;
+      });
 
       return { success: true };
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      set((state) => ({ ...state, loading: false, error: errorMessage }));
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   signIn: async (email: string, password: string) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       // Clear any existing session data first
@@ -110,24 +126,29 @@ export const createAuthActions = (
       });
 
       if (error) {
-        set((state) => ({ ...state, loading: false, error: error.message }));
+        set((state) => {
+          state.loading = false;
+          state.error = error.message;
+        });
         return { success: false, error: error.message };
       }
 
       if (!data.user) {
-        set((state) => ({ ...state, loading: false, error: "Failed to sign in" }));
+        set((state) => {
+          state.loading = false;
+          state.error = "Failed to sign in";
+        });
         return { success: false, error: "Failed to sign in" };
       }
 
       // Fetch user profile
       await get().fetchUserProfile(data.user.id);
 
-      set((state) => ({
-        ...state,
-        user: data.user,
-        loading: false,
-        error: null,
-      }));
+      set((state) => {
+        state.user = data.user;
+        state.loading = false;
+        state.error = null;
+      });
 
       // Initialize hub store for the new user
       try {
@@ -141,30 +162,43 @@ export const createAuthActions = (
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      set((state) => ({ ...state, loading: false, error: errorMessage }));
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   signOut: async () => {
-    set((state) => ({ ...state, loading: true }));
+    set((state) => {
+      state.loading = true;
+    });
 
     try {
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        set((state) => ({ ...state, loading: false, error: error.message }));
+        set((state) => {
+          state.loading = false;
+          state.error = error.message;
+        });
         return;
       }
 
       // Clear all user data and localStorage
       get().resetAllStores();
 
-      set((state) => ({ ...state, loading: false }));
+      set((state) => {
+        state.loading = false;
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      set((state) => ({ ...state, loading: false, error: errorMessage }));
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
     }
   },
 
@@ -178,13 +212,17 @@ export const createAuthActions = (
 
       if (error) {
         console.error("Error getting session:", error);
-        set((state) => ({ ...state, initialized: true }));
+        set((state) => {
+          state.initialized = true;
+        });
         return;
       }
 
       if (session?.user) {
         await get().fetchUserProfile(session.user.id);
-        set((state) => ({ ...state, user: session.user }));
+        set((state) => {
+          state.user = session.user;
+        });
 
         // Initialize hub store for the authenticated user
         import("../hub").then(({ useHubStore }) => {
@@ -200,7 +238,9 @@ export const createAuthActions = (
             get().clearUserSession();
 
             await get().fetchUserProfile(session.user.id);
-            set((state) => ({ ...state, user: session.user }));
+            set((state) => {
+              state.user = session.user;
+            });
 
             // Initialize hub store for the new user
             import("../hub").then(({ useHubStore }) => {
@@ -215,10 +255,14 @@ export const createAuthActions = (
         }
       });
 
-      set((state) => ({ ...state, initialized: true }));
+      set((state) => {
+        state.initialized = true;
+      });
     } catch (error) {
       console.error("Error initializing auth:", error);
-      set((state) => ({ ...state, initialized: true }));
+      set((state) => {
+        state.initialized = true;
+      });
     }
   },
 
@@ -235,21 +279,24 @@ export const createAuthActions = (
         return;
       }
 
-      set((state) => ({ ...state, profile: data }));
+      set((state) => {
+        state.profile = data;
+      });
     } catch (error) {
       console.error("Error fetching user profile:", error);
     }
   },
 
-  clearError: () => set((state) => ({ ...state, error: null })),
+  clearError: () => set((state) => {
+    state.error = null;
+  }),
 
   // Utility
-  reset: () => set((state) => ({
-    ...state,
-    user: null,
-    profile: null,
-    loading: false,
-    error: null,
-    initialized: false,
-  })),
+  reset: () => set((state) => {
+    state.user = null;
+    state.profile = null;
+    state.loading = false;
+    state.error = null;
+    state.initialized = false;
+  }),
 });

@@ -14,14 +14,14 @@ import { AnimatePresence } from "framer-motion";
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user, logout } = useAuthStore();
+  const { user, signOut } = useAuthStore();
   const { currentHub } = useHubStore(
     (state) => ({ currentHub: state.currentHub }),
     shallow
   );
 
   const handleLogout = () => {
-    logout();
+    signOut();
     setIsUserMenuOpen(false);
   };
 

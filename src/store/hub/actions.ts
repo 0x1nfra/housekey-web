@@ -4,7 +4,7 @@ import {
   CreateHubData,
   UpdateHubData,
   InviteMemberData,
-  HubRole,
+  HubRoleType,
   Result,
   HubPermissions,
   UserInvitation,
@@ -30,7 +30,10 @@ export const createHubActions = (
 ) => ({
   // Core Actions
   initializeHubs: async () => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       // Get the current user and store their ID
@@ -44,7 +47,9 @@ export const createHubActions = (
       }
 
       // Store the user ID in state
-      set((state) => ({ ...state, currentUserId: user.id }));
+      set((state) => {
+        state.currentUserId = user.id;
+      });
 
       // Get user's hubs
       const { data: hubs, error: hubsError } = await supabase
@@ -60,7 +65,9 @@ export const createHubActions = (
 
       if (hubsError) throw hubsError;
 
-      set((state) => ({ ...state, userHubs: hubs || [] }));
+      set((state) => {
+        state.userHubs = hubs || [];
+      });
 
       // Set current hub (first hub or from localStorage)
       const savedHubId = localStorage.getItem("currentHubId");
@@ -70,21 +77,25 @@ export const createHubActions = (
 
       if (targetHub) {
         await get().loadHubData(targetHub.id);
-        set((state) => ({ ...state, currentHub: targetHub }));
+        set((state) => {
+          state.currentHub = targetHub;
+        });
       }
 
       // Fetch user invitations
       await get().fetchUserInvitations();
 
-      set((state) => ({ ...state, initialized: true, loading: false }));
+      set((state) => {
+        state.initialized = true;
+        state.loading = false;
+      });
     } catch (error) {
       console.error("Error initializing hubs:", error);
-      set((state) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to load hubs",
-        loading: false,
-        initialized: true,
-      }));
+      set((state) => {
+        state.error = error instanceof Error ? error.message : "Failed to load hubs";
+        state.loading = false;
+        state.initialized = true;
+      });
     }
   },
 
@@ -93,33 +104,46 @@ export const createHubActions = (
     const hub = userHubs.find((h) => h.id === hubId);
 
     if (!hub) {
-      set((state) => ({ ...state, error: "Hub not found" }));
+      set((state) => {
+        state.error = "Hub not found";
+      });
       return;
     }
 
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       await get().loadHubData(hubId);
-      set((state) => ({ ...state, currentHub: hub, loading: false }));
+      set((state) => {
+        state.currentHub = hub;
+        state.loading = false;
+      });
       localStorage.setItem("currentHubId", hubId);
     } catch (error) {
       console.error("Error switching hub:", error);
-      set((state) => ({
-        ...state,
-        error: error instanceof Error ? error.message : "Failed to switch hub",
-        loading: false,
-      }));
+      set((state) => {
+        state.error = error instanceof Error ? error.message : "Failed to switch hub";
+        state.loading = false;
+      });
     }
   },
 
   createHub: async (data: CreateHubData) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     const { currentUserId } = get();
     if (!currentUserId) {
       const errorMessage = "User not authenticated";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
 
@@ -139,19 +163,27 @@ export const createHubActions = (
       // Refresh hubs list
       await get().initializeHubs();
 
-      set((state) => ({ ...state, loading: false }));
+      set((state) => {
+        state.loading = false;
+      });
       return { success: true, data: hub };
     } catch (error) {
       console.error("Error creating hub:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create hub";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   updateHub: async (hubId: string, data: UpdateHubData) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       const { data: hub, error } = await supabase
@@ -167,25 +199,30 @@ export const createHubActions = (
       const { userHubs, currentHub } = get();
       const updatedHubs = userHubs.map((h) => (h.id === hubId ? hub : h));
 
-      set((state) => ({
-        ...state,
-        userHubs: updatedHubs,
-        currentHub: currentHub?.id === hubId ? hub : currentHub,
-        loading: false,
-      }));
+      set((state) => {
+        state.userHubs = updatedHubs;
+        state.currentHub = currentHub?.id === hubId ? hub : currentHub;
+        state.loading = false;
+      });
 
       return { success: true, data: hub };
     } catch (error) {
       console.error("Error updating hub:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update hub";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   leaveHub: async (hubId: string) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     const { currentUserId } = get();
 
@@ -201,19 +238,27 @@ export const createHubActions = (
       // Refresh hubs and switch to another hub if current was deleted
       await get().initializeHubs();
 
-      set((state) => ({ ...state, loading: false }));
+      set((state) => {
+        state.loading = false;
+      });
       return { success: true };
     } catch (error) {
       console.error("Error leaving hub:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to leave hub";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   deleteHub: async (hubId: string) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       const { error } = await supabase.from("hubs").delete().eq("id", hubId);
@@ -223,25 +268,36 @@ export const createHubActions = (
       // Refresh hubs and switch to another hub if current was deleted
       await get().initializeHubs();
 
-      set((state) => ({ ...state, loading: false }));
+      set((state) => {
+        state.loading = false;
+      });
       return { success: true };
     } catch (error) {
       console.error("Error deleting hub:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to delete hub";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   // Member Management
   inviteMember: async (hubId: string, data: InviteMemberData) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     const { currentUserId } = get();
     if (!currentUserId) {
       const errorMessage = "User not authenticated";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
 
@@ -263,20 +319,28 @@ export const createHubActions = (
 
       // Refresh state
       await get().loadHubData(hubId);
-      set((state) => ({ ...state, loading: false }));
+      set((state) => {
+        state.loading = false;
+      });
 
       return { success: true, data: result.data };
     } catch (err) {
       console.error("Error inviting member:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to send invitation";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   removeMember: async (memberId: string) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       const { error } = await supabase
@@ -290,7 +354,10 @@ export const createHubActions = (
       const { hubMembers, currentHub } = get();
       const updatedMembers = hubMembers.filter((m) => m.id !== memberId);
 
-      set((state) => ({ ...state, hubMembers: updatedMembers, loading: false }));
+      set((state) => {
+        state.hubMembers = updatedMembers;
+        state.loading = false;
+      });
 
       // Refresh hub data if needed
       if (currentHub) {
@@ -302,13 +369,19 @@ export const createHubActions = (
       console.error("Error removing member:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to remove member";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
-  updateMemberRole: async (memberId: string, role: HubRole) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+  updateMemberRole: async (memberId: string, role: HubRoleType) => {
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       const { data: member, error } = await supabase
@@ -326,20 +399,29 @@ export const createHubActions = (
         m.id === memberId ? { ...m, role } : m
       );
 
-      set((state) => ({ ...state, hubMembers: updatedMembers, loading: false }));
+      set((state) => {
+        state.hubMembers = updatedMembers;
+        state.loading = false;
+      });
 
       return { success: true, data: member };
     } catch (error) {
       console.error("Error updating member role:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update member role";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   cancelInvitation: async (invitationId: string) => {
-    set((state) => ({ ...state, loading: true, error: null }));
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       const { error } = await supabase
@@ -355,29 +437,37 @@ export const createHubActions = (
         (i) => i.id !== invitationId
       );
 
-      set((state) => ({ ...state, pendingInvites: updatedInvites, loading: false }));
+      set((state) => {
+        state.pendingInvites = updatedInvites;
+        state.loading = false;
+      });
 
       return { success: true };
     } catch (error) {
       console.error("Error canceling invitation:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to cancel invitation";
-      set((state) => ({ ...state, error: errorMessage, loading: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loading = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   // User Invitations
   fetchUserInvitations: async () => {
-    set((state) => ({ ...state, loadingInvitations: true, error: null }));
+    set((state) => {
+      state.loadingInvitations = true;
+      state.error = null;
+    });
 
     const { currentUserId } = get();
     if (!currentUserId) {
-      set((state) => ({
-        ...state,
-        error: "User not authenticated",
-        loadingInvitations: false,
-      }));
+      set((state) => {
+        state.error = "User not authenticated";
+        state.loadingInvitations = false;
+      });
       return;
     }
 
@@ -418,27 +508,34 @@ export const createHubActions = (
         })
       );
 
-      set((state) => ({ ...state, userInvitations, loadingInvitations: false }));
+      set((state) => {
+        state.userInvitations = userInvitations;
+        state.loadingInvitations = false;
+      });
     } catch (error) {
       console.error("Error fetching user invitations:", error);
-      set((state) => ({
-        ...state,
-        error:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch invitations",
-        loadingInvitations: false,
-      }));
+      set((state) => {
+        state.error = error instanceof Error
+          ? error.message
+          : "Failed to fetch invitations";
+        state.loadingInvitations = false;
+      });
     }
   },
 
   acceptInvitation: async (invitationId: string) => {
-    set((state) => ({ ...state, loadingInvitations: true, error: null }));
+    set((state) => {
+      state.loadingInvitations = true;
+      state.error = null;
+    });
 
     const { currentUserId } = get();
     if (!currentUserId) {
       const errorMessage = "User not authenticated";
-      set((state) => ({ ...state, error: errorMessage, loadingInvitations: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loadingInvitations = false;
+      });
       return { success: false, error: errorMessage };
     }
 
@@ -456,19 +553,27 @@ export const createHubActions = (
       // Refresh data
       await Promise.all([get().fetchUserInvitations(), get().initializeHubs()]);
 
-      set((state) => ({ ...state, loadingInvitations: false }));
+      set((state) => {
+        state.loadingInvitations = false;
+      });
       return { success: true, data: { hub_id: hubId } };
     } catch (error) {
       console.error("Error accepting invitation:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to accept invitation";
-      set((state) => ({ ...state, error: errorMessage, loadingInvitations: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loadingInvitations = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   declineInvitation: async (invitationId: string) => {
-    set((state) => ({ ...state, loadingInvitations: true, error: null }));
+    set((state) => {
+      state.loadingInvitations = true;
+      state.error = null;
+    });
 
     try {
       const { data: user } = await supabase.auth.getUser();
@@ -493,13 +598,18 @@ export const createHubActions = (
       // Refresh the invitation list
       await get().fetchUserInvitations();
 
-      set((state) => ({ ...state, loadingInvitations: false }));
+      set((state) => {
+        state.loadingInvitations = false;
+      });
       return { success: true };
     } catch (error) {
       console.error("Error declining invitation:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to decline invitation";
-      set((state) => ({ ...state, error: errorMessage, loadingInvitations: false }));
+      set((state) => {
+        state.error = errorMessage;
+        state.loadingInvitations = false;
+      });
       return { success: false, error: errorMessage };
     }
   },
@@ -540,11 +650,10 @@ export const createHubActions = (
 
       if (invitesError) throw invitesError;
 
-      set((state) => ({
-        ...state,
-        hubMembers: members || [],
-        pendingInvites: invites || [],
-      }));
+      set((state) => {
+        state.hubMembers = members || [];
+        state.pendingInvites = invites || [];
+      });
     } catch (error) {
       console.error("Error loading hub data:", error);
       throw error;
@@ -585,20 +694,22 @@ export const createHubActions = (
     };
   },
 
-  clearError: () => set((state) => ({ ...state, error: null })),
+  clearError: () => set((state) => {
+    state.error = null;
+  }),
 
   // Utility
-  reset: () => set((state) => ({
-    ...state,
-    currentHub: null,
-    userHubs: [],
-    hubMembers: [],
-    pendingInvites: [],
-    userInvitations: [],
-    currentUserId: null,
-    loading: false,
-    loadingInvitations: false,
-    error: null,
-    initialized: false,
-  })),
+  reset: () => set((state) => {
+    state.currentHub = null;
+    state.userHubs = [];
+    state.hubMembers = [];
+    state.pendingInvites = [];
+    state.userInvitations = [];
+    state.currentUserId = null;
+    state.loading = false;
+    state.loadingInvitations = false;
+    state.error = null;
+    state.initialized = false;
+    state.subscriptions = {};
+  }),
 });

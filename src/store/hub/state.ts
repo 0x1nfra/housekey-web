@@ -11,4 +11,5 @@ export const initialState: HubState = {
   loadingInvitations: false,
   error: null,
   initialized: false,
+  subscriptions: {},
 };

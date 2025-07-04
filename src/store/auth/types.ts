@@ -42,5 +42,5 @@ export interface AuthActions {
 export type AuthStore = AuthState & AuthActions;
 
 // Helper types for function signatures
-export type SetStateFunction = (fn: (state: AuthState) => AuthState) => void;
+export type SetStateFunction = (fn: (state: AuthState) => void) => void;
 export type GetStateFunction = () => AuthStore;

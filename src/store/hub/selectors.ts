@@ -1,6 +1,6 @@
-import { HubState } from './types';
+import { HubStore } from './types';
 
-export const createHubSelectors = (state: HubState) => ({
+export const createHubSelectors = (state: HubStore) => ({
   getCurrentHub: () => state.currentHub,
   getUserHubs: () => state.userHubs,
   getHubMembers: () => state.hubMembers,

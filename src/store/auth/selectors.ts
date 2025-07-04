@@ -1,6 +1,6 @@
-import { AuthState } from './types';
+import { AuthStore } from './types';
 
-export const createAuthSelectors = (state: AuthState) => ({
+export const createAuthSelectors = (state: AuthStore) => ({
   getUser: () => state.user,
   getProfile: () => state.profile,
   isLoading: () => state.loading,

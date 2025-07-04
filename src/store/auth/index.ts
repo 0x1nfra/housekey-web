@@ -1,16 +1,30 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 import { AuthStore } from './types';
 import { initialState } from './state';
 import { createAuthActions } from './actions';
 import { createAuthSelectors } from './selectors';
 
+// Define the set/get function types for immer
+type ImmerSet = (
+  nextStateOrUpdater:
+    | AuthStore
+    | Partial<AuthStore>
+    | ((state: AuthStore) => void),
+  shouldReplace?: boolean
+) => void;
+
+type ImmerGet = () => AuthStore;
+
 export const useAuthStore = create<AuthStore>()(
   devtools(
-    (set, get) => ({
+    immer((set: ImmerSet, get: ImmerGet) => ({
       ...initialState,
+      
+      // Actions
       ...createAuthActions(set, get)
-    }),
+    })),
     {
       name: 'auth-store'
     }
