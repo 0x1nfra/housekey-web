@@ -5,12 +5,11 @@ import {
   CalendarWeek, 
   CalendarMonth, 
   EventFilters, 
-  EventSortOptions,
   CalendarTask,
   CalendarItem,
   EVENT_TYPES
 } from './types';
-import { format, startOfMonth, endOfMonth, addDays, isSameMonth, isToday, isSameDay, parseISO } from 'date-fns';
+import { format, addDays, isSameMonth, isToday } from 'date-fns';
 
 export const createEventsSelectors = (state: EventsState) => ({
   // Basic selectors
@@ -264,7 +263,7 @@ export const createEventsSelectors = (state: EventsState) => ({
     startDate.setDate(startDate.getDate() - startDate.getDay()); // Start from Sunday
     
     const weeks: CalendarWeek[] = [];
-    let currentDate = new Date(startDate);
+    const currentDate = new Date(startDate);
     let weekNumber = 0;
 
     while (currentDate <= lastDay || currentDate.getDay() !== 0) {

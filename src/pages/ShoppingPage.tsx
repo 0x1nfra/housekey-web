@@ -23,8 +23,8 @@ const ShoppingPage: React.FC = () => {
               Shopping Lists
             </h1>
             <p className="text-charcoal-muted font-content">
-              Collaborate on shopping in real-time with your family hub
-            </p>
+                Create and manage shared shopping lists for your household.
+              </p>
           </div>
         </div>
 

@@ -8,9 +8,6 @@ export const initialState: ShoppingState = {
   // Items (keyed by listId)
   items: {},
   
-  // Collaborators (keyed by listId)
-  collaborators: {},
-  
   // Stats (keyed by listId)
   listStats: {},
   hubStats: {},
@@ -19,7 +16,6 @@ export const initialState: ShoppingState = {
   loading: {
     lists: false,
     items: false,
-    collaborators: false,
     stats: false,
   },
   error: null,

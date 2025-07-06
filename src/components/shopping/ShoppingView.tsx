@@ -24,7 +24,7 @@ import {
   type UpdateItemData,
   useShoppingStore,
 } from "../../store/shopping";
-import { useHubStore } from "../../store/hub";
+import { useHubStore, useHubSelectors } from "../../store/hub";
 import { useAuthStore } from "../../store/auth";
 import { shallow } from "zustand/shallow";
 import EditItemModal from "./modals/EditItemModal";
@@ -64,14 +64,14 @@ const ShoppingView: React.FC = () => {
     currentList,
     pendingItems,
     completedItems,
-    collaborators,
     quickStats,
     loading,
     error,
     setCurrentList,
     clearError,
-    selectors,
   } = useShoppingData();
+
+  const hubSelectors = useHubSelectors();
 
   const handleItemComplete = async (itemId: string) => {
     try {
@@ -141,14 +141,7 @@ const ShoppingView: React.FC = () => {
     );
   };
 
-  const canUserEdit =
-    currentList && user
-      ? selectors.canUserEdit(currentList.id, user.id)
-      : false;
-  const canUserManage =
-    currentList && user
-      ? selectors.canUserManage(currentList.id, user.id)
-      : false;
+  
 
   if (error) {
     return (
@@ -237,7 +230,7 @@ const ShoppingView: React.FC = () => {
                     <h2 className="text-xl font-bold text-deep-charcoal font-interface">
                       {currentList.name}
                     </h2>
-                    {canUserManage && (
+                    {hubSelectors.isCurrentUserManagerOrOwner() && (
                       <div className="flex items-center gap-1">
                         <motion.button
                           whileHover={{ scale: 1.05 }}
@@ -277,12 +270,7 @@ const ShoppingView: React.FC = () => {
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 text-sm text-charcoal-muted font-interface mb-4">
-                  <div className="flex items-center gap-2">
-                    <Users size={14} />
-                    <span>{collaborators.length} collaborators</span>
-                  </div>
-                </div>
+                
 
                 {/* Progress Bar */}
                 {quickStats && (
@@ -391,7 +379,7 @@ const ShoppingView: React.FC = () => {
                             </div>
                           </div>
 
-                          {(canUserEdit || item.created_by === user?.id) && (
+                          {user && (
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
@@ -403,7 +391,7 @@ const ShoppingView: React.FC = () => {
                             </motion.button>
                           )}
 
-                          {(canUserEdit || item.created_by === user?.id) && (
+                          {user && (
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
@@ -527,7 +515,6 @@ const ShoppingView: React.FC = () => {
         isOpen={showStatsModal}
         onClose={() => setShowStatsModal(false)}
         list={currentList}
-        collaborators={collaborators}
         quickStats={quickStats}
       />
     </div>

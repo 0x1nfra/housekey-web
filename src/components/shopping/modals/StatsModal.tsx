@@ -3,21 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   BarChart3,
-  Users,
   Calendar,
   Clock,
-  Crown,
-  Shield,
-  User,
 } from "lucide-react";
-import { ShoppingList, ListCollaborator } from "../../../store/shopping/types";
+import { ShoppingList } from "../../../store/shopping/types";
 import dayjs from "dayjs";
 
 interface StatsModalProps {
   isOpen: boolean;
   onClose: () => void;
   list: ShoppingList | null;
-  collaborators: ListCollaborator[];
   quickStats: {
     totalItems: number;
     completedItems: number;
@@ -30,31 +25,9 @@ const StatsModal: React.FC<StatsModalProps> = ({
   isOpen,
   onClose,
   list,
-  collaborators,
   quickStats,
 }) => {
   if (!list) return null;
-
-  const roleIcons = {
-    owner: Crown,
-    editor: Shield,
-    member: User,
-  };
-
-  const roleColors = {
-    owner: "text-amber-600 bg-amber-100",
-    editor: "text-indigo-600 bg-indigo-100",
-    member: "text-gray-600 bg-gray-100",
-  };
-
-  const getMemberAvatar = (memberName: string) => {
-    const avatars: { [key: string]: string } = {
-      Sarah: "👩‍💼",
-      Mike: "👨‍💻",
-      Emma: "👧",
-    };
-    return avatars[memberName] || "👤";
-  };
 
   return (
     <AnimatePresence>
@@ -184,75 +157,6 @@ const StatsModal: React.FC<StatsModalProps> = ({
                     </div>
                   </div>
                 </div>
-              </div>
-
-              {/* Collaborators Section */}
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <Users size={14} className="text-purple-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Collaborators ({collaborators.length})
-                  </h3>
-                </div>
-
-                {collaborators.length > 0 ? (
-                  <div className="space-y-3">
-                    {collaborators.map((collaborator) => {
-                      const RoleIcon = roleIcons[collaborator.role];
-
-                      return (
-                        <div
-                          key={collaborator.id}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="text-2xl">
-                              {getMemberAvatar(
-                                collaborator.user_profile?.name || "User"
-                              )}
-                            </div>
-
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {collaborator.user_profile?.name ||
-                                  "Unknown User"}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {collaborator.user_profile?.email}
-                              </p>
-                              <p className="text-xs text-gray-400">
-                                Joined{" "}
-                                {dayjs(collaborator.created_at).format(
-                                  "MMM DD, YYYY"
-                                )}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div
-                            className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                              roleColors[collaborator.role]
-                            }`}
-                          >
-                            <RoleIcon size={14} />
-                            <span className="capitalize">
-                              {collaborator.role}
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Users size={24} className="text-gray-400" />
-                    </div>
-                    <p className="text-gray-500">No collaborators found</p>
-                  </div>
-                )}
               </div>
             </div>
 
