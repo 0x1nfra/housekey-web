@@ -95,15 +95,15 @@
 @layer components {
   /* Button System */
   .btn-primary {
-    @apply bg-sage-green text-deep-charcoal font-medium px-6 py-3 rounded-lg;
-    @apply hover:bg-sage-green-hover active:scale-95;
+    @apply border-2 bg-sage-green text-deep-charcoal font-medium px-6 py-3 rounded-xl;
+    @apply hover:bg-sage-green-medium active:scale-95;
     @apply focus:ring-2 focus:ring-sage-green focus:ring-offset-2;
     @apply transition-all duration-300 ease-out;
     font-family: "Chivo", sans-serif;
   }
 
   .btn-secondary {
-    @apply border-2 border-deep-charcoal text-deep-charcoal font-medium px-6 py-3 rounded-lg;
+    @apply border-2 bg-charcoal-light text-white font-medium px-6 py-3 rounded-xl;
     @apply hover:bg-deep-charcoal hover:text-warm-off-white active:scale-95;
     @apply focus:ring-2 focus:ring-deep-charcoal focus:ring-offset-2;
     @apply transition-all duration-300 ease-out;

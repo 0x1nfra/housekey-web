@@ -22,7 +22,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-indigo-50 border border-indigo-200 rounded-lg p-4"
+      className="bg-white border border-indigo-200 rounded-xl p-4"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -60,17 +60,17 @@ const BulkActions: React.FC<BulkActionsProps> = ({
 
         <div className="flex items-center gap-2">
           <button
-            onClick={onBulkDelete}
-            className="px-3 py-1 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-1"
-          >
-            <Trash2 size={14} />
-            Delete
-          </button>
-          <button
             onClick={onClearSelection}
-            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
           >
             Clear Selection
+          </button>
+          <button
+            onClick={onBulkDelete}
+            className="px-3 py-1 text-sm bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center gap-1"
+          >
+            <Trash2 size={14} color="red" />
+            Delete
           </button>
         </div>
       </div>

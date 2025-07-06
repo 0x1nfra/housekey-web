@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { motion } from "framer-motion";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, BarChart2 } from "lucide-react";
 import type { TaskFilters } from "../../../store/tasks/types";
 import { TaskPriority } from "../../../types/tasks";
 
@@ -13,6 +13,7 @@ interface TaskFiltersProps {
   onFilterChange: (filters: Partial<TaskFilters>) => void;
   onClearFilters: () => void;
   onCreateTask: () => void;
+  onShowStats: () => void;
 }
 
 const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
@@ -22,6 +23,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
   onFilterChange,
   onClearFilters,
   onCreateTask,
+  onShowStats,
 }) => {
   const hasActiveFilters =
     filters.completed !== undefined || filters.priority || filters.search;
@@ -39,7 +41,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="input-field pl-10"
+            className="bg-white rounded-xl input-field pl-10"
             placeholder="Search tasks..."
           />
         </div>
@@ -54,7 +56,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
                   e.target.value === "" ? undefined : e.target.value === "true",
               })
             }
-            className="input-field text-sm py-2"
+            className="bg-white rounded-xl input-field text-sm py-2"
           >
             <option value="">All Tasks</option>
             <option value="false">Pending</option>
@@ -80,7 +82,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
                 priority,
               });
             }}
-            className="input-field text-sm py-2"
+            className="bg-white rounded-xl input-field text-sm py-2"
           >
             <option value="">All Priorities</option>
             <option value={TaskPriority.URGENT}>Urgent Priority</option>
@@ -102,15 +104,26 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
         </div>
       </div>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={onCreateTask}
-        className="btn-primary flex items-center gap-2"
-      >
-        <Plus size={16} />
-        New Task
-      </motion.button>
+      <div className="flex items-center gap-2">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onShowStats}
+          className="btn-secondary flex items-center gap-2"
+        >
+          <BarChart2 size={16} />
+          Stats
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onCreateTask}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Plus size={16} />
+          New Task
+        </motion.button>
+      </div>
     </div>
   );
 };

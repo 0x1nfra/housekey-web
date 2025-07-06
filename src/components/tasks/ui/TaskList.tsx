@@ -28,7 +28,6 @@ const TaskList: React.FC<TaskListProps> = ({
   onDelete,
   onToggleSelect,
   onSelectAll,
-  onClearSelection,
   onCreateTask,
 }) => {
   const hasActiveFilters =
@@ -56,8 +55,8 @@ const TaskList: React.FC<TaskListProps> = ({
 
   const EmptyState = () => (
     <div className="text-center py-12">
-      <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center mx-auto mb-4">
-        <CheckCircle size={24} className="text-emerald-600" />
+      <div className="w-16 h-16 bg-sage-green dark:bg-sage-green rounded-full flex items-center justify-center mx-auto mb-4">
+        <CheckCircle size={24} className="text-deep-charcoal" />
       </div>
       <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
         {hasActiveFilters
@@ -74,7 +73,7 @@ const TaskList: React.FC<TaskListProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={onCreateTask}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          className="bg-sage-green hover:bg-sage-green-light text-deep-charcoal px-4 py-2 rounded-lg font-medium transition-colors"
         >
           Create a Task
         </motion.button>
@@ -94,18 +93,10 @@ const TaskList: React.FC<TaskListProps> = ({
             <div className="flex items-center gap-2">
               <button
                 onClick={onSelectAll}
-                className="text-sm text-indigo-600 hover:text-indigo-700 dark:hover:text-indigo-400 font-medium"
+                className="text-sm text-deep-charcoal hover:text-deep-charcoal dark:hover:text-deep-charcoal font-medium"
               >
                 Select All
               </button>
-              {selectedTasks.length > 0 && (
-                <button
-                  onClick={onClearSelection}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300"
-                >
-                  Clear Selection
-                </button>
-              )}
             </div>
           )}
         </div>

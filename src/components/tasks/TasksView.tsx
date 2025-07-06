@@ -5,13 +5,13 @@ import { useAuthStore } from "../../store/auth";
 import { useTasksData } from "./hooks/useTasksData";
 import { Task, TaskFilters } from "../../store/tasks/types";
 import EditTaskModal from "./ui/modal/EditTaskModal";
+import TaskStatsModal from "./ui/modal/TaskStatsModal";
 
 import { shallow } from "zustand/shallow";
 import NoHubState from "./ui/NoHubState";
 import ErrorDisplay from "./ui/ErrorDisplay";
 import TaskFiltersComponent from "./ui/TaskFilters";
 import BulkActions from "./ui/BulkAction";
-import TaskStats from "./ui/TaskStats";
 import TaskList from "./ui/TaskList";
 import { TaskData, TaskPriority } from "../../types/tasks";
 import AddTaskModal from "./ui/modal/AddTaskModal";
@@ -19,6 +19,7 @@ import AddTaskModal from "./ui/modal/AddTaskModal";
 const TasksView: React.FC = () => {
   const [isCreationFormOpen, setIsCreationFormOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const { currentHub } = useHubStore();
@@ -153,6 +154,7 @@ const TasksView: React.FC = () => {
         onFilterChange={handleFilterChange}
         onClearFilters={clearFilters}
         onCreateTask={() => setIsCreationFormOpen(true)}
+        onShowStats={() => setIsStatsModalOpen(true)}
       />
 
       {/* Bulk Actions */}
@@ -162,9 +164,6 @@ const TasksView: React.FC = () => {
         onBulkPriorityUpdate={handleBulkPriorityUpdate}
         onClearSelection={clearSelection}
       />
-
-      {/* Task Stats */}
-      <TaskStats taskStats={taskStats} overdueCount={overdueTasks.length} />
 
       {/* Tasks List */}
       <TaskList
@@ -197,6 +196,14 @@ const TasksView: React.FC = () => {
         }}
         onTaskUpdate={handleTaskUpdate}
         task={editingTask}
+      />
+
+      {/* Task Stats Modal */}
+      <TaskStatsModal
+        isOpen={isStatsModalOpen}
+        onClose={() => setIsStatsModalOpen(false)}
+        taskStats={taskStats}
+        overdueCount={overdueTasks.length}
       />
     </div>
   );
