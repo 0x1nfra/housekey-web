@@ -91,9 +91,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <Plus size={20} className="text-blue-600" />
-                </div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Add Item
                 </h2>
@@ -112,23 +109,18 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Item Name
                 </label>
-                <div className="relative">
-                  <Search
-                    size={18}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                  />
-                  <input
-                    type="text"
-                    value={itemName}
-                    onChange={(e) => {
-                      setItemName(e.target.value);
-                      setShowSuggestions(e.target.value.length > 0);
-                    }}
-                    className="w-full h-11 border border-gray-200 rounded-lg px-4 pl-10 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                    placeholder="What do you need?"
-                    required
-                  />
-                </div>
+
+                <input
+                  type="text"
+                  value={itemName}
+                  onChange={(e) => {
+                    setItemName(e.target.value);
+                    setShowSuggestions(e.target.value.length > 0);
+                  }}
+                  className="w-full h-11 border border-gray-200 rounded-lg px-4 text-sm bg-warm-off-white focus:ring-2 focus:ring-sage-green focus:border-sage-green transition-colors"
+                  placeholder="What do you need?"
+                  required
+                />
 
                 {/* Suggestions Dropdown */}
                 {showSuggestions && filteredSuggestions.length > 0 && (
@@ -172,7 +164,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                     onChange={(e) =>
                       setQuantity(Number.parseInt(e.target.value) || 1)
                     }
-                    className="w-full h-11 border border-gray-200 rounded-lg px-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full h-11 border border-gray-200 rounded-lg px-4 text-sm bg-warm-off-white focus:ring-2 focus:ring-sage-green focus:border-sage-green transition-colors"
                   />
                 </div>
 
@@ -183,7 +175,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full h-11 border border-gray-200 rounded-lg px-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+                    className="w-full h-11 border border-gray-200 rounded-lg px-4 text-sm bg-warm-off-white focus:ring-2 focus:ring-sage-green focus:border-sage-green transition-colors bg-white"
                   >
                     <option value="">Select category</option>
                     {categories.map((cat) => (
@@ -234,7 +226,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       rows={3}
-                      className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
+                      className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm bg-warm-off-white focus:ring-2 focus:ring-sage-green focus:border-sage-green transition-colors resize-none"
                       placeholder="Brand preference, size, special instructions..."
                     />
                   </div>
@@ -246,7 +238,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 h-11 px-4 border border-gray-200 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="btn-secondary flex-1 px-4 py-3"
                 >
                   Cancel
                 </button>
@@ -255,7 +247,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({
                   whileTap={{ scale: 0.99 }}
                   type="submit"
                   disabled={!itemName.trim()}
-                  className="flex-1 h-11 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
+                  className="btn-primary flex-1 px-4 py-3"
                 >
                   Add Item
                 </motion.button>

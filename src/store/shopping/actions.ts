@@ -322,7 +322,9 @@ export const createShoppingActions = (
         .from("shopping_list_items")
         .update({ is_completed: !currentItem.is_completed })
         .eq("id", itemId)
-        .select()
+        .select(
+          "id, list_id, name, is_completed, quantity, created_by, created_at, updated_at"
+        ) // Added quantity and created_by
         .single();
 
       if (error) throw error;
