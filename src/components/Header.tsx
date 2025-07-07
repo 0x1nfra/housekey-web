@@ -1,57 +1,113 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
-import { Bell, Settings, User, LogOut, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Bell, Settings, User, LogOut, ChevronDown, Home } from "lucide-react";
 import { useAuthStore } from "../store/auth";
 import { useHubStore } from "../store/hub";
+import { useNotificationsStore } from "../store/notifications";
 import { shallow } from "zustand/shallow";
 import HubSelector from "./hub/HubSelector";
+import NotificationDropdown from "./notifications/NotificationDropdown";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
 
 const Header: React.FC = () => {
-  const navigate = useNavigate();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const { user, signOut } = useAuthStore();
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const { profile, signOut, user } = useAuthStore(
+    (state) => ({
+      profile: state.profile,
+      signOut: state.signOut,
+      user: state.user,
+    }),
+    shallow
+  );
   const { currentHub } = useHubStore(
     (state) => ({ currentHub: state.currentHub }),
     shallow
   );
+  const { unreadCount, fetchUnreadCount } = useNotificationsStore(
+    (state) => ({
+      unreadCount: state.unreadCount,
+      fetchUnreadCount: state.fetchUnreadCount,
+    }),
+    shallow
+  );
+
+  // Fetch unread count when user changes
+  useEffect(() => {
+    if (user?.id) {
+      fetchUnreadCount(user.id);
+    }
+  }, [user?.id, fetchUnreadCount]);
 
   const handleLogout = () => {
     signOut();
     setIsUserMenuOpen(false);
   };
 
+  const handleNotificationClick = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+    // Close user menu if open
+    if (isUserMenuOpen) {
+      setIsUserMenuOpen(false);
+    }
+  };
+
+  const handleUserMenuClick = () => {
+    setIsUserMenuOpen(!isUserMenuOpen);
+    // Close notification dropdown if open
+    if (isNotificationOpen) {
+      setIsNotificationOpen(false);
+    }
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 md:left-52 bg-white border-b border-gray-200 z-30">
-      <div className="flex items-center justify-between h-16 px-4 md:px-6">
-        {/* Mobile Hub Selector - only show on mobile */}
+      <div className="flex items-center justify-between h-20 px-4 md:px-6">
+        {/* Left Side - Mobile Hub Selector */}
         <div className="flex items-center md:hidden">
           {currentHub && <HubSelector />}
         </div>
 
-        {/* Desktop: Page Title or Breadcrumb */}
-        <div className="hidden md:flex items-center">
-          <h1 className="text-lg font-semibold text-deep-charcoal font-interface">
-            Dashboard
+        {/* Desktop Left Spacer */}
+        <div className="hidden md:block w-32"></div>
+
+        {/* Center - App Name and Logo */}
+        <div className="flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
+          <div className="w-8 h-8 bg-sage-green rounded-lg flex items-center justify-center">
+            <Home size={20} className="text-deep-charcoal" />
+          </div>
+          <h1 className="text-xl font-bold text-deep-charcoal font-interface">
+            HouseKey
           </h1>
         </div>
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-3">
           {/* Notifications */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="p-2 text-charcoal-muted hover:text-deep-charcoal hover:bg-gray-100 rounded-lg transition-colors relative"
-            aria-label="Notifications"
-          >
-            <Bell size={20} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-          </motion.button>
+          <div className="relative">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative p-2 text-charcoal-muted hover:text-deep-charcoal hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Notifications"
+              onClick={handleNotificationClick}
+            >
+              <Bell size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </motion.button>
+
+            <NotificationDropdown
+              isOpen={isNotificationOpen}
+              onClose={() => setIsNotificationOpen(false)}
+            />
+          </div>
 
           {/* Settings - hide on desktop since it's in sidebar */}
           <motion.button
@@ -68,22 +124,22 @@ const Header: React.FC = () => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              onClick={handleUserMenuClick}
               className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="User menu"
             >
               <div className="w-8 h-8 bg-sage-green rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                 <span className="text-deep-charcoal font-bold text-sm font-interface">
-                  {user?.name?.charAt(0).toUpperCase() || "U"}
+                  {profile?.name?.charAt(0).toUpperCase() || "U"}
                 </span>
               </div>
               <div className="hidden md:flex items-center gap-1">
                 <div className="text-left">
                   <div className="text-sm font-medium text-deep-charcoal font-interface">
-                    {user?.name || "User"}
+                    {profile?.name || "User"}
                   </div>
                   <div className="text-xs text-charcoal-muted font-interface">
-                    {user?.email || "user@example.com"}
+                    {profile?.email || "user@example.com"}
                   </div>
                 </div>
                 <ChevronDown size={16} className="text-charcoal-muted" />
@@ -105,15 +161,15 @@ const Header: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-sage-green rounded-full flex items-center justify-center border-2 border-white shadow-sm">
                         <span className="text-deep-charcoal font-bold text-sm font-interface">
-                          {user?.name?.charAt(0).toUpperCase() || "U"}
+                          {profile?.name.charAt(0).toUpperCase() || "U"}
                         </span>
                       </div>
                       <div>
                         <div className="text-sm font-medium text-deep-charcoal font-interface">
-                          {user?.name || "User"}
+                          {profile?.name || "User"}
                         </div>
                         <div className="text-xs text-charcoal-muted font-interface">
-                          {user?.email || "user@example.com"}
+                          {profile?.email || "user@example.com"}
                         </div>
                       </div>
                     </div>
