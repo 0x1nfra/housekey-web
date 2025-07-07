@@ -3,12 +3,12 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Bell, Settings, User, LogOut, ChevronDown, Home } from "lucide-react";
-import { useAuthStore } from "../store/auth";
-import { useHubStore } from "../store/hub";
-import { useNotificationsStore } from "../store/notifications";
+import { useAuthStore } from "../../store/auth";
+import { useHubStore } from "../../store/hub";
+import { useNotificationsStore } from "../../store/notifications";
 import { shallow } from "zustand/shallow";
-import HubSelector from "./hub/HubSelector";
-import NotificationDropdown from "./notifications/NotificationDropdown";
+import HubSelector from "../hub/HubSelector";
+import NotificationDropdown from "../notifications/NotificationDropdown";
 import { motion } from "framer-motion";
 import { AnimatePresence } from "framer-motion";
 

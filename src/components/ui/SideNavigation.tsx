@@ -13,10 +13,10 @@ import {
   Bell,
   ChevronDown,
 } from "lucide-react";
-import HubSelector from "./hub/HubSelector";
-import { useHubStore } from "../store/hub";
+import HubSelector from "../hub/HubSelector";
+import { useHubStore } from "../../store/hub";
 import { shallow } from "zustand/shallow";
-import { version } from "../../package.json";
+import { version } from "../../../package.json";
 
 const SideNavigation: React.FC = () => {
   const { currentHub } = useHubStore(

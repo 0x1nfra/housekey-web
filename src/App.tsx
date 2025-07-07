@@ -12,11 +12,14 @@ import TasksPage from "./pages/TasksPage";
 import ShoppingPage from "./pages/ShoppingPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotificationsPage from "./pages/NotificationsPage";
-import Layout from "./components/Layout";
+import Layout from "./components/ui/Layout";
 import { shallow } from "zustand/shallow";
 import { Toaster } from "sonner";
 import NotificationSound from "./components/notifications/ui/NotificationSound";
 import { ThemeProvider } from "./components/settings/ThemeProvider";
+import { withDevCycleProvider } from "@devcycle/react-client-sdk";
+import { useVariableValue } from "@devcycle/react-client-sdk";
+import MaintenancePage from "./components/ui/MaintenancePage";
 
 function App() {
   const { initializeAuth, initialized } = useAuthStore(
@@ -26,6 +29,8 @@ function App() {
     }),
     shallow
   );
+
+  const maintenanceMode = useVariableValue("maintenance-mode", false);
 
   useEffect(() => {
     initializeAuth();
@@ -49,7 +54,9 @@ function App() {
       <Router>
         <AnimatePresence mode="wait">
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            {/* TODO: finish landing page */}
+            {/* <Route path="/" element={<LandingPage />} /> */}
+            <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
@@ -57,6 +64,7 @@ function App() {
               path="/dashboard"
               element={
                 <Layout>
+                  {maintenanceMode ? <MaintenancePage /> : <DashboardPage />}
                   <DashboardPage />
                 </Layout>
               }
@@ -65,7 +73,7 @@ function App() {
               path="/calendar"
               element={
                 <Layout>
-                  <CalendarPage />
+                  {maintenanceMode ? <MaintenancePage /> : <CalendarPage />}
                 </Layout>
               }
             />
@@ -110,4 +118,13 @@ function App() {
   );
 }
 
-export default App;
+// Create the wrapped component with a name
+const AppWithDevCycle = withDevCycleProvider({
+  sdkKey: import.meta.env.VITE_DVC_CLIENT_DEV,
+  user: { isAnonymous: true },
+})(App);
+
+// Set a display name for better debugging
+AppWithDevCycle.displayName = "AppWithDevCycle";
+
+export default AppWithDevCycle;
