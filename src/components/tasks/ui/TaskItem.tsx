@@ -30,6 +30,7 @@ interface TaskItemProps {
   onDelete: (id: string) => void;
   onToggleSelect?: (id: string) => void;
   isSelected?: boolean;
+  showSelection?: boolean;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -39,6 +40,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   onDelete,
   onToggleSelect,
   isSelected = false,
+  showSelection = false,
 }) => {
   const [showActions, setShowActions] = useState(false);
   const isOverdue =
@@ -56,7 +58,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
       onMouseLeave={() => setShowActions(false)}
     >
       {/* Selection Checkbox */}
-      {onToggleSelect && (
+      {onToggleSelect && showSelection && (
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}

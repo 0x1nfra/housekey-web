@@ -14,7 +14,6 @@ import ShoppingListSelector from "./ShoppingListSelector";
 import ShoppingListHeader from "./ShoppingListHeader";
 import ShoppingPendingItems from "./ShoppingPendingItems";
 import ShoppingCompletedItems from "./ShoppingCompletedItems";
-import ShoppingQuickStats from "./ShoppingQuickStats";
 import { useShoppingData } from "./hooks/useShoppingData";
 import {
   type CreateItemData,

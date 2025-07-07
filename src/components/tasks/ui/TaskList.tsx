@@ -28,6 +28,7 @@ const TaskList: React.FC<TaskListProps> = ({
   onDelete,
   onToggleSelect,
   onSelectAll,
+  onClearSelection,
   onCreateTask,
 }) => {
   const hasActiveFilters =
@@ -91,12 +92,26 @@ const TaskList: React.FC<TaskListProps> = ({
 
           {tasks.length > 0 && (
             <div className="flex items-center gap-2">
-              <button
-                onClick={onSelectAll}
-                className="text-sm text-deep-charcoal hover:text-deep-charcoal dark:hover:text-deep-charcoal font-medium"
-              >
-                Select All
-              </button>
+              {selectedTasks.length > 0 ? (
+                <>
+                  <span className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                    {selectedTasks.length} selected
+                  </span>
+                  <button
+                    onClick={onClearSelection}
+                    className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium px-2 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  >
+                    Clear
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={onSelectAll}
+                  className="text-sm text-charcoal-light hover:text-deep-charcoal font-medium px-2 py-1 rounded hover:bg-sage-green/10 transition-colors"
+                >
+                  Select All
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -117,6 +132,7 @@ const TaskList: React.FC<TaskListProps> = ({
                   onDelete={onDelete}
                   onToggleSelect={onToggleSelect}
                   isSelected={selectedTasks.includes(task.id)}
+                  showSelection={selectedTasks.length > 0}
                 />
               ))}
             </AnimatePresence>

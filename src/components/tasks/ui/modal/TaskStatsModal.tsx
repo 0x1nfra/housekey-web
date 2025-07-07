@@ -73,7 +73,7 @@ const TaskStatsModal: React.FC<TaskStatsModalProps> = ({
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Quick Stats
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 {stats.map((stat, index) => (
                   <motion.div
                     key={stat.label}
@@ -99,6 +99,26 @@ const TaskStatsModal: React.FC<TaskStatsModalProps> = ({
                     </div>
                   </motion.div>
                 ))}
+              </div>
+
+              {/* Progress Bar */}
+              <div>
+                <div className="flex items-center justify-between text-sm mb-2 font-interface">
+                  <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    {taskStats.completed} of {taskStats.total} tasks
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                  <motion.div
+                    className="bg-emerald-500 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ 
+                      width: `${taskStats.total > 0 ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%` 
+                    }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+                </div>
               </div>
             </div>
           </motion.div>

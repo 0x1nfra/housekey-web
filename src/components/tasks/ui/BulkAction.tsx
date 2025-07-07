@@ -14,7 +14,6 @@ const BulkActions: React.FC<BulkActionsProps> = ({
   selectedCount,
   onBulkDelete,
   onBulkPriorityUpdate,
-  onClearSelection,
 }) => {
   if (selectedCount === 0) return null;
 
@@ -59,12 +58,6 @@ const BulkActions: React.FC<BulkActionsProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={onClearSelection}
-            className="px-3 py-1 text-sm bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors"
-          >
-            Clear Selection
-          </button>
           <button
             onClick={onBulkDelete}
             className="px-3 py-1 text-sm bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors flex items-center gap-1"
