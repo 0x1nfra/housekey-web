@@ -1,217 +1,159 @@
 # Changelog
 
-All notable changes to Household Harmony are documented in this file.
+## v0.7.0
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### 🚀 Major Features
 
-## [Unreleased]
+- **User Settings Management**: Dark mode and time format preferences with real-time syncing and persistence.
+- **Settings UI**: Comprehensive interface with tabs for app preferences, profile, notifications, privacy, and invitations.
 
-## [0.8.0] - 2024-07-08
+### 🛠 Improvements & Fixes
 
-### Added
+- Extensive dark mode support across all major pages and components.
+- Added reusable UI components for toggles, radio groups, and settings sections.
+- Improved modularity and navigation with new layout and tab system.
+- Refined visual consistency and accessibility for both light and dark themes.
 
-- **Redesigned Navigation**: New sidebar and header navigation optimized for both desktop and mobile experiences
-- **Modular Shopping Components**: Dedicated components for pending/completed items, list selector, and quick statistics
-- **Animated Pages**: Enhanced maintenance, onboarding, and landing pages with smooth animations
-- **Notification System**: Dropdown notifications with badges and improved notification management
-- **Task Management Modals**: Quick stats and streamlined task creation forms
-- **Dynamic Dashboard**: Time-based greetings and personalized dashboard content
+### 🧩 Backend & Database
 
-### Changed
+- Added user_settings table with secure per-user preferences and row-level security.
+- Created triggers and policies for data integrity and access control.
 
-- **Component Architecture**: Replaced inline UI with modular, reusable components across dashboard, shopping, and tasks
-- **Design System**: Unified color schemes and typography for consistent user experience
-- **Authentication**: Refactored authentication and hub state management for better performance
-- **Shopping Experience**: Removed collaborator features from shopping lists for simplified workflow
+### ⚙️ Dependencies
 
-### Fixed
-
-- Email invitation validation and error handling
-- Time formatting consistency across the application
-
-### Removed
-
-- Legacy navigation components
-- Old dashboard headers
-- Collaborator management in shopping lists
+- Updated Tailwind CSS configuration to enable class-based dark mode toggling.
 
 ---
 
-## [0.7.0] - 2024-07-02
+## v0.6.0
 
-### Added
+### 🚀 Major Features
 
-- **User Settings Management**: Comprehensive settings with dark mode and time format preferences
-- **Settings Interface**: Tabbed interface covering app preferences, profile, notifications, privacy, and invitations
-- **Dark Mode Support**: Full dark theme implementation across all pages and components
-- **Reusable UI Components**: Toggle switches, radio groups, and settings sections
+- **Notifications System**: Comprehensive real-time notifications for tasks, events, shopping items, and hub invitations.
+- **Notification Management**: Interactive dropdown with filtering, pagination, and bulk management actions.
 
-### Changed
+### 🛠 Improvements & Fixes
 
-- **Database Schema**: Added `user_settings` table with row-level security
-- **Visual Consistency**: Improved accessibility and theme consistency
-- **Tailwind Configuration**: Updated to enable class-based dark mode toggling
+- Added notification badges, sound alerts, and animated UI components.
+- Improved database row-level security policies for notifications.
+- Fixed notification insert permissions to support trigger-based creation.
 
-### Fixed
+### 🧩 Backend & Database
 
-- Theme switching performance and persistence
-- Settings synchronization across sessions
+- Added database triggers and functions for automated notification management.
+- Implemented secure access controls for notification system.
 
 ---
 
-## [0.6.0] - 2024-06-30
+## v0.5.0
 
-### Added
+### 🚀 Major Features
 
-- **Real-time Notifications**: Comprehensive notification system for tasks, events, shopping items, and hub invitations
-- **Notification Management**: Interactive dropdown with filtering, pagination, and bulk actions
-- **Audio Alerts**: Sound notifications for important updates
-- **Notification Badges**: Visual indicators for unread notifications
+- **Calendar Views**: Detailed month, week, and day calendar interfaces.
+- **Event Management**: Complete event creation, editing, deletion, and reminder system.
 
-### Changed
+### 🛠 Improvements & Fixes
 
-- **Database Security**: Enhanced row-level security policies for notifications
-- **UI Animations**: Added smooth transitions and animated components
+- Added filtering by data type, assignment, and event category.
+- Enhanced real-time event updates with robust subscription management.
+- Improved error handling and user feedback on event operations.
 
-### Fixed
+### 🧩 Backend & Database
 
-- Notification insert permissions for trigger-based creation
-- Real-time notification delivery reliability
-
----
-
-## [0.5.0] - 2024-06-28
-
-### Added
-
-- **Calendar Views**: Multiple calendar interfaces (month, week, day views)
-- **Event Management**: Complete CRUD operations for events with reminder system
-- **Advanced Filtering**: Filter by data type, assignment, and event category
-- **Real-time Updates**: Live event synchronization across all users
-
-### Changed
-
-- **Database Optimization**: Improved queries and access controls
-- **Error Handling**: Enhanced user feedback for event operations
-
-### Fixed
-
-- Event subscription management stability
-- Calendar data synchronization issues
+- Updated database schema with strict access controls and optimized queries.
+- Integrated combined calendar data for events and tasks.
 
 ---
 
-## [0.4.0] - 2024-06-28
+## v0.4.0
 
-### Added
+### 🚀 Major Features
 
-- **Task Management System**: Comprehensive task creation, editing, and bulk operations
-- **Task Categories**: Custom categorization system with recurring task support
-- **Task Statistics**: Analytics and insights for task completion
-- **Interactive UI**: Animated task components and improved user interactions
+- **Task Management System**: Comprehensive task creation, editing, bulk actions, and advanced filtering.
+- **Task Categories**: Custom categorization system per hub with recurring task support.
 
-### Changed
+### 🛠 Improvements & Fixes
 
-- **Database Schema**: Enhanced support for recurring tasks and categories
-- **Data Integrity**: Improved validation and consistency checks
+- Added task statistics and animated, interactive UI components.
+- Enhanced database schema for recurring tasks and category management.
+- Fixed priority type mismatches and improved data integrity.
 
-### Fixed
+### ⚙️ Dependencies
 
-- Priority type mismatches in task management
-- Task category assignment issues
-
-### Removed
-
-- Deprecated chore creation form
-- Legacy shopping list types
+- Removed deprecated chore creation form and legacy shopping types.
 
 ---
 
-## [0.3.0] - 2024-06-27
+## v0.3.0
 
-### Added
+### 🚀 Major Features
 
-- **Collaborative Shopping**: Real-time shopping lists with role-based permissions
-- **Shopping Management**: Modals for list creation, editing, and statistics
-- **Collaborator Features**: Team management for shopping lists
+- **Shopping Lists**: Collaborative shopping system with real-time updates and role-based permissions.
+- **Shopping Management**: Modals for creating, editing, and viewing list statistics and collaborators.
 
-### Changed
+### 🛠 Improvements & Fixes
 
-- **State Management**: Migrated to centralized state management system
-- **Performance**: Improved data fetching and loading states
-- **User Experience**: Enhanced UI with animated transitions
+- Migrated to centralized state management with improved data fetching.
+- Enhanced error handling and loading states throughout shopping features.
+- Updated UI with animated transitions and improved user experience.
 
-### Fixed
+### 🧩 Backend & Database
 
-- Shopping list synchronization issues
-- Collaboration permission handling
+- Implemented comprehensive database schema and security policies for shopping collaboration.
 
----
+### ⚙️ Dependencies
 
-## [0.2.0] - 2024-06-25
-
-### Added
-
-- **Hub Management**: Create, manage, and switch between household hubs
-- **Invitation System**: Send, receive, and respond to hub invitations
-- **Database Procedures**: Supabase stored procedures for invitation handling
-
-### Changed
-
-- **Authentication Flow**: Improved hub store synchronization
-- **UI Components**: Refactored hub settings into modular components
-- **Database Schema**: Enhanced indexes and foreign key constraints
-
-### Fixed
-
-- Email trimming during user signup
-- Invitation fetching and response logic
-- Tab switching in hub settings
-- Supabase initialization issues
+- Added new dependencies for state management and performance optimization.
 
 ---
 
-## [0.1.0] - 2024-XX-XX
+## v0.2.0
 
-### Added
+### 🚀 Major Features
 
-- **Authentication System**: Complete signup, login, and logout using Supabase Auth
-- **State Management**: Zustand integration for authentication state
-- **Database Tables**: Initial schema with user profiles, hub members, and invitations
+- **Hub Management System**: Create, manage, and switch between household hubs.
+- **Invitations System**: Send, receive, and respond to hub invitations (accept/decline).
 
-### Changed
+### 🛠 Improvements & Fixes
 
-- **Landing Page**: Improved UI/UX for initial user experience
-- **Dashboard Header**: Enhanced navigation and user information display
+- Improved authentication and hub store synchronization.
+- Refactored hub settings UI into modular components.
+- Fixed issues with invitation logic and tab switching.
+- Corrected email trimming during signup.
+- Addressed bugs in invitation fetching and Supabase initialization.
 
----
+### 🧩 Backend & Database
 
-## [0.0.0] - 2024-06-22
-
-### Added
-
-- **MVP Launch**: Initial release of Household Harmony
-- **Dashboard**: Household overview with activity feed and quick actions
-- **Calendar & Tasks**: Shared calendar and collaborative task management
-- **Shopping Lists**: Real-time collaborative shopping with smart input features
+- Added Supabase stored procedures for accepting/declining invitations.
+- Refined database schema and indexes for hub-related tables.
 
 ---
 
-## Contributing
+## v0.1.0
 
-When updating this changelog:
+### 🚀 Major Features
 
-1. Add new entries to the `[Unreleased]` section
-2. Use the format: `### [Type] - Brief description`
-3. Group changes by type: Added, Changed, Fixed, Removed, Security
-4. Include user-facing impact in descriptions
-5. Move entries to a versioned release when deploying
+- **Authentication System**: Full signup, login, and logout flow using Supabase Auth.
 
-## Legend
+### 🛠 Improvements & Fixes
 
-- 🚀 **Added**: New features and functionality
-- 🔄 **Changed**: Improvements to existing features
-- 🐛 **Fixed**: Bug fixes and issue resolutions
-- 🗑️ **Removed**: Deprecated or removed features
-- 🔒 **Security**: Security-related changes
+- Introduced Zustand for managing authentication state.
+- Improved UI/UX for the landing page and dashboard header.
+
+### 🧩 Backend & Database
+
+- Added SQL migrations: foreign key constraints, `user_profiles`, `hub_members`, and `hub_invitations` tables.
+
+### ⚙️ Dependencies
+
+- Added/updated packages for React, Supabase, Zustand, and date libraries.
+
+---
+
+## v0.0.0
+
+### 🚀 MVP Launch – Household Harmony App
+
+- **Dashboard**: Household overview, activity feed, and quick actions.
+- **Calendar & Tasks**: Shared calendar and collaborative task management.
+- **Shopping List**: Real-time collaborative shopping list with smart input.
