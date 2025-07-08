@@ -22,26 +22,22 @@ const SettingsSection: React.FC<SettingsSectionProps> = ({
       animate={{ opacity: 1, y: 0 }}
       className="card"
     >
-      <div className="card-header">
-        <div className="flex items-start gap-4">
-          {icon && (
-            <div className="w-12 h-12 bg-sage-green-light rounded-xl flex items-center justify-center flex-shrink-0">
-              {icon}
-            </div>
-          )}
+      <div className="border-b border-gray-100 pb-4 mb-4">
+        <div className="flex items-start gap-3">
+          {icon && <div className="flex-shrink-0 mt-1">{icon}</div>}
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-deep-charcoal font-interface mb-1">
+            <h3 className="text-lg font-semibold text-deep-charcoal font-chivo">
               {title}
             </h3>
             {description && (
-              <p className="text-charcoal-muted font-content text-sm leading-relaxed">
+              <p className="text-sm text-charcoal-muted font-lora mt-1">
                 {description}
               </p>
             )}
           </div>
         </div>
       </div>
-      <div className="card-content">{children}</div>
+      <div>{children}</div>
     </motion.div>
   );
 };

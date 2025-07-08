@@ -68,23 +68,23 @@ const CalendarPage: React.FC = () => {
   };
 
   return (
-    <div className="px-6 py-8">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-6xl mx-auto"
+        className="max-w-7xl mx-auto space-y-6 sm:space-y-8"
       >
         {/* Page Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-sage-green-light rounded-xl flex items-center justify-center">
-              <Calendar size={24} className="text-deep-charcoal" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-sage-green-light rounded-xl flex items-center justify-center">
+              <Calendar size={20} className="sm:size-6 text-deep-charcoal" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-deep-charcoal font-interface mb-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-deep-charcoal font-interface mb-1 sm:mb-2">
                 Family Calendar
               </h1>
-              <p className="text-charcoal-muted font-content">
+              <p className="text-sm sm:text-base text-charcoal-muted font-content">
                 Keep everyone in sync with shared scheduling and events
               </p>
             </div>
@@ -96,13 +96,15 @@ const CalendarPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-6 bg-red-50 border border-red-200 rounded-xl"
+            className="p-4 sm:p-6 bg-red-50 border border-red-200 rounded-xl"
           >
             <div className="flex items-center justify-between">
-              <p className="text-red-700 font-content">{error}</p>
+              <p className="text-red-700 font-content text-sm sm:text-base">
+                {error}
+              </p>
               <button
                 onClick={clearError}
-                className="text-red-500 hover:text-red-700 transition-colors duration-300"
+                className="text-red-500 hover:text-red-700 transition-colors duration-300 p-1"
               >
                 <X size={18} />
               </button>

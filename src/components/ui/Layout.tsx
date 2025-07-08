@@ -25,14 +25,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       {/* Desktop Sidebar Navigation */}
       <SideNavigation />
 
-      {/* Header - adjusted for sidebar */}
-      <div className="md:ml-52">
+      {/* Header - responsive positioning */}
+      <div className="lg:ml-52">
         <Header />
       </div>
 
-      {/* Main Content - adjusted for sidebar */}
-      <main className="md:ml-52 pt-16 pb-20 md:pb-4">
-        <div className="h-full">{children}</div>
+      {/* Main Content - responsive margins and padding */}
+      <main className="lg:ml-52 pt-16 pb-20 lg:pb-4 min-h-screen">
+        <div className="h-full px-4 sm:px-6 lg:px-0">{children}</div>
       </main>
 
       {/* Mobile Bottom Navigation */}

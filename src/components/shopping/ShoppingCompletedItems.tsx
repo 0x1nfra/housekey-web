@@ -29,8 +29,8 @@ const ShoppingCompletedItems: React.FC<ShoppingCompletedItemsProps> = ({
             key={item.id}
             className="flex items-center gap-3 p-3 bg-warm-off-white rounded-lg opacity-75 hover:opacity-100 transition-opacity duration-300"
           >
-            <div className="w-6 h-6 bg-sage-green rounded-full flex items-center justify-center">
-              <Check size={14} className="text-deep-charcoal" />
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-sage-green rounded-full flex items-center justify-center">
+              <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-deep-charcoal" />
             </div>
 
             <div className="flex-1">

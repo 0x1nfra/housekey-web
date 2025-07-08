@@ -63,7 +63,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => onToggleSelect(task.id)}
-          className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+          className={`w-4 h-4 sm:w-7 sm:h-7 rounded border-2 flex items-center justify-center transition-colors ${
             isSelected
               ? "bg-sage-green border-sage-green text-deep-charcoal"
               : "border-gray-300 hover:border-sage-green"
@@ -79,7 +79,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         whileTap={{ scale: 0.95 }}
         onClick={() => onToggleComplete(task.id)}
         className={`
-          w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors
+          w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-colors
           ${
             task.completed
               ? "bg-sage-green border-sage-green"

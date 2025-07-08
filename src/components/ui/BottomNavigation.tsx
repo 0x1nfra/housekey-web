@@ -21,14 +21,14 @@ const BottomNavigation: React.FC = () => {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
-      <div className="flex items-center justify-around py-2">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-pb">
+      <div className="flex items-center justify-around py-2 px-2">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all duration-300 font-interface ${
+              `flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all duration-300 font-interface min-w-0 flex-1 ${
                 isActive
                   ? "text-sage-green"
                   : "text-charcoal-muted hover:text-deep-charcoal"
@@ -46,7 +46,9 @@ const BottomNavigation: React.FC = () => {
                 >
                   <Icon size={20} />
                 </motion.div>
-                <span className="text-xs font-medium">{label}</span>
+                <span className="text-xs font-medium truncate max-w-full">
+                  {label}
+                </span>
               </>
             )}
           </NavLink>

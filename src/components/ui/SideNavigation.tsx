@@ -9,7 +9,6 @@ import {
   CheckSquare,
   ShoppingCart,
   Settings,
-  // Search,
   Bell,
   ChevronDown,
 } from "lucide-react";
@@ -25,7 +24,6 @@ const SideNavigation: React.FC = () => {
   );
 
   const navItems = [
-    // { to: "/search", icon: Search, label: "Search" },
     { to: "/dashboard", icon: Home, label: "Dashboard" },
     { to: "/calendar", icon: Calendar, label: "Calendar" },
     { to: "/tasks", icon: CheckSquare, label: "Tasks" },
@@ -35,8 +33,8 @@ const SideNavigation: React.FC = () => {
   ];
 
   return (
-    <aside className="hidden md:flex md:flex-col fixed left-0 top-0 bottom-0 w-52 bg-white border-r border-gray-200 z-40">
-      {/* Hub Selector Section - Most Prominent */}
+    <aside className="hidden lg:flex lg:flex-col fixed left-0 top-0 bottom-0 w-52 bg-white border-r border-gray-200 z-40">
+      {/* Hub Selector Section */}
       <div className="p-3 border-b border-gray-100">
         {currentHub ? (
           <HubSelector />
