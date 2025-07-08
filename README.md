@@ -1,4 +1,4 @@
-HouseKey Web
+## HouseKey Web
 
 This is the web application for HouseKey, a home management application.
 
