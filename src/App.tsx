@@ -1,5 +1,10 @@
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { useAuthStore } from "./store/auth";
 import LandingPage from "./pages/LandingPage";
@@ -59,7 +64,17 @@ function App() {
             <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
+
+            <Route
+              path="/onboarding"
+              element={
+                maintenanceMode ? (
+                  <Navigate to="/dashboard" replace />
+                ) : (
+                  <OnboardingPage />
+                )
+              }
+            />
             <Route
               path="/dashboard"
               element={

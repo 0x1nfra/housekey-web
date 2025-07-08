@@ -2,7 +2,6 @@ import type React from "react";
 import { motion } from "framer-motion";
 import { Plus, Edit3, Trash2 } from "lucide-react";
 import { type ShoppingList } from "./hooks/useShoppingData";
-import { useHubSelectors } from "../../store/hub";
 
 interface ShoppingListHeaderProps {
   currentList: ShoppingList;
@@ -17,7 +16,6 @@ const ShoppingListHeader: React.FC<ShoppingListHeaderProps> = ({
   setShowEditModal,
   setShowDeleteModal,
 }) => {
-  const hubSelectors = useHubSelectors();
 
   return (
     <div className="border-b border-gray-100 dark:border-gray-700 mb-4 card-header">
@@ -26,28 +24,26 @@ const ShoppingListHeader: React.FC<ShoppingListHeaderProps> = ({
           <h2 className="text-xl font-bold text-deep-charcoal font-interface">
             {currentList.name}
           </h2>
-          {hubSelectors.isCurrentUserManagerOrOwner() && (
-            <div className="flex items-center gap-1">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowEditModal(true)}
-                className="p-1 text-charcoal-muted hover:text-deep-charcoal hover:bg-sage-green-light rounded-lg transition-all duration-300"
-                title="Edit list"
-              >
-                <Edit3 size={16} />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setShowDeleteModal(true)}
-                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300"
-                title="Delete list"
-              >
-                <Trash2 size={16} />
-              </motion.button>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowEditModal(true)}
+              className="p-1 text-charcoal-muted hover:text-deep-charcoal hover:bg-sage-green-light rounded-lg transition-all duration-300"
+              title="Edit list"
+            >
+              <Edit3 size={16} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowDeleteModal(true)}
+              className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300"
+              title="Delete list"
+            >
+              <Trash2 size={16} />
+            </motion.button>
+          </div>
         </div>
         <motion.button
           whileHover={{ scale: 1.02 }}

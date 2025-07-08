@@ -33,7 +33,7 @@ const AppPreferencesTab: React.FC = () => {
         <SettingsSection
           title="Appearance"
           description="Customize the visual theme and interface elements"
-          icon={<Palette size={20} className="text-sage-green" />}
+          icon={<Palette size={20} className="text-deep-charcoal" />}
         >
           <div className="space-y-6 py-4">
             <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0">
@@ -55,7 +55,7 @@ const AppPreferencesTab: React.FC = () => {
               />
             </div>
 
-            <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 opacity-50">
+            {/* <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 opacity-50">
               <div>
                 <h4 className="text-base font-medium text-deep-charcoal font-interface mb-1">
                   Compact Mode
@@ -69,27 +69,11 @@ const AppPreferencesTab: React.FC = () => {
                 onChange={() => {}}
                 disabled={true}
               />
-            </div>
-
-            <div className="flex items-center justify-between py-4 opacity-50">
-              <div>
-                <h4 className="text-base font-medium text-deep-charcoal font-interface mb-1">
-                  Animations
-                </h4>
-                <p className="text-sm text-charcoal-muted font-content">
-                  Enable smooth transitions and micro-interactions
-                </p>
-              </div>
-              <ToggleSwitch
-                checked={true}
-                onChange={() => {}}
-                disabled={true}
-              />
-            </div>
+            </div> */}
           </div>
         </SettingsSection>
 
-        <SettingsSection
+        {/* <SettingsSection
           title="Interface"
           description="Adjust interface behavior and preferences"
           icon={<Sun size={20} className="text-sage-green" />}
@@ -109,7 +93,7 @@ const AppPreferencesTab: React.FC = () => {
               </p>
             </div>
           </div>
-        </SettingsSection>
+        </SettingsSection> */}
       </div>
     </motion.div>
   );

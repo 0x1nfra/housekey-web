@@ -3,17 +3,20 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Save, RotateCcw, Camera } from "lucide-react";
+import { User, Mail, Save, RotateCcw, Camera, CheckCircle, AlertCircle } from "lucide-react";
 import { useAuthStore } from "../../store/auth";
 import { shallow } from "zustand/shallow";
 import SettingsSection from "./ui/SettingsSection";
 import { getInitials } from "../../utils/userUtils";
 
 const ProfileTab: React.FC = () => {
-  const { profile, loading } = useAuthStore(
+  const { profile, loading, updateProfile, error, clearError } = useAuthStore(
     (state) => ({
       profile: state.profile,
       loading: state.loading,
+      updateProfile: state.updateProfile,
+      error: state.error,
+      clearError: state.clearError,
     }),
     shallow
   );
@@ -24,6 +27,8 @@ const ProfileTab: React.FC = () => {
   });
 
   const [hasChanges, setHasChanges] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -34,6 +39,16 @@ const ProfileTab: React.FC = () => {
     }
   }, [profile]);
 
+  // Clear messages after a few seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -41,14 +56,36 @@ const ProfileTab: React.FC = () => {
       [name]: value,
     }));
     setHasChanges(true);
+    // Clear any existing messages when user starts typing
+    if (successMessage) setSuccessMessage("");
+    if (error) clearError();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(
-      "Profile update functionality will be implemented in a future update"
-    );
-    setHasChanges(false);
+    if (!hasChanges || isSubmitting) return;
+
+    setIsSubmitting(true);
+    clearError();
+    setSuccessMessage("");
+
+    try {
+      const result = await updateProfile({
+        name: formData.name.trim(),
+      });
+
+      if (result.success) {
+        setHasChanges(false);
+        setSuccessMessage("Profile updated successfully!");
+      } else {
+        // Error is already set in the store by updateProfile
+        console.error("Profile update failed:", result.error);
+      }
+    } catch (error) {
+      console.error("Unexpected error during profile update:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -59,6 +96,8 @@ const ProfileTab: React.FC = () => {
       });
     }
     setHasChanges(false);
+    setSuccessMessage("");
+    clearError();
   };
 
   if (!profile) {
@@ -88,13 +127,39 @@ const ProfileTab: React.FC = () => {
         </p>
       </div>
 
+      {/* Success Message */}
+      {successMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800"
+        >
+          <CheckCircle size={20} className="text-green-600" />
+          <span className="font-content">{successMessage}</span>
+        </motion.div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg text-red-800"
+        >
+          <AlertCircle size={20} className="text-red-600" />
+          <span className="font-content">{error}</span>
+        </motion.div>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Profile Avatar Section */}
         <div className="card">
           <div className="card-content">
             <div className="flex items-center gap-8">
               <div className="relative">
-                <div className="w-24 h-24 bg-sage-green-light rounded-full flex items-center justify-center text-sage-green text-3xl font-bold font-interface">
+                <div className="w-24 h-24 bg-sage-green-light rounded-full flex items-center justify-center text-deep-charcoal text-3xl font-bold font-interface">
                   {getInitials(profile.name || "")}
                 </div>
                 <motion.button
@@ -126,7 +191,7 @@ const ProfileTab: React.FC = () => {
         <SettingsSection
           title="Personal Information"
           description="Update your personal details and contact information"
-          icon={<User size={20} className="text-sage-green" />}
+          icon={<User size={20} className="text-deep-charcoal" />}
         >
           <div className="space-y-6 py-4">
             <div>
@@ -147,7 +212,7 @@ const ProfileTab: React.FC = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="input pl-12"
+                  className="w-full input pl-12"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -189,7 +254,7 @@ const ProfileTab: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleReset}
-            disabled={loading || !hasChanges}
+            disabled={loading || isSubmitting || !hasChanges}
             className="btn btn-ghost"
           >
             <RotateCcw size={16} />
@@ -200,12 +265,21 @@ const ProfileTab: React.FC = () => {
             type="submit"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            disabled={loading || !hasChanges}
+            disabled={loading || isSubmitting || !hasChanges}
             className="btn btn-primary relative"
           >
-            <Save size={16} />
-            Save Profile
-            {hasChanges && (
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save size={16} />
+                Save Profile
+              </>
+            )}
+            {hasChanges && !isSubmitting && (
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-sage-green rounded-full animate-pulse"></span>
             )}
           </motion.button>

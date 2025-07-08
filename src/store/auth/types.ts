@@ -31,6 +31,7 @@ export interface AuthActions {
   initializeAuth: () => Promise<void>;
   clearError: () => void;
   fetchUserProfile: (userId: string) => Promise<void>;
+  updateProfile: (updates: Partial<Pick<UserProfile, 'name' | 'avatarUrl'>>) => Promise<{ success: boolean; error?: string }>;
   // New actions for cleanup
   clearUserSession: () => void;
   resetAllStores: () => void;

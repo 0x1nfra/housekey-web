@@ -88,7 +88,7 @@ const SettingsLayout: React.FC<SettingsLayoutProps> = ({
                 whileHover={{ y: -2 }}
                 className={`flex items-center gap-3 py-4 px-2 border-b-2 font-medium text-sm transition-all duration-300 whitespace-nowrap font-interface ${
                   activeTab === tab.id
-                    ? "border-sage-green text-sage-green"
+                    ? "border-sage-green text-sage-green-muted"
                     : "border-transparent text-charcoal-muted hover:text-deep-charcoal hover:border-gray-300"
                 }`}
               >

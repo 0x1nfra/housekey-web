@@ -287,6 +287,55 @@ export const createAuthActions = (
     }
   },
 
+  updateProfile: async (updates) => {
+    const currentProfile = get().profile;
+    if (!currentProfile) {
+      return { success: false, error: "No profile found" };
+    }
+
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
+
+    try {
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", currentProfile.id)
+        .select()
+        .single();
+
+      if (error) {
+        set((state) => {
+          state.loading = false;
+          state.error = error.message;
+        });
+        return { success: false, error: error.message };
+      }
+
+      // Update the profile in the store
+      set((state) => {
+        state.profile = data;
+        state.loading = false;
+        state.error = null;
+      });
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
+      return { success: false, error: errorMessage };
+    }
+  },
+
   clearError: () => set((state) => {
     state.error = null;
   }),
