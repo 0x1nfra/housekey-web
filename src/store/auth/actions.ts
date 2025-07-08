@@ -1,44 +1,5 @@
-import { create } from "zustand";
-import { User } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase";
-
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface AuthState {
-  user: User | null;
-  profile: UserProfile | null;
-  loading: boolean;
-  error: string | null;
-  initialized: boolean;
-}
-
-interface AuthActions {
-  signUp: (
-    email: string,
-    password: string,
-    name: string
-  ) => Promise<{ success: boolean; error?: string }>;
-  signIn: (
-    email: string,
-    password: string
-  ) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => Promise<void>;
-  initializeAuth: () => Promise<void>;
-  clearError: () => void;
-  fetchUserProfile: (userId: string) => Promise<void>;
-  // New actions for cleanup
-  clearUserSession: () => void;
-  resetAllStores: () => void;
-}
-
-type AuthStore = AuthState & AuthActions;
+import { supabase } from "../../lib/supabase";
+import { SetStateFunction, GetStateFunction } from "./types";
 
 /*
 FIXME:  
@@ -47,17 +8,12 @@ FIXME:
 3. add logging to Sentry
 4. split this store to match similiar to shopping store structure
 5. add avatar/emoji to user profile data
-
 */
 
-export const useAuthStore = create<AuthStore>((set, get) => ({
-  // Initial state
-  user: null,
-  profile: null,
-  loading: false,
-  error: null,
-  initialized: false,
-
+export const createAuthActions = (
+  set: SetStateFunction,
+  get: GetStateFunction
+) => ({
   // New cleanup actions
   clearUserSession: () => {
     // Clear all localStorage items related to user session
@@ -67,10 +23,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     // localStorage.removeItem("lastVisitedPage");
 
     // Reset auth state
-    set({
-      user: null,
-      profile: null,
-      error: null,
+    set((state) => {
+      state.user = null;
+      state.profile = null;
+      state.error = null;
     });
   },
 
@@ -88,7 +44,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   // Actions
   signUp: async (email: string, password: string, name: string) => {
-    set({ loading: true, error: null });
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       // Create auth user
@@ -98,12 +57,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
 
       if (authError) {
-        set({ loading: false, error: authError.message });
+        set((state) => {
+          state.loading = false;
+          state.error = authError.message;
+        });
         return { success: false, error: authError.message };
       }
 
       if (!authData.user) {
-        set({ loading: false, error: "Failed to create user account" });
+        set((state) => {
+          state.loading = false;
+          state.error = "Failed to create user account";
+        });
         return { success: false, error: "Failed to create user account" };
       }
 
@@ -117,30 +82,39 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         });
 
       if (profileError) {
-        set({ loading: false, error: profileError.message });
+        set((state) => {
+          state.loading = false;
+          state.error = profileError.message;
+        });
         return { success: false, error: profileError.message };
       }
 
       // Fetch the created profile
       await get().fetchUserProfile(authData.user.id);
 
-      set({
-        user: authData.user,
-        loading: false,
-        error: null,
+      set((state) => {
+        state.user = authData.user;
+        state.loading = false;
+        state.error = null;
       });
 
       return { success: true };
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      set({ loading: false, error: errorMessage });
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   signIn: async (email: string, password: string) => {
-    set({ loading: true, error: null });
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
 
     try {
       // Clear any existing session data first
@@ -152,27 +126,33 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
 
       if (error) {
-        set({ loading: false, error: error.message });
+        set((state) => {
+          state.loading = false;
+          state.error = error.message;
+        });
         return { success: false, error: error.message };
       }
 
       if (!data.user) {
-        set({ loading: false, error: "Failed to sign in" });
+        set((state) => {
+          state.loading = false;
+          state.error = "Failed to sign in";
+        });
         return { success: false, error: "Failed to sign in" };
       }
 
       // Fetch user profile
       await get().fetchUserProfile(data.user.id);
 
-      set({
-        user: data.user,
-        loading: false,
-        error: null,
+      set((state) => {
+        state.user = data.user;
+        state.loading = false;
+        state.error = null;
       });
 
       // Initialize hub store for the new user
       try {
-        const { useHubStore } = await import("./hubStore");
+        const { useHubStore } = await import("../hub");
         await useHubStore.getState().initializeHubs();
       } catch (error) {
         console.error("Error initializing hub store:", error);
@@ -182,30 +162,43 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      set({ loading: false, error: errorMessage });
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
       return { success: false, error: errorMessage };
     }
   },
 
   signOut: async () => {
-    set({ loading: true });
+    set((state) => {
+      state.loading = true;
+    });
 
     try {
       const { error } = await supabase.auth.signOut();
 
       if (error) {
-        set({ loading: false, error: error.message });
+        set((state) => {
+          state.loading = false;
+          state.error = error.message;
+        });
         return;
       }
 
       // Clear all user data and localStorage
       get().resetAllStores();
 
-      set({ loading: false });
+      set((state) => {
+        state.loading = false;
+      });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
-      set({ loading: false, error: errorMessage });
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
     }
   },
 
@@ -219,16 +212,20 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       if (error) {
         console.error("Error getting session:", error);
-        set({ initialized: true });
+        set((state) => {
+          state.initialized = true;
+        });
         return;
       }
 
       if (session?.user) {
         await get().fetchUserProfile(session.user.id);
-        set({ user: session.user });
+        set((state) => {
+          state.user = session.user;
+        });
 
         // Initialize hub store for the authenticated user
-        import("./hubStore").then(({ useHubStore }) => {
+        import("../hub").then(({ useHubStore }) => {
           useHubStore.getState().initializeHubs();
         });
       }
@@ -241,10 +238,12 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             get().clearUserSession();
 
             await get().fetchUserProfile(session.user.id);
-            set({ user: session.user });
+            set((state) => {
+              state.user = session.user;
+            });
 
             // Initialize hub store for the new user
-            import("./hubStore").then(({ useHubStore }) => {
+            import("../hub").then(({ useHubStore }) => {
               useHubStore.getState().initializeHubs();
             });
           } catch (error) {
@@ -256,10 +255,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         }
       });
 
-      set({ initialized: true });
+      set((state) => {
+        state.initialized = true;
+      });
     } catch (error) {
       console.error("Error initializing auth:", error);
-      set({ initialized: true });
+      set((state) => {
+        state.initialized = true;
+      });
     }
   },
 
@@ -276,11 +279,73 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         return;
       }
 
-      set({ profile: data });
+      set((state) => {
+        state.profile = data;
+      });
     } catch (error) {
       console.error("Error fetching user profile:", error);
     }
   },
 
-  clearError: () => set({ error: null }),
-}));
+  updateProfile: async (updates) => {
+    const currentProfile = get().profile;
+    if (!currentProfile) {
+      return { success: false, error: "No profile found" };
+    }
+
+    set((state) => {
+      state.loading = true;
+      state.error = null;
+    });
+
+    try {
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .update({
+          ...updates,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", currentProfile.id)
+        .select()
+        .single();
+
+      if (error) {
+        set((state) => {
+          state.loading = false;
+          state.error = error.message;
+        });
+        return { success: false, error: error.message };
+      }
+
+      // Update the profile in the store
+      set((state) => {
+        state.profile = data;
+        state.loading = false;
+        state.error = null;
+      });
+
+      return { success: true };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      set((state) => {
+        state.loading = false;
+        state.error = errorMessage;
+      });
+      return { success: false, error: errorMessage };
+    }
+  },
+
+  clearError: () => set((state) => {
+    state.error = null;
+  }),
+
+  // Utility
+  reset: () => set((state) => {
+    state.user = null;
+    state.profile = null;
+    state.loading = false;
+    state.error = null;
+    state.initialized = false;
+  }),
+});

@@ -1,7 +1,9 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import { motion } from "framer-motion";
-import { Search, Plus } from "lucide-react";
-import { TaskFilters } from "../../../store/tasks/types";
+import { Search, Plus, BarChart2 } from "lucide-react";
+import type { TaskFilters } from "../../../store/tasks/types";
 import { TaskPriority } from "../../../types/tasks";
 
 interface TaskFiltersProps {
@@ -11,6 +13,7 @@ interface TaskFiltersProps {
   onFilterChange: (filters: Partial<TaskFilters>) => void;
   onClearFilters: () => void;
   onCreateTask: () => void;
+  onShowStats: () => void;
 }
 
 const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
@@ -20,6 +23,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
   onFilterChange,
   onClearFilters,
   onCreateTask,
+  onShowStats,
 }) => {
   const hasActiveFilters =
     filters.completed !== undefined || filters.priority || filters.search;
@@ -31,13 +35,13 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
         <div className="relative flex-1 max-w-md">
           <Search
             size={18}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-charcoal-muted"
           />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg px-4 py-2 pl-10 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+            className="bg-white rounded-xl input-field pl-10"
             placeholder="Search tasks..."
           />
         </div>
@@ -52,7 +56,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
                   e.target.value === "" ? undefined : e.target.value === "true",
               })
             }
-            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+            className="bg-white rounded-xl input-field text-sm py-2"
           >
             <option value="">All Tasks</option>
             <option value="false">Pending</option>
@@ -78,7 +82,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
                 priority,
               });
             }}
-            className="border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400"
+            className="bg-white rounded-xl input-field text-sm py-2"
           >
             <option value="">All Priorities</option>
             <option value={TaskPriority.URGENT}>Urgent Priority</option>
@@ -92,7 +96,7 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={onClearFilters}
-              className="px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="btn-ghost text-sm"
             >
               Clear Filters
             </motion.button>
@@ -100,15 +104,26 @@ const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
         </div>
       </div>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={onCreateTask}
-        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-      >
-        <Plus size={16} />
-        New Task
-      </motion.button>
+      <div className="flex items-center gap-2">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onShowStats}
+          className="btn-secondary flex items-center gap-2"
+        >
+          <BarChart2 size={16} />
+          Stats
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={onCreateTask}
+          className="btn-primary flex items-center gap-2"
+        >
+          <Plus size={16} />
+          New Task
+        </motion.button>
+      </div>
     </div>
   );
 };

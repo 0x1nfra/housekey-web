@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import FamilySetupWizard from '../components/onboarding/FamilySetupWizard';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import HubSetupWizardProps from "../components/onboarding/HubSetupWizard";
 
 const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const OnboardingPage: React.FC = () => {
       setCurrentStep(step + 1);
     } else {
       // Onboarding complete, navigate to dashboard
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
@@ -22,10 +22,10 @@ const OnboardingPage: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-emerald-50"
+      className="min-h-screen bg-gradient-to-br from-sage-green-light via-warm-off-white to-sage-green"
     >
       <AnimatePresence mode="wait">
-        <FamilySetupWizard
+        <HubSetupWizardProps
           currentStep={currentStep}
           totalSteps={totalSteps}
           onStepComplete={handleStepComplete}

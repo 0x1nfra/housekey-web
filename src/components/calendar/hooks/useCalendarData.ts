@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useEventsStore, useEventsSelectors } from "../../../store/events";
-import { useHubStore } from "../../../store/hubStore";
+import { useHubStore } from "../../../store/hub";
 
 export const useCalendarData = () => {
   const { currentHub } = useHubStore();

@@ -10,7 +10,7 @@ import { initialState } from "./state";
 import { createNotificationsActions } from "./actions";
 import { createNotificationsSelectors } from "./selectors";
 import { createNotificationsSubscriptions } from "./subscriptions";
-import { useAuthStore } from "../authStore";
+import { useAuthStore } from "../auth";
 
 export const useNotificationsStore = create<NotificationsStore>()(
   immer((set: ImmerSet, get: ImmerGet) => ({

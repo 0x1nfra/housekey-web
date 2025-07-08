@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ShoppingCart } from "lucide-react";
+import { X } from "lucide-react";
 import { useShoppingStore } from "../../../store/shopping";
-import { useHubStore } from "../../../store/hubStore";
+import { useHubStore } from "../../../store/hub";
 
 interface CreateListModalProps {
   isOpen: boolean;
@@ -69,9 +69,6 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                  <ShoppingCart size={20} className="text-indigo-600" />
-                </div>
                 <h2 className="text-xl font-bold text-gray-900">
                   Create Shopping List
                 </h2>
@@ -87,7 +84,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700 mb-2 block">
-                  List Name *
+                  List Name
                 </label>
                 <input
                   type="text"
@@ -95,7 +92,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-warm-off-white focus:ring-2 focus:ring-sage-green focus:border-sage-green"
                   placeholder="Enter list name"
                   required
                   disabled={isSubmitting}
@@ -115,7 +112,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
                     }))
                   }
                   rows={3}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-warm-off-white focus:ring-2 focus:ring-sage-green focus:border-sage-green resize-none"
                   placeholder="Optional description..."
                   disabled={isSubmitting}
                 />
@@ -125,7 +122,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="btn-secondary flex-1 px-4 py-3"
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -137,7 +134,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
                   disabled={
                     isSubmitting || !formData.name.trim() || loading.lists
                   }
-                  className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary flex-1 px-4 py-3 transition-colors"
                 >
                   {isSubmitting ? "Creating..." : "Create List"}
                 </motion.button>

@@ -15,7 +15,7 @@ import {
   Check,
 } from "lucide-react";
 import { shallow } from "zustand/shallow";
-import { useHubStore } from "../../store/hubStore";
+import { useHubStore } from "../../store/hub";
 import {
   InviteMemberData,
   CreateHubData,
@@ -243,7 +243,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
               onClick={() => setCurrentTab(tab.id)}
               className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors relative ${
                 currentTab === tab.id
-                  ? "border-indigo-500 text-indigo-600 dark:text-indigo-400"
+                  ? "border-sage-green text-deep-charcoal dark:text-indigo-400"
                   : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
               }`}
             >
@@ -286,7 +286,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, name: e.target.value }))
                     }
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full bg-warm-off-white border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                     disabled={!permissions.canManageHub}
                   />
                 </div>
@@ -304,7 +304,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                       }))
                     }
                     rows={3}
-                    className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                    className="w-full bg-warm-off-white border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
                     placeholder="Describe your family hub..."
                     disabled={!permissions.canManageHub}
                   />
@@ -317,7 +317,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                       whileTap={{ scale: 0.98 }}
                       onClick={handleSaveChanges}
                       disabled={loading}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                      className="btn-primary px-4 py-2 font-medium transition-colors"
                     >
                       {loading ? "Saving..." : "Save Changes"}
                     </motion.button>
@@ -465,7 +465,7 @@ const HubSettings: React.FC<HubSettingsProps> = ({
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setShowInviteModal(true)}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                  className="btn-primary px-4 py-2 font-medium transition-colors flex items-center gap-2"
                 >
                   <Plus size={16} />
                   Invite Member

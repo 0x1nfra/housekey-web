@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import HeroSection from "../components/landing/HeroSection";
 import FeatureGrid from "../components/landing/FeatureGrid";
-import LandingHeader from "../components/LandingHeader";
+import LandingHeader from "../components/ui/LandingHeader";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();

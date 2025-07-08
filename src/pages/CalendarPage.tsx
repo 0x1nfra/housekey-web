@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+"use client";
+
+import type React from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import SharedCalendarView from "../components/calendar/SharedCalendarView";
 import EventCreationModal from "../components/calendar/EventCreationModal";
 import { useCalendarData } from "../components/calendar/hooks/useCalendarData";
 import { useEventsStore } from "../store/events";
-import { useHubStore } from "../store/hubStore";
-import { X } from "lucide-react";
+import { useHubStore } from "../store/hub";
+import { useAuthStore } from "../store/auth";
 import dayjs from "dayjs";
-import { useAuthStore } from "../store/authStore";
+import { Calendar, X } from "lucide-react";
 
 const CalendarPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,10 +51,10 @@ const CalendarPage: React.FC = () => {
         reminders: eventData.recurring
           ? [
               {
-                user_id: user.id, // Use current user for reminder
+                user_id: user.id,
                 reminder_time: dayjs(`${eventData.date}T${eventData.startTime}`)
                   .subtract(15, "minutes")
-                  .toISOString(), // 15 minutes before
+                  .toISOString(),
                 reminder_type: "in_app" as const,
               },
             ]
@@ -65,20 +68,26 @@ const CalendarPage: React.FC = () => {
   };
 
   return (
-    <div className="px-6 py-8">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-6xl mx-auto"
+        className="max-w-7xl mx-auto space-y-6 sm:space-y-8"
       >
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Family Calendar
-            </h1>
-            <p className="text-gray-600">
-              Keep everyone in sync with shared scheduling
-            </p>
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-sage-green-light rounded-xl flex items-center justify-center">
+              <Calendar size={20} className="sm:size-6 text-deep-charcoal" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-deep-charcoal font-interface mb-1 sm:mb-2">
+                Family Calendar
+              </h1>
+              <p className="text-sm sm:text-base text-charcoal-muted font-content">
+                Keep everyone in sync with shared scheduling and events
+              </p>
+            </div>
           </div>
         </div>
 
@@ -87,15 +96,17 @@ const CalendarPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+            className="p-4 sm:p-6 bg-red-50 border border-red-200 rounded-xl"
           >
             <div className="flex items-center justify-between">
-              <p className="text-red-700">{error}</p>
+              <p className="text-red-700 font-content text-sm sm:text-base">
+                {error}
+              </p>
               <button
                 onClick={clearError}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 transition-colors duration-300 p-1"
               >
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
           </motion.div>

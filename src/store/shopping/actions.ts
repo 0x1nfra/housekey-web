@@ -2,12 +2,10 @@ import { supabase } from "../../lib/supabase";
 import {
   ShoppingList,
   ShoppingListItem,
-  ListCollaborator,
   CreateListData,
   UpdateListData,
   CreateItemData,
   UpdateItemData,
-  CollaboratorRole,
   ListStats,
   HubShoppingStats,
   SetStateFunction,
@@ -153,7 +151,6 @@ export const createShoppingActions = (
         state.lists = state.lists.filter((l) => l.id !== listId);
         if (state.currentList?.id === listId) state.currentList = null;
         delete state.items[listId];
-        delete state.collaborators[listId];
         delete state.listStats[listId];
         state.loading.lists = false;
       });
@@ -325,7 +322,9 @@ export const createShoppingActions = (
         .from("shopping_list_items")
         .update({ is_completed: !currentItem.is_completed })
         .eq("id", itemId)
-        .select()
+        .select(
+          "id, list_id, name, is_completed, quantity, created_by, created_at, updated_at"
+        ) // Added quantity and created_by
         .single();
 
       if (error) throw error;
@@ -345,166 +344,6 @@ export const createShoppingActions = (
     }
   },
 
-  // Collaborator Management
-  fetchCollaborators: async (listId: string) => {
-    set((state) => {
-      state.loading.collaborators = true;
-      state.error = null;
-    });
-
-    try {
-      const { data: collaborators, error } = await supabase
-        .from("shopping_list_collaborators")
-        .select(
-          `
-          *,
-          user_profile:user_profiles!shopping_list_collaborators_user_id_fkey1(name, email)
-        `
-        )
-        .eq("list_id", listId);
-
-      if (error) throw error;
-
-      set((state) => {
-        state.collaborators[listId] = collaborators || [];
-        state.loading.collaborators = false;
-      });
-    } catch (error) {
-      console.error("Error fetching collaborators:", error);
-      set((state) => {
-        state.error =
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch collaborators";
-        state.loading.collaborators = false;
-      });
-    }
-  },
-
-  addCollaborator: async (
-    listId: string,
-    userId: string,
-    role: CollaboratorRole
-  ) => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("User not authenticated");
-
-      const { data: collaborator, error } = await supabase
-        .from("shopping_list_collaborators")
-        .insert({
-          list_id: listId,
-          user_id: userId,
-          role,
-          invited_by: user.id,
-        })
-        .select(
-          `
-          *,
-          user_profile:user_profiles(name, email)
-        `
-        )
-        .single();
-
-      if (error) throw error;
-
-      // Update state
-      set((state) => {
-        if (!state.collaborators[listId]) {
-          state.collaborators[listId] = [];
-        }
-        state.collaborators[listId].push(collaborator);
-      });
-    } catch (error) {
-      console.error("Error adding collaborator:", error);
-      set((state) => {
-        state.error =
-          error instanceof Error ? error.message : "Failed to add collaborator";
-      });
-    }
-  },
-
-  updateCollaboratorRole: async (
-    collaboratorId: string,
-    role: CollaboratorRole
-  ) => {
-    try {
-      const { data: collaborator, error } = await supabase
-        .from("shopping_list_collaborators")
-        .update({ role })
-        .eq("id", collaboratorId)
-        .select(
-          `
-          *,
-          user_profile:user_profiles(name, email)
-        `
-        )
-        .single();
-
-      if (error) throw error;
-
-      // Update state
-      set((state) => {
-        const listId = collaborator.list_id;
-        const listCollaborators = state.collaborators[listId] || [];
-        state.collaborators[listId] = listCollaborators.map((c) =>
-          c.id === collaboratorId ? collaborator : c
-        );
-      });
-    } catch (error) {
-      console.error("Error updating collaborator role:", error);
-      set((state) => {
-        state.error =
-          error instanceof Error
-            ? error.message
-            : "Failed to update collaborator role";
-      });
-    }
-  },
-
-  removeCollaborator: async (collaboratorId: string) => {
-    try {
-      // Get the collaborator first to know which list to update
-      const state = get();
-      let listId = "";
-      for (const [lid, collaborators] of Object.entries(state.collaborators)) {
-        if (
-          (collaborators as ListCollaborator[]).some(
-            (c) => c.id === collaboratorId
-          )
-        ) {
-          listId = lid;
-          break;
-        }
-      }
-
-      const { error } = await supabase
-        .from("shopping_list_collaborators")
-        .delete()
-        .eq("id", collaboratorId);
-
-      if (error) throw error;
-
-      // Update state
-      set((state) => {
-        const listCollaborators = state.collaborators[listId] || [];
-        state.collaborators[listId] = listCollaborators.filter(
-          (c) => c.id !== collaboratorId
-        );
-      });
-    } catch (error) {
-      console.error("Error removing collaborator:", error);
-      set((state) => {
-        state.error =
-          error instanceof Error
-            ? error.message
-            : "Failed to remove collaborator";
-      });
-    }
-  },
-
   // Statistics
   fetchListStats: async (listId: string) => {
     set((state) => {
@@ -513,23 +352,16 @@ export const createShoppingActions = (
     });
 
     try {
-      // Fetch items and collaborators for stats calculation
-      const [itemsResponse, collaboratorsResponse] = await Promise.all([
+      const [itemsResponse] = await Promise.all([
         supabase
           .from("shopping_list_items")
           .select("id, is_completed, updated_at")
           .eq("list_id", listId),
-        supabase
-          .from("shopping_list_collaborators")
-          .select("id")
-          .eq("list_id", listId),
       ]);
 
       if (itemsResponse.error) throw itemsResponse.error;
-      if (collaboratorsResponse.error) throw collaboratorsResponse.error;
 
       const items = itemsResponse.data || [];
-      const collaborators = collaboratorsResponse.data || [];
 
       const totalItems = items.length;
       const completedItems = items.filter((item) => item.is_completed).length;
@@ -549,7 +381,6 @@ export const createShoppingActions = (
         pendingItems,
         completionPercentage,
         lastUpdated: new Date(lastUpdated).toISOString(),
-        collaboratorCount: collaborators.length,
       };
 
       set((state) => {
@@ -586,7 +417,6 @@ export const createShoppingActions = (
           totalLists: 0,
           totalItems: 0,
           completedItems: 0,
-          activeCollaborators: 0,
         };
 
         set((state) => {
@@ -600,28 +430,20 @@ export const createShoppingActions = (
       const listIds = lists.map((list) => list.id);
 
       // Fetch items and collaborators for all lists
-      const [itemsResponse, collaboratorsResponse] = await Promise.all([
+      const [itemsResponse] = await Promise.all([
         supabase
           .from("shopping_list_items")
           .select("id, list_id, is_completed")
           .in("list_id", listIds),
-        supabase
-          .from("shopping_list_collaborators")
-          .select("user_id, list_id")
-          .in("list_id", listIds),
       ]);
 
       if (itemsResponse.error) throw itemsResponse.error;
-      if (collaboratorsResponse.error) throw collaboratorsResponse.error;
 
       const items = itemsResponse.data || [];
-      const collaborators = collaboratorsResponse.data || [];
 
       // Calculate stats
       const totalItems = items.length;
       const completedItems = items.filter((item) => item.is_completed).length;
-      const uniqueCollaborators = new Set(collaborators.map((c) => c.user_id))
-        .size;
 
       // Find most active list
       const listItemCounts = lists.map((list) => ({
@@ -637,7 +459,6 @@ export const createShoppingActions = (
         totalLists: lists.length,
         totalItems,
         completedItems,
-        activeCollaborators: uniqueCollaborators,
         mostActiveList:
           mostActiveList.itemCount > 0
             ? {
@@ -693,13 +514,11 @@ export const createShoppingActions = (
       state.lists = [];
       state.currentList = null;
       state.items = {};
-      state.collaborators = {};
       state.listStats = {};
       state.hubStats = {};
       state.loading = {
         lists: false,
         items: false,
-        collaborators: false,
         stats: false,
       };
       state.error = null;

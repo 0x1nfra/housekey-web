@@ -1,4 +1,4 @@
-import { EventsState, CalendarDataType, EventType } from './types';
+import { EventsState, CalendarDataType } from './types';
 
 export const initialState: EventsState = {
   // Events data

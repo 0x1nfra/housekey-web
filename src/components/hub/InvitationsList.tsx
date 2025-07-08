@@ -12,7 +12,7 @@ import {
   Calendar,
   AlertCircle,
 } from "lucide-react";
-import { useHubStore } from "../../store/hubStore";
+import { useHubStore } from "../../store/hub";
 import { formatDistanceToNow } from "date-fns";
 import { shallow } from "zustand/shallow";
 import dayjs from "dayjs";
@@ -180,8 +180,8 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center">
-                        <span className="text-indigo-600 dark:text-indigo-400 font-bold text-lg">
+                      <div className="text-deep-charcoal w-12 h-12 bg-sage-green rounded-lg flex items-center justify-center">
+                        <span className="font-bold text-lg">
                           {invitation.hub.name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -248,7 +248,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                         handleAccept(invitation.id, invitation.hub_id)
                       }
                       disabled={loadingInvitations}
-                      className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-primary flex items-center gap-2 px-4 py-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Check size={16} />
                       Accept
@@ -259,7 +259,7 @@ const InvitationsList: React.FC<InvitationsListProps> = ({ onHubSwitch }) => {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleDecline(invitation.id)}
                       disabled={loadingInvitations}
-                      className="flex items-center gap-2 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="btn-secondary flex items-center gap-2 border border-gray-300 px-4 py-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <X size={16} />
                       Decline

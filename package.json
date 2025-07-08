@@ -10,7 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@devcycle/react-client-sdk": "^1.42.0",
+    "@radix-ui/react-slot": "^1.2.3",
     "@supabase/supabase-js": "^2.39.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "date-fns": "^3.3.0",
     "dayjs": "^1.11.13",
     "framer-motion": "^11.0.0",
@@ -21,6 +25,8 @@
     "react-hook-form": "^7.50.0",
     "react-router-dom": "^6.22.0",
     "sonner": "^1.4.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
     "zustand": "^4.5.0"
   },
   "devDependencies": {

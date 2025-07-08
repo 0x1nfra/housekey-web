@@ -2,7 +2,6 @@ import { supabase } from "../../lib/supabase";
 import {
   ShoppingState,
   ShoppingListItem,
-  ListCollaborator,
   ShoppingList,
   SetStateFunction,
   GetStateFunction,
@@ -55,11 +54,6 @@ export const createShoppingSubscriptions = (
                     state.currentList?.id === listId ? null : state.currentList,
                   items: Object.fromEntries(
                     Object.entries(state.items).filter(([id]) => id !== listId)
-                  ),
-                  collaborators: Object.fromEntries(
-                    Object.entries(state.collaborators).filter(
-                      ([id]) => id !== listId
-                    )
                   ),
                   listStats: Object.fromEntries(
                     Object.entries(state.listStats).filter(
@@ -140,52 +134,14 @@ export const createShoppingSubscriptions = (
         )
         .subscribe();
 
-      // Subscribe to collaborator changes
-      const collaboratorsSubscription = supabase
-        .channel(`shopping_collaborators_${listId}`)
-        .on(
-          "postgres_changes",
-          {
-            event: "*",
-            schema: "public",
-            table: "shopping_list_collaborators",
-            filter: `list_id=eq.${listId}`,
-          },
-          (payload: RealtimePostgresChangesPayload<ListCollaborator>) => {
-            try {
-              // For collaborator changes, we need to refetch to get the joined user profile data
-              const actions = get();
-              if (
-                "fetchCollaborators" in actions &&
-                typeof actions.fetchCollaborators === "function"
-              ) {
-                actions.fetchCollaborators(listId);
-              }
-            } catch (error) {
-              console.error(
-                "Error handling collaborator subscription update:",
-                error
-              );
-              set((state: ShoppingState) => ({
-                ...state,
-                error:
-                  "Failed to process collaborator update. Please refresh the page.",
-              }));
-            }
-          }
-        )
-        .subscribe();
-
       // Store subscription references
       const subscriptionGroup: SubscriptionGroup = {
         list: listSubscription,
         items: itemsSubscription,
-        collaborators: collaboratorsSubscription,
         unsubscribe: () => {
           try {
             listSubscription.unsubscribe();
             itemsSubscription.unsubscribe();
-            collaboratorsSubscription.unsubscribe();
           } catch (error) {
             console.error(
               "Error unsubscribing from list subscriptions:",

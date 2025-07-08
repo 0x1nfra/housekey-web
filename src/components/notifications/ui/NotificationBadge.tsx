@@ -1,8 +1,11 @@
-import React, { useEffect } from "react";
+"use client";
+
+import type React from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell } from "lucide-react";
 import { useNotificationsStore } from "../../../store/notifications";
-import { useAuthStore } from "../../../store/authStore";
+import { useAuthStore } from "../../../store/auth";
 import { shallow } from "zustand/shallow";
 
 interface NotificationBadgeProps {
@@ -12,7 +15,7 @@ interface NotificationBadgeProps {
 
 const NotificationBadge: React.FC<NotificationBadgeProps> = ({
   className = "",
-  size = 20,
+  size = 24,
 }) => {
   const { user } = useAuthStore(
     (state) => ({
@@ -47,7 +50,8 @@ const NotificationBadge: React.FC<NotificationBadgeProps> = ({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center px-1"
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-5 h-5 flex items-center justify-center px-1 font-chivo font-medium"
           >
             {unreadCount > 99 ? "99+" : unreadCount}
           </motion.span>

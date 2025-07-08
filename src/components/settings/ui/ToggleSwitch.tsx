@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import type React from "react";
 import { motion } from "framer-motion";
 
 interface ToggleSwitchProps {
@@ -9,6 +11,7 @@ interface ToggleSwitchProps {
     checked?: React.ReactNode;
     unchecked?: React.ReactNode;
   };
+  size?: "sm" | "md" | "lg";
 }
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
@@ -16,38 +19,60 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   onChange,
   disabled = false,
   icons,
+  size = "md",
 }) => {
+  const sizeClasses = {
+    sm: {
+      container: "w-10 h-6",
+      thumb: "w-4 h-4",
+      translate: "translate-x-4",
+    },
+    md: {
+      container: "w-12 h-7",
+      thumb: "w-5 h-5",
+      translate: "translate-x-5",
+    },
+    lg: {
+      container: "w-14 h-8",
+      thumb: "w-6 h-6",
+      translate: "translate-x-6",
+    },
+  };
+
+  const currentSize = sizeClasses[size];
+
   return (
-    <motion.button
+    <button
       type="button"
-      role="switch"
-      aria-checked={checked}
       onClick={() => !disabled && onChange(!checked)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-        checked ? "bg-indigo-600" : "bg-gray-200 dark:bg-gray-700"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-      whileTap={{ scale: disabled ? 1 : 0.95 }}
+      disabled={disabled}
+      className={`
+        relative inline-flex items-center ${currentSize.container} rounded-full
+        transition-colors duration-300 ease-in-out focus:outline-none focus:ring-2 
+        focus:ring-sage-green focus:ring-offset-2 min-h-[44px] min-w-[44px]
+        ${checked ? "bg-sage-green" : "bg-gray-200"}
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+      `}
+      aria-checked={checked}
+      role="switch"
     >
-      <span className="sr-only">{checked ? "Enable" : "Disable"}</span>
-      <motion.span
-        layout
+      <motion.div
+        className={`
+          ${currentSize.thumb} bg-white rounded-full shadow-md flex items-center justify-center
+          transform transition-transform duration-300 ease-in-out
+        `}
+        animate={{
+          x: checked ? currentSize.translate.replace("translate-x-", "") : "0",
+        }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className={`${
-          checked ? "translate-x-6" : "translate-x-1"
-        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
       >
-        {checked && icons?.checked && (
-          <span className="absolute inset-0 flex items-center justify-center text-indigo-600">
-            {icons.checked}
-          </span>
+        {icons && (
+          <div className="text-charcoal-muted">
+            {checked ? icons.checked : icons.unchecked}
+          </div>
         )}
-        {!checked && icons?.unchecked && (
-          <span className="absolute inset-0 flex items-center justify-center text-gray-400">
-            {icons.unchecked}
-          </span>
-        )}
-      </motion.span>
-    </motion.button>
+      </motion.div>
+    </button>
   );
 };
 

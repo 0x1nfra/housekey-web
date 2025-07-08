@@ -31,36 +31,18 @@ export interface ShoppingListItem {
   updated_at: string;
 }
 
-export interface ListCollaborator {
-  id: string;
-  list_id: string;
-  user_id: string;
-  role: CollaboratorRole;
-  invited_by: string;
-  created_at: string;
-  // Joined user profile data
-  user_profile?: {
-    name: string;
-    email: string;
-  };
-}
-
-export type CollaboratorRole = "owner" | "editor" | "member";
-
 export interface ListStats {
   totalItems: number;
   completedItems: number;
   pendingItems: number;
   completionPercentage: number;
   lastUpdated: string;
-  collaboratorCount: number;
 }
 
 export interface HubShoppingStats {
   totalLists: number;
   totalItems: number;
   completedItems: number;
-  activeCollaborators: number;
   mostActiveList?: {
     id: string;
     name: string;
@@ -101,9 +83,6 @@ export interface ShoppingState {
   // Items (keyed by listId)
   items: Record<string, ShoppingListItem[]>;
 
-  // Collaborators (keyed by listId)
-  collaborators: Record<string, ListCollaborator[]>;
-
   // Stats (keyed by listId)
   listStats: Record<string, ListStats>;
   hubStats: Record<string, HubShoppingStats>;
@@ -112,7 +91,6 @@ export interface ShoppingState {
   loading: {
     lists: boolean;
     items: boolean;
-    collaborators: boolean;
     stats: boolean;
   };
   error: string | null;
@@ -138,19 +116,6 @@ export interface ShoppingActions {
   deleteItem: (itemId: string) => Promise<void>;
   toggleItemComplete: (itemId: string) => Promise<void>;
 
-  // Collaborator Management
-  fetchCollaborators: (listId: string) => Promise<void>;
-  addCollaborator: (
-    listId: string,
-    userId: string,
-    role: CollaboratorRole
-  ) => Promise<void>;
-  updateCollaboratorRole: (
-    collaboratorId: string,
-    role: CollaboratorRole
-  ) => Promise<void>;
-  removeCollaborator: (collaboratorId: string) => Promise<void>;
-
   // Statistics
   fetchListStats: (listId: string) => Promise<void>;
   fetchHubStats: (hubId: string) => Promise<void>;
@@ -170,7 +135,6 @@ export type ShoppingStore = ShoppingState & ShoppingActions;
 export interface SubscriptionGroup {
   list: RealtimeChannel;
   items: RealtimeChannel;
-  collaborators: RealtimeChannel;
   unsubscribe: () => void;
 }
 
